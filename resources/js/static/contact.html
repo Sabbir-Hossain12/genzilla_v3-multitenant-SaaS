@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Contact Us — MediMart</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary:  '#0e7673',
+          primary2: '#0b6461',
+          primarylt:'#e6f4f4',
+          accent:   '#f97316',
+          accentlt: '#fff7ed',
+        },
+        fontFamily: { sans: ['Inter','sans-serif'] },
+      }
+    }
+  }
+</script>
+<style>
+  .max-w-7xl
+  {
+    max-width: 1440px !important;
+  }
+  /* scrollbar hide for carousels */
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+
+  /* banner slide */
+  .banner-slide { display:none; }
+  .banner-slide.active { display:block; }
+
+  /* product card hover */
+  .prod-card { transition: box-shadow .2s, transform .2s; }
+  .prod-card:hover { box-shadow:0 8px 24px rgba(0,0,0,.1); transform:translateY(-2px); }
+
+  /* sticky nav shadow */
+  .nav-shadow { box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+
+  /* gradient shimmer on badge */
+  @keyframes shimmer {
+    0%  { background-position:-200% center; }
+    100%{ background-position:200% center; }
+  }
+  .shimmer-badge {
+    background: linear-gradient(90deg, #0e7673 0%, #14b8a6 40%, #0e7673 80%);
+    background-size: 200% auto;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  /* category pill active */
+  .cat-pill.active {
+    background:#0e7673; color:#fff;
+  }
+
+  /* flash sale pulse */
+  @keyframes pulse-dot {
+    0%,100%{ opacity:1; } 50%{ opacity:.4; }
+  }
+  .pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
+
+  /* login modal */
+  #login-modal { display:none; }
+  #login-modal.open { display:flex; }
+  @keyframes modal-pop {
+    0%   { opacity:0; transform:translateY(12px) scale(.97); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+  }
+  #login-modal.open .modal-card { animation: modal-pop .22s ease-out; }
+  .otp-box { width:2.75rem; height:3.25rem; }
+
+  /* cart drawer */
+  #cart-overlay {
+    position:fixed; inset:0; z-index:100;
+    background:rgba(0,0,0,0); pointer-events:none;
+    transition: background .3s ease;
+  }
+  #cart-overlay.open { background:rgba(0,0,0,.5); pointer-events:auto; }
+  #cart-drawer {
+    position:fixed; top:0; right:0; height:100%; z-index:101;
+    width:100%; max-width:26rem;
+    background:#fff;
+    transform:translateX(100%);
+    transition: transform .32s cubic-bezier(.4,0,.2,1);
+    display:flex; flex-direction:column;
+    box-shadow:-8px 0 30px rgba(0,0,0,.12);
+  }
+  #cart-overlay.open #cart-drawer { transform:translateX(0); }
+  .qty-btn { width:1.75rem; height:1.75rem; }
+
+  /* mobile nav drawer */
+  #mobilenav-overlay {
+    position:fixed; inset:0; z-index:100;
+    background:rgba(0,0,0,0); pointer-events:none;
+    transition: background .3s ease;
+  }
+  #mobilenav-overlay.open { background:rgba(0,0,0,.5); pointer-events:auto; }
+  #mobilenav-drawer {
+    position:fixed; top:0; left:0; height:100%; z-index:101;
+    width:88%; max-width:22rem;
+    background:#fff;
+    transform:translateX(-100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    display:flex; flex-direction:column;
+    box-shadow:8px 0 30px rgba(0,0,0,.12);
+  }
+  #mobilenav-overlay.open #mobilenav-drawer { transform:translateX(0); }
+  #mobilenav-drawer summary { list-style:none; }
+  #mobilenav-drawer summary::-webkit-details-marker { display:none; }
+  #mobilenav-drawer details[open] .accordion-chevron { transform:rotate(180deg); }
+  .accordion-chevron { transition: transform .2s ease; }
+
+  /* ── modal open/close + entrance animation ── */
+  #checkout-modal { display:none; }
+  #checkout-modal.open { display:flex; }
+  @keyframes modal-pop {
+    0%   { opacity:0; transform:translateY(12px) scale(.97); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+  }
+  #checkout-modal .modal-card { animation: modal-pop .22s ease-out; }
+
+  /* ── toggle switch (Monthly auto reorder) ── */
+  .toggle-track {
+    width:2.75rem; height:1.5rem; border-radius:9999px; background:#e5e7eb;
+    position:relative; transition: background .2s ease; flex-shrink:0;
+  }
+  .toggle-track.on { background:#0f766e; }
+  .toggle-thumb {
+    position:absolute; top:2px; left:2px; width:1.25rem; height:1.25rem; border-radius:9999px;
+    background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition: transform .2s ease;
+  }
+  .toggle-track.on .toggle-thumb { transform:translateX(1.25rem); }
+
+  /* ── coupon / product-items accordions ── */
+  #checkout-modal details summary { list-style:none; }
+  #checkout-modal details summary::-webkit-details-marker { display:none; }
+  #checkout-modal details[open] .co-chevron { transform:rotate(90deg); }
+  .co-chevron { transition: transform .2s ease; }
+
+  /* ── address label chips (Home / Office / Other) ── */
+  .addr-label-btn { border-color:#e5e7eb; color:#6b7280; background:#fff; }
+  .addr-label-btn.active { border-color:#0e7673; color:#0e7673; background:#e6f2f1; }
+
+  /* ── payment method radio ── */
+  .pay-radio-selected { border-color:#0e7673 !important; }
+</style>
+<style>
+  .sort-select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .75rem center; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+<!-- ════════════════════════════════════════
+     TOP BAR
+════════════════════════════════════════ -->
+<div class="bg-primary text-white text-sm py-2 hidden sm:block">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+    <p class="flex items-center gap-1.5">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Free delivery on orders over ৳500 | Same-day delivery in Dhaka
+    </p>
+    <div class="flex items-center gap-5">
+      <a href="#" class="hover:text-white/80 transition-colors">Become a Seller</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Track Order</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Help</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════ -->
+<nav class="sticky top-0 z-50 bg-white nav-shadow">
+  <div class="max-w-7xl mx-auto px-4">
+
+    <!-- Main nav row -->
+    <div class="flex items-center gap-2 sm:gap-3 lg:gap-6 h-16 lg:h-20">
+
+      <!-- Hamburger (mobile/tablet only) -->
+      <button onclick="openMobileNav()" class="lg:hidden shrink-0 w-9 h-9 flex items-center justify-center text-gray-700 -ml-1.5">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div class="w-9 h-9 lg:w-11 lg:h-11 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="lg:w-5 lg:h-5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="text-lg sm:text-xl lg:text-2xl font-extrabold text-primary whitespace-nowrap">Medi<span class="text-accent">Mart</span></span>
+      </a>
+
+      <!-- Search (desktop inline) -->
+      <div class="hidden lg:flex flex-1 max-w-2xl">
+        <div class="relative flex w-full">
+          <select class="shrink-0 border border-r-0 border-gray-200 rounded-l-xl px-4 py-3.5 text-base bg-gray-50 text-gray-600 focus:outline-none">
+            <option>All</option>
+            <option>Medicine</option>
+            <option>Beauty</option>
+            <option>Healthcare</option>
+          </select>
+          <input type="text" placeholder="Search medicines, brands & more..."
+                 class="flex-1 min-w-0 border border-gray-200 px-5 py-3.5 text-base focus:outline-none focus:border-primary transition-colors"/>
+          <button class="bg-primary hover:bg-primary2 text-white px-6 py-3.5 rounded-r-xl transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Spacer to push icons right on mobile -->
+      <div class="flex-1 lg:hidden"></div>
+
+      <!-- Right actions -->
+      <div class="flex items-center gap-0 xs:gap-0.5 sm:gap-1 lg:gap-4 shrink-0">
+
+        <!-- Upload Rx -->
+        <a href="#" class="hidden lg:flex items-center gap-2 border border-primary text-primary text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-primarylt transition-colors shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Upload Rx
+        </a>
+
+        <!-- Account (always visible — core action) -->
+        <button onclick="openLoginModal()" class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" class="sm:w-[22px] sm:h-[22px] lg:w-6 lg:h-6">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+            <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Account</span>
+        </button>
+
+        <!-- Orders (hidden on the smallest phones, shown from sm and up) -->
+        <button onclick="openLoginModal()" class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="lg:w-6 lg:h-6">
+            <path d="M20 7h-3V6a4 4 0 00-8 0v1H6a1 1 0 00-1 1v11a2 2 0 002 2h10a2 2 0 002-2V8a1 1 0 00-1-1zM11 6a1 1 0 012 0v1h-2V6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Orders</span>
+        </button>
+
+        <!-- Inbox (hidden on the smallest phones, shown from sm and up) -->
+        <button onclick="openLoginModal()" class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="lg:w-6 lg:h-6">
+            <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Inbox</span>
+        </button>
+
+        <!-- Cart (always visible — core action) -->
+        <button onclick="openCartDrawer()" class="relative flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" class="sm:w-[22px] sm:h-[22px] lg:w-6 lg:h-6">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Cart</span>
+          <span id="cart-badge" class="absolute top-0.5 right-1 sm:right-1.5 w-[1.125rem] h-[1.125rem] sm:w-5 sm:h-5 bg-accent text-white text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center">3</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Search (mobile/tablet, below main row) -->
+    <div class="lg:hidden pb-3">
+      <div class="relative flex w-full">
+        <input type="text" placeholder="Search medicines, brands & more..."
+               class="flex-1 min-w-0 border border-gray-200 rounded-l-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors"/>
+        <button class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Category nav -->
+    <div class="flex items-center border-t border-gray-100">
+      <div class="flex items-center gap-0 overflow-x-auto no-scrollbar">
+        <a href="#" class="flex items-center gap-2 px-5 py-3.5 text-[15px] font-semibold text-white bg-primary whitespace-nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          All Categories
+        </a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💊 Medicine</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">✨ Beauty</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🏥 Healthcare</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🧪 Lab Test</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">👶 Baby & Mom</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🌿 Herbal</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🐾 Pet Care</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💪 Supplement</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🍎 Food & Nutrition</a>
+      </div>
+
+      <!-- Right-side quick links (fills empty space on wide screens) -->
+      <div class="hidden lg:flex items-center gap-6 ml-auto pl-6 pr-1 shrink-0 border-l border-gray-100">
+        <a href="#" class="flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary whitespace-nowrap transition-colors">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Become a Seller
+        </a>
+        <a href="#" class="flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary whitespace-nowrap transition-colors">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 12H4M4 12l6-6M4 12l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Track Order
+        </a>
+        <a href="tel:+8809610016778" class="flex items-center gap-1.5 text-[14px] font-semibold text-primary whitespace-nowrap transition-colors">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          09610-016778
+        </a>
+      </div>
+    </div>
+
+
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════
+     BREADCRUMB + PAGE HEADER
+════════════════════════════════════════ -->
+<div class="max-w-6xl mx-auto px-4 pt-4">
+  <nav class="flex items-center gap-1.5 text-[13px] text-gray-400">
+    <a href="index.html" class="hover:text-primary transition-colors">Home</a>
+    <span>/</span>
+    <span class="text-gray-600 font-medium">Contact Us</span>
+  </nav>
+</div>
+
+<section class="max-w-6xl mx-auto px-4 pt-4 pb-3 text-center">
+  <h1 class="text-2xl sm:text-[32px] font-extrabold text-gray-900">We're here to help</h1>
+  <p class="text-[14.5px] sm:text-[15px] text-gray-500 mt-2 max-w-xl mx-auto">
+    Have a question about an order, a prescription, or anything else? Send us a message and our support team will get back to you within 24 hours.
+  </p>
+</section>
+
+<!-- ════════════════════════════════════════
+     MAIN: CONTACT INFO + FORM
+════════════════════════════════════════ -->
+<section class="max-w-6xl mx-auto px-4 pb-10">
+  <div class="grid lg:grid-cols-3 gap-5">
+
+    <!-- Contact info column -->
+    <div class="lg:col-span-1 space-y-4">
+
+      <div class="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-primarylt flex items-center justify-center shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-primary"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <p class="text-[14.5px] font-bold text-gray-900">Call Us</p>
+          <a href="tel:+88016778" class="text-[14px] text-primary font-semibold hover:underline block mt-0.5">16778</a>
+          <p class="text-[12.5px] text-gray-400 mt-0.5">Every day, 9:00 AM – 11:00 PM</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-accent"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <p class="text-[14.5px] font-bold text-gray-900">Email Us</p>
+          <a href="mailto:support@medimart.com" class="text-[14px] text-primary font-semibold hover:underline block mt-0.5">support@medimart.com</a>
+          <p class="text-[12.5px] text-gray-400 mt-0.5">We reply within 24 hours</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-blue-500"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-[14.5px] font-bold text-gray-900">Live Chat</p>
+          <p class="text-[12.5px] text-gray-400 mt-0.5 mb-2">Chat with our support team in real time</p>
+          <button onclick="showToastCU('💬 Live chat will open here')" class="text-[13px] font-semibold text-primary hover:underline">Start Chat</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-rose-500"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
+        <div>
+          <p class="text-[14.5px] font-bold text-gray-900">Head Office</p>
+          <p class="text-[13px] text-gray-500 mt-0.5 leading-snug">Level 6, Rupayan Trade Centre, Kawran Bazar, Dhaka 1215, Bangladesh</p>
+        </div>
+      </div>
+
+      <div class="bg-gray-900 rounded-2xl p-5">
+        <p class="text-[13.5px] font-bold text-white mb-3">Follow Us</p>
+        <div class="flex items-center gap-2">
+          <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.7 18.63.5 12 .5S0 5.7 0 12.07c0 5.75 4.39 10.52 10.13 11.43v-8.09H7.08v-3.34h3.05V9.41c0-3 1.8-4.67 4.55-4.67 1.32 0 2.7.24 2.7.24v2.94h-1.52c-1.5 0-1.97.92-1.97 1.87v2.24h3.35l-.54 3.34h-2.81v8.09C19.61 22.59 24 17.82 24 12.07z"/></svg>
+          </a>
+          <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          </a>
+          <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact form column -->
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-2xl border border-gray-100 p-5 sm:p-7">
+
+        <!-- Form -->
+        <div id="contact-form-wrap">
+          <h2 class="text-[18px] font-bold text-gray-900 mb-1">Send us a message</h2>
+          <p class="text-[13.5px] text-gray-400 mb-5">Fields marked <span class="text-red-400">*</span> are required.</p>
+
+          <form id="contact-form" novalidate>
+            <div class="grid sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Full Name <span class="text-red-400">*</span></label>
+                <input id="cf-name" type="text" placeholder="e.g. Sabbir Hossain" class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
+                <p class="cf-error hidden text-[12px] text-red-500 mt-1">Please enter your name.</p>
+              </div>
+              <div>
+                <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Email Address <span class="text-red-400">*</span></label>
+                <input id="cf-email" type="email" placeholder="you@example.com" class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
+                <p class="cf-error hidden text-[12px] text-red-500 mt-1">Please enter a valid email address.</p>
+              </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Order Number <span class="text-gray-300 font-normal">(optional)</span></label>
+                <input id="cf-order" type="text" placeholder="e.g. #MM-58213" class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
+              </div>
+              <div>
+                <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Subject</label>
+                <select id="cf-subject" class="sort-select w-full border border-gray-200 rounded-lg pl-3.5 pr-8 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors">
+                  <option>General Inquiry</option>
+                  <option>Order Issue</option>
+                  <option>Prescription Question</option>
+                  <option>Return / Refund</option>
+                  <option>Technical Support</option>
+                  <option>Partnership / Seller Inquiry</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-5">
+              <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Message <span class="text-red-400">*</span></label>
+              <textarea id="cf-message" rows="5" placeholder="Tell us how we can help..." class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] resize-none focus:outline-none focus:border-primary transition-colors"></textarea>
+              <p class="cf-error hidden text-[12px] text-red-500 mt-1">Please enter a message.</p>
+            </div>
+
+            <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-primary2 text-white font-bold text-[14.5px] px-8 py-3 rounded-xl transition-colors">
+              Send Message
+            </button>
+          </form>
+        </div>
+
+        <!-- Success state (hidden by default) -->
+        <div id="contact-success" class="hidden flex-col items-center text-center py-8">
+          <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" class="text-green-500"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3 class="text-[19px] font-bold text-gray-900">Message sent!</h3>
+          <p class="text-[14px] text-gray-500 mt-1.5 max-w-sm">Thanks for reaching out. Your ticket ID is <span id="cs-ticket-id" class="font-semibold text-gray-700">#TCK-00000</span> — our team will email you within 24 hours.</p>
+          <button onclick="resetContactForm()" class="mt-5 border border-primary text-primary font-semibold text-[14px] px-6 py-2.5 rounded-xl hover:bg-primarylt transition-colors">Send another message</button>
+        </div>
+      </div>
+
+      <!-- FAQ teaser -->
+      <div class="mt-5 bg-primarylt rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="text-primary"><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg>
+          </div>
+          <div>
+            <p class="text-[14.5px] font-bold text-gray-900">Looking for a quick answer?</p>
+            <p class="text-[13px] text-gray-500">Check our FAQ before writing in — you might find it faster.</p>
+          </div>
+        </div>
+        <a href="faq.html" class="bg-primary hover:bg-primary2 text-white text-[13.5px] font-semibold px-5 py-2.5 rounded-xl transition-colors shrink-0 whitespace-nowrap">Visit FAQ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="bg-white border-t border-gray-100 mt-4">
+  <div class="max-w-7xl mx-auto px-4 pt-10 pb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-10">
+
+      <!-- Brand -->
+      <div class="lg:col-span-2">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="text-2xl font-extrabold text-primary">Medi<span class="text-accent">Mart</span></span>
+        </div>
+        <p class="text-[15px] text-gray-500 leading-relaxed mb-4">Bangladesh's most trusted online pharmacy for medicine, beauty & healthcare products. Serving all 64 districts.</p>
+        <div class="flex gap-2">
+          <a href="#" class="w-10 h-10 bg-primarylt rounded-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-base">f</a>
+          <a href="#" class="w-10 h-10 bg-primarylt rounded-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-base">in</a>
+          <a href="#" class="w-10 h-10 bg-primarylt rounded-lg flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-base">yt</a>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Quick Links</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="#" class="hover:text-primary transition-colors">Careers</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Terms & Conditions</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Return & Refund</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Blog</a></li>
+        </ul>
+      </div>
+
+      <!-- Services -->
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Our Services</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="#" class="hover:text-primary transition-colors">Online Doctor Consultation</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Lab Test — Home Collection</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Medicine Home Delivery</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Healthcare Products</a></li>
+          <li><a href="#" class="hover:text-primary transition-colors">Register Your Pharmacy</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Contact</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li class="flex items-center gap-2">📞 <a href="tel:+8809610016778" class="hover:text-primary">09610-016778</a></li>
+          <li class="flex items-center gap-2">💬 <a href="#" class="hover:text-primary">WhatsApp: 01810117100</a></li>
+          <li class="flex items-start gap-2">📍 <span>D/15-1, Road-36, Mirpur, Dhaka-1216</span></li>
+        </ul>
+
+        <!-- Payment -->
+        <h4 class="text-[16px] font-bold text-gray-800 mt-5 mb-3">Payment Partners</h4>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">bKash</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Nagad</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Rocket</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">VISA</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Master</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">COD</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="border-t border-gray-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[13px] text-gray-400">
+      <p>© 2026 MediMart Ltd. All rights reserved. Trade License: TRAD/DNCC/2024</p>
+      <p>Powered by <span class="text-primary font-semibold">MediMart SaaS</span> — Multi-tenant e-commerce platform</p>
+    </div>
+  </div>
+</footer>
+
+<div id="login-modal" class="fixed inset-0 z-[100] items-center justify-center bg-black/50 backdrop-blur-[2px] px-4">
+  <div class="modal-card bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden relative">
+
+    <!-- Close -->
+    <button onclick="closeLoginModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="px-7 pt-8 pb-2 text-center">
+      <div class="w-14 h-14 rounded-2xl bg-primary mx-auto flex items-center justify-center mb-4">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-extrabold text-gray-900">Welcome to MediMart</h2>
+      <p class="text-[15px] text-gray-500 mt-1.5">Login or create an account to continue</p>
+    </div>
+
+    <!-- STEP 1: phone number -->
+    <div id="login-step-phone" class="px-7 pt-6 pb-8">
+      <label class="block text-[13px] font-semibold text-gray-700 mb-2">Mobile Number</label>
+      <div class="flex items-stretch border border-gray-200 rounded-xl overflow-hidden focus-within:border-primary transition-colors">
+        <span class="flex items-center px-4 bg-gray-50 text-gray-600 text-[15px] font-semibold border-r border-gray-200">🇧🇩 +88</span>
+        <input id="login-phone" type="tel" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX"
+               class="flex-1 px-4 py-3.5 text-[15px] focus:outline-none"/>
+      </div>
+      <p id="login-phone-error" class="hidden text-[13px] text-red-500 mt-2">Please enter a valid 11-digit mobile number.</p>
+
+      <button onclick="submitPhone()" class="w-full mt-5 bg-primary hover:bg-primary2 text-white font-bold text-[15px] py-3.5 rounded-xl transition-colors">
+        Continue
+      </button>
+
+      <p class="text-[12px] text-gray-400 text-center mt-4 leading-relaxed">
+        By continuing, you agree to MediMart's
+        <a href="#" class="text-primary hover:underline">Terms of Service</a> &amp;
+        <a href="#" class="text-primary hover:underline">Privacy Policy</a>
+      </p>
+
+      <div class="flex items-center gap-3 my-6">
+        <div class="flex-1 h-px bg-gray-100"></div>
+        <span class="text-[12px] text-gray-400 font-medium">OR CONTINUE WITH</span>
+        <div class="flex-1 h-px bg-gray-100"></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button class="flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-3 text-[14px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google
+        </button>
+        <button class="flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-3 text-[14px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.07C24 5.7 18.63.5 12 .5S0 5.7 0 12.07c0 5.75 4.39 10.52 10.13 11.43v-8.09H7.08v-3.34h3.05V9.41c0-3 1.8-4.67 4.55-4.67 1.32 0 2.7.24 2.7.24v2.94h-1.52c-1.5 0-1.97.92-1.97 1.87v2.24h3.35l-.54 3.34h-2.81v8.09C19.61 22.59 24 17.82 24 12.07z"/></svg>
+          Facebook
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: OTP -->
+    <div id="login-step-otp" class="hidden px-7 pt-6 pb-8">
+      <button onclick="backToPhone()" class="flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-primary mb-4 transition-colors">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Change number
+      </button>
+      <p class="text-[15px] text-gray-600 mb-1">Enter the 4-digit code sent to</p>
+      <p class="text-[15px] font-bold text-gray-900 mb-5" id="login-phone-display">+88 01XXXXXXXXX</p>
+
+      <div class="flex gap-2.5 justify-between">
+        <input maxlength="1" inputmode="numeric" class="otp-box text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:border-primary transition-colors" oninput="otpMove(this,0)"/>
+        <input maxlength="1" inputmode="numeric" class="otp-box text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:border-primary transition-colors" oninput="otpMove(this,1)"/>
+        <input maxlength="1" inputmode="numeric" class="otp-box text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:border-primary transition-colors" oninput="otpMove(this,2)"/>
+        <input maxlength="1" inputmode="numeric" class="otp-box text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:border-primary transition-colors" oninput="otpMove(this,3)"/>
+      </div>
+
+      <button onclick="submitOtp()" class="w-full mt-6 bg-primary hover:bg-primary2 text-white font-bold text-[15px] py-3.5 rounded-xl transition-colors">
+        Verify &amp; Continue
+      </button>
+
+      <p class="text-[13px] text-gray-500 text-center mt-4">
+        Didn't get the code?
+        <button onclick="resendOtp()" class="text-primary font-semibold hover:underline">Resend<span id="resend-timer"></span></button>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MINI CART DRAWER
+════════════════════════════════════════ -->
+<div id="cart-overlay" onclick="if(event.target===this) closeCartDrawer()">
+  <aside id="cart-drawer">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+      <h3 class="text-[17px] font-bold text-gray-900 flex items-center gap-2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Your Cart <span id="cart-count-label" class="text-gray-400 font-medium">(3)</span>
+      </h3>
+      <button onclick="closeCartDrawer()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Free delivery progress -->
+    <div id="cart-delivery-note" class="px-5 py-3 bg-primarylt border-b border-primary/10 shrink-0">
+      <p class="text-[13px] text-primary font-medium" id="cart-delivery-text">Add ৳150 more for FREE delivery 🚚</p>
+      <div class="w-full h-1.5 bg-white rounded-full mt-2 overflow-hidden">
+        <div id="cart-delivery-bar" class="h-full bg-primary rounded-full transition-all duration-300" style="width:65%"></div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div id="cart-items" class="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+
+      <div class="cart-item flex gap-3" data-price="799" data-qty="1">
+        <div class="w-20 h-20 shrink-0 rounded-xl overflow-hidden"><img src="https://loremflickr.com/300/300/hairserum,bottle?lock=101" alt="" class="w-full h-full object-cover"/></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] font-medium text-gray-800 leading-snug line-clamp-2">Kirkland Minoxidil 5% Hair Regrowth 60ml</p>
+          <p class="text-[13px] text-gray-400 mt-0.5">Unit price: ৳799</p>
+          <div class="flex items-center justify-between mt-2">
+            <div class="flex items-center gap-2.5 border border-gray-200 rounded-lg px-1.5 py-1">
+              <button onclick="changeQty(this,-1)" class="qty-btn flex items-center justify-center text-gray-500 hover:text-primary font-bold">−</button>
+              <span class="qty-val text-[14px] font-semibold w-4 text-center">1</span>
+              <button onclick="changeQty(this,1)" class="qty-btn flex items-center justify-center text-gray-500 hover:text-primary font-bold">+</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="item-total text-[15px] font-bold text-primary">৳799</span>
+              <button onclick="removeItem(this)" class="text-gray-300 hover:text-red-400 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6h16z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-item flex gap-3" data-price="1090" data-qty="1">
+        <div class="w-20 h-20 shrink-0 rounded-xl overflow-hidden"><img src="https://loremflickr.com/300/300/serum,skincare?lock=102" alt="" class="w-full h-full object-cover"/></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] font-medium text-gray-800 leading-snug line-clamp-2">The Ordinary Niacinamide 10%+Zinc 30ml</p>
+          <p class="text-[13px] text-gray-400 mt-0.5">Unit price: ৳1,090</p>
+          <div class="flex items-center justify-between mt-2">
+            <div class="flex items-center gap-2.5 border border-gray-200 rounded-lg px-1.5 py-1">
+              <button onclick="changeQty(this,-1)" class="qty-btn flex items-center justify-center text-gray-500 hover:text-primary font-bold">−</button>
+              <span class="qty-val text-[14px] font-semibold w-4 text-center">1</span>
+              <button onclick="changeQty(this,1)" class="qty-btn flex items-center justify-center text-gray-500 hover:text-primary font-bold">+</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="item-total text-[15px] font-bold text-primary">৳1,090</span>
+              <button onclick="removeItem(this)" class="text-gray-300 hover:text-red-400 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6h16z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-item flex gap-3" data-price="650" data-qty="1">
+        <div class="w-20 h-20 shrink-0 rounded-xl overflow-hidden"><img src="https://loremflickr.com/300/300/moisturizer,cream?lock=103" alt="" class="w-full h-full object-cover"/></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] font-medium text-gray-800 leading-snug line-clamp-2">Simple Kind to Skin Moisturiser 125ml</p>
+          <p class="text-[13px] text-gray-400 mt-0.5">Unit price: ৳650</p>
+          <div class="flex items-center justify-between mt-2">
+            <div class="flex items-center gap-2.5 border border-gray-200 rounded-lg px-1.5 py-1">
+              <button onclick="changeQty(this,-1)" class="qty-btn flex items-center justify-center text-gray-500 hover:text-primary font-bold">−</button>
+              <span class="qty-val text-[14px] font-semibold w-4 text-center">1</span>
+              <button onclick="changeQty(this,1)" class="qty-btn flex items-center justify-center text-gray-500 hover:text-primary font-bold">+</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="item-total text-[15px] font-bold text-primary">৳650</span>
+              <button onclick="removeItem(this)" class="text-gray-300 hover:text-red-400 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6h16z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Empty state (hidden by default) -->
+    <div id="cart-empty" class="hidden flex-1 flex-col items-center justify-center px-8 text-center">
+      <div class="text-6xl mb-4">🛒</div>
+      <p class="text-[16px] font-bold text-gray-700 mb-1">Your cart is empty</p>
+      <p class="text-[14px] text-gray-400 mb-5">Looks like you haven't added anything yet.</p>
+      <button onclick="closeCartDrawer()" class="bg-primary hover:bg-primary2 text-white font-semibold text-[14px] px-6 py-2.5 rounded-xl transition-colors">Start Shopping</button>
+    </div>
+
+    <!-- Footer -->
+    <div id="cart-footer" class="border-t border-gray-100 px-5 py-4 shrink-0 space-y-3">
+      <div class="flex items-center justify-between text-[14px] text-gray-500">
+        <span>Subtotal</span>
+        <span id="cart-subtotal" class="font-semibold text-gray-800">৳2,539</span>
+      </div>
+      <div class="flex items-center justify-between text-[14px] text-gray-500">
+        <span>Delivery</span>
+        <span class="font-semibold text-green-600">FREE</span>
+      </div>
+      <div class="flex items-center justify-between text-[16px] pt-2 border-t border-gray-100">
+        <span class="font-bold text-gray-900">Total</span>
+        <span id="cart-total" class="font-extrabold text-primary text-[19px]">৳2,539</span>
+      </div>
+      <button onclick="openCheckoutModal()" class="w-full bg-primary hover:bg-primary2 text-white font-bold text-[15px] py-3.5 rounded-xl transition-colors mt-1">
+        Proceed to Checkout
+      </button>
+      <button onclick="closeCartDrawer()" class="w-full text-center text-[13px] text-gray-500 hover:text-primary font-medium transition-colors">
+        Continue Shopping
+      </button>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ════════════════════════════════════════
+     MOBILE NAV DRAWER
+════════════════════════════════════════ -->
+<div id="mobilenav-overlay" onclick="if(event.target===this) closeMobileNav()">
+  <aside id="mobilenav-drawer">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+      <a href="#" class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="text-xl font-extrabold text-primary">Medi<span class="text-accent">Mart</span></span>
+      </a>
+      <button onclick="closeMobileNav()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Login prompt -->
+    <div class="px-5 py-4 border-b border-gray-100 shrink-0">
+      <button onclick="closeMobileNav(); openLoginModal();" class="w-full flex items-center justify-between bg-primarylt rounded-xl px-4 py-3.5 hover:bg-primary/15 transition-colors">
+        <span class="flex items-center gap-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-primary"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="text-[14px] font-semibold text-primary">Login / Sign Up</span>
+        </span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="text-primary"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="flex-1 overflow-y-auto">
+
+      <!-- Quick links -->
+      <div class="px-5 py-3 border-b border-gray-100 grid grid-cols-3 gap-2">
+        <a href="#" class="flex flex-col items-center gap-1.5 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+          <span class="text-2xl">📋</span>
+          <span class="text-[11.5px] font-medium text-gray-600 text-center leading-tight">Upload Rx</span>
+        </a>
+        <a href="#" class="flex flex-col items-center gap-1.5 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+          <span class="text-2xl">📦</span>
+          <span class="text-[11.5px] font-medium text-gray-600 text-center leading-tight">Track Order</span>
+        </a>
+        <a href="#" class="flex flex-col items-center gap-1.5 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+          <span class="text-2xl">🎧</span>
+          <span class="text-[11.5px] font-medium text-gray-600 text-center leading-tight">Help</span>
+        </a>
+      </div>
+
+      <!-- Categories accordion -->
+      <div class="px-2 py-2">
+        <p class="px-3 pt-2 pb-1 text-[12px] font-bold text-gray-400 uppercase tracking-wider">Shop by Category</p>
+
+        <details class="group border-b border-gray-50">
+          <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
+            <span class="text-lg">💊</span>
+            <span class="flex-1 text-[14.5px] font-medium text-gray-800">Medicine</span>
+            <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="pb-3 pl-11 pr-3 space-y-0.5">
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Prescription Medicine</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">OTC Medicine</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Diabetic Care</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Cardiac Care</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Dermatological</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Insulin</a>
+          </div>
+        </details>
+
+        <details class="group border-b border-gray-50">
+          <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
+            <span class="text-lg">✨</span>
+            <span class="flex-1 text-[14.5px] font-medium text-gray-800">Beauty</span>
+            <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="pb-3 pl-11 pr-3 space-y-0.5">
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Skincare</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Haircare</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Makeup</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Feminine Care</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Fragrance</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Men's Grooming</a>
+          </div>
+        </details>
+
+        <details class="group border-b border-gray-50">
+          <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
+            <span class="text-lg">🏥</span>
+            <span class="flex-1 text-[14.5px] font-medium text-gray-800">Healthcare</span>
+            <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="pb-3 pl-11 pr-3 space-y-0.5">
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Medical Devices</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Diagnostic Kits</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Mobility Aids</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Personal Protection</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Surgical Items</a>
+          </div>
+        </details>
+
+        <details class="group border-b border-gray-50">
+          <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
+            <span class="text-lg">🧪</span>
+            <span class="flex-1 text-[14.5px] font-medium text-gray-800">Lab Test</span>
+            <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="pb-3 pl-11 pr-3 space-y-0.5">
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Vital Organs</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Life Style Packages</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Checkup for Women</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Checkup for Men</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Full Body Checkup</a>
+          </div>
+        </details>
+
+        <details class="group border-b border-gray-50">
+          <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
+            <span class="text-lg">👶</span>
+            <span class="flex-1 text-[14.5px] font-medium text-gray-800">Baby & Mom</span>
+            <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="pb-3 pl-11 pr-3 space-y-0.5">
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Baby Food</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Diapers & Wipes</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Maternal Care</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Baby Skincare</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Feeding Essentials</a>
+          </div>
+        </details>
+
+        <details class="group border-b border-gray-50">
+          <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
+            <span class="text-lg">🌿</span>
+            <span class="flex-1 text-[14.5px] font-medium text-gray-800">Herbal</span>
+            <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="pb-3 pl-11 pr-3 space-y-0.5">
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Ayurvedic</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Unani</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Herbal Supplements</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Herbal Skincare</a>
+          </div>
+        </details>
+
+        <details class="group border-b border-gray-50">
+          <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
+            <span class="text-lg">🐾</span>
+            <span class="flex-1 text-[14.5px] font-medium text-gray-800">Pet Care</span>
+            <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="pb-3 pl-11 pr-3 space-y-0.5">
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Dog Care</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Cat Care</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Pet Food</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Pet Grooming</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Veterinary</a>
+          </div>
+        </details>
+
+        <details class="group border-b border-gray-50">
+          <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
+            <span class="text-lg">💪</span>
+            <span class="flex-1 text-[14.5px] font-medium text-gray-800">Supplement</span>
+            <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="pb-3 pl-11 pr-3 space-y-0.5">
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Multivitamins</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Protein & Fitness</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Weight Management</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Immunity Boosters</a>
+          </div>
+        </details>
+
+        <details class="group">
+          <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
+            <span class="text-lg">🏠</span>
+            <span class="flex-1 text-[14.5px] font-medium text-gray-800">Home Care</span>
+            <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="pb-3 pl-11 pr-3 space-y-0.5">
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Disinfectants</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Sanitizers</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Household Wellness</a>
+            <a href="#" class="block py-2 text-[14px] text-gray-600 hover:text-primary">Air Fresheners</a>
+          </div>
+        </details>
+      </div>
+
+      <!-- More links -->
+      <div class="px-2 py-2 border-t border-gray-100">
+        <p class="px-3 pt-2 pb-1 text-[12px] font-bold text-gray-400 uppercase tracking-wider">More</p>
+        <a href="#" class="flex items-center px-3 py-3 text-[14.5px] text-gray-700 hover:text-primary">Become a Seller</a>
+        <a href="#" class="flex items-center px-3 py-3 text-[14.5px] text-gray-700 hover:text-primary">Register Your Pharmacy</a>
+        <a href="#" class="flex items-center px-3 py-3 text-[14.5px] text-gray-700 hover:text-primary">Blog</a>
+        <a href="#" class="flex items-center px-3 py-3 text-[14.5px] text-gray-700 hover:text-primary">Help Center</a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-5 py-4 border-t border-gray-100 shrink-0">
+      <p class="text-[12.5px] text-gray-400 flex items-center gap-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        09610-016778
+      </p>
+    </div>
+
+  </aside>
+</div>
+
+<div id="cart-items" class="hidden">
+  <div class="cart-item" data-price="799" data-original="1490" data-qty="1" data-name="Kirkland Minoxidil 5% Hair Regrowth 60ml"></div>
+  <div class="cart-item" data-price="1090" data-original="1850" data-qty="1" data-name="The Ordinary Niacinamide 10%+Zinc 30ml"></div>
+  <div class="cart-item" data-price="650" data-original="1000" data-qty="1" data-name="Simple Kind to Skin Moisturiser 125ml"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     CHECKOUT MODAL
+════════════════════════════════════════ -->
+<div id="checkout-modal" class="fixed inset-0 z-[110] items-center justify-center bg-black/50 backdrop-blur-[2px] px-3 sm:px-4">
+  <div class="modal-card bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative flex flex-col" style="max-height:92vh;">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+      <h2 class="text-[19px] font-bold text-gray-900">Checkout</h2>
+      <button onclick="closeCheckoutModal()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Scrollable body -->
+    <div class="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+
+      <!-- Selected delivery address -->
+      <div class="border border-gray-100 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-[15px] font-bold text-gray-900">Selected delivery address</h3>
+        </div>
+
+        <!-- Filled (saved address) state -->
+        <div id="address-filled" class="hidden">
+          <div class="flex items-center justify-between mt-2">
+            <span id="address-label-pill" class="inline-block bg-primarylt text-primary text-[12px] font-semibold px-2.5 py-1 rounded-md">Home</span>
+            <button onclick="showAddressForm()" class="text-[13px] font-semibold text-primary hover:underline">Change</button>
+          </div>
+          <p id="address-name" class="text-[14.5px] font-bold text-gray-900 mt-2.5">Sabbir Hossain</p>
+          <p id="address-phone" class="text-[14px] text-gray-600 mt-0.5">+880 1926241906</p>
+          <p id="address-line" class="text-[14px] text-gray-500 mt-0.5 leading-snug">549 Ashkona, Apartment: Bhuiyan Manjil, near Baytul mahfuj jame moshjid, Dhaka 1230, Ashkona, Dakshin Khan, Dhaka City, Dhaka</p>
+          <textarea maxlength="120" placeholder="Write additional information" oninput="document.getElementById('addr-note-count').textContent = this.value.length"
+                    class="w-full mt-3 border border-gray-200 rounded-lg px-3 py-2.5 text-[13.5px] text-gray-700 resize-none focus:outline-none focus:border-primary transition-colors" rows="2"></textarea>
+          <p class="text-[12px] text-gray-400 text-right mt-1"><span id="addr-note-count">0</span>/120</p>
+        </div>
+
+        <!-- Empty (no saved address) state -->
+        <div id="address-empty" class="flex flex-col items-center text-center py-4">
+          <div class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-2.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-gray-400"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/></svg>
+          </div>
+          <p class="text-[14px] text-gray-500 mb-3">No saved address found</p>
+          <button onclick="showAddressForm()" class="flex items-center gap-1.5 bg-primary hover:bg-primary2 text-white text-[13.5px] font-semibold px-4 py-2 rounded-lg transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Add New Address
+          </button>
+        </div>
+
+        <!-- Add / edit address form (hidden by default) -->
+        <div id="address-form" class="hidden pt-1">
+          <div class="flex gap-2 mb-3">
+            <button type="button" onclick="selectAddrLabel(this,'Home')" class="addr-label-btn active flex-1 text-[13px] font-semibold py-1.5 rounded-lg border transition-colors">🏠 Home</button>
+            <button type="button" onclick="selectAddrLabel(this,'Office')" class="addr-label-btn flex-1 text-[13px] font-semibold py-1.5 rounded-lg border transition-colors">🏢 Office</button>
+            <button type="button" onclick="selectAddrLabel(this,'Other')" class="addr-label-btn flex-1 text-[13px] font-semibold py-1.5 rounded-lg border transition-colors">📍 Other</button>
+          </div>
+          <input id="addr-form-name" type="text" placeholder="Full name" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] mb-2.5 focus:outline-none focus:border-primary transition-colors"/>
+          <input id="addr-form-phone" type="tel" placeholder="Phone number" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] mb-2.5 focus:outline-none focus:border-primary transition-colors"/>
+          <textarea id="addr-form-address" placeholder="Full address (house, road, area, city)" rows="2" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] mb-1 resize-none focus:outline-none focus:border-primary transition-colors"></textarea>
+          <p id="address-form-error" class="hidden text-[12.5px] text-red-500 mb-2">Please fill in name, phone & address.</p>
+          <div class="flex gap-2 mt-2">
+            <button onclick="cancelAddressForm()" class="flex-1 border border-gray-200 text-gray-600 text-[13.5px] font-semibold py-2.5 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+            <button onclick="saveAddress()" class="flex-1 bg-primary hover:bg-primary2 text-white text-[13.5px] font-semibold py-2.5 rounded-lg transition-colors">Save Address</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Method -->
+      <div class="border border-gray-100 rounded-xl p-4">
+        <h3 class="text-[15px] font-bold text-gray-900 mb-3">Delivery Method</h3>
+        <label class="flex items-center justify-between cursor-pointer py-1.5">
+          <span class="flex items-center gap-2.5">
+            <span class="w-[18px] h-[18px] rounded-full border-2 border-primary flex items-center justify-center shrink-0">
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+            </span>
+            <span class="text-[14.5px] text-gray-800">
+              Regular Delivery
+              <span class="block text-[12.5px] text-gray-400">Estimated 12-48 Hours (In Dhaka City)</span>
+            </span>
+          </span>
+          <span class="text-[13.5px] font-semibold text-green-600 shrink-0">Free</span>
+        </label>
+        <label class="flex items-center justify-between py-1.5 opacity-50 cursor-not-allowed">
+          <span class="flex items-center gap-2.5">
+            <span class="w-[18px] h-[18px] rounded-full border-2 border-gray-300 shrink-0"></span>
+            <span class="text-[14.5px] text-gray-400">
+              Express Delivery
+              <span class="block text-[12.5px] text-primary/70">Not available for your location</span>
+            </span>
+          </span>
+        </label>
+      </div>
+
+      <!-- Coupon code -->
+      <details class="border border-gray-100 rounded-xl group">
+        <summary class="flex items-center justify-between p-4 cursor-pointer">
+          <div>
+            <h3 class="text-[15px] font-bold text-gray-900">Coupon code</h3>
+            <p class="text-[13px] text-gray-400 mt-0.5">Use coupon and save your money!</p>
+          </div>
+          <svg class="co-chevron text-gray-400 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="px-4 pb-4 flex gap-2">
+          <input type="text" placeholder="Enter coupon code" class="flex-1 min-w-0 border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
+          <button class="bg-gray-900 hover:bg-gray-800 text-white text-[13.5px] font-semibold px-4 rounded-lg transition-colors shrink-0">Apply</button>
+        </div>
+      </details>
+
+      <!-- Payment Method -->
+      <div class="border border-gray-100 rounded-xl p-4">
+        <h3 class="text-[15px] font-bold text-gray-900 mb-3">Payment Method</h3>
+
+        <label class="flex items-center justify-between py-2.5 border-b border-gray-50 cursor-pointer">
+          <span class="flex items-center gap-2.5">
+            <span class="pay-radio w-[18px] h-[18px] rounded-full border-2 border-primary flex items-center justify-center shrink-0">
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+            </span>
+            <span class="text-[14.5px] text-gray-800">Cash on Delivery</span>
+          </span>
+          <span class="flex items-center gap-1 text-lg">💵</span>
+          <input type="radio" name="paymethod" class="hidden" checked/>
+        </label>
+
+        <label class="flex items-center justify-between py-2.5 border-b border-gray-50 cursor-pointer">
+          <span class="flex items-center gap-2.5">
+            <span class="pay-radio w-[18px] h-[18px] rounded-full border-2 border-gray-300 shrink-0"></span>
+            <span class="text-[14.5px] text-gray-800">bKash</span>
+          </span>
+          <span class="bg-[#e2136e] text-white text-[11px] font-extrabold px-2 py-1 rounded">bKash</span>
+          <input type="radio" name="paymethod" class="hidden"/>
+        </label>
+
+        <label class="flex items-center justify-between py-2.5 cursor-pointer">
+          <span class="flex items-center gap-2.5">
+            <span class="pay-radio w-[18px] h-[18px] rounded-full border-2 border-gray-300 shrink-0"></span>
+            <span class="text-[14.5px] text-gray-800">Cards & Others</span>
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-1 rounded">VISA</span>
+            <span class="bg-orange-500 text-white text-[9px] font-extrabold px-1.5 py-1 rounded">MC</span>
+            <span class="bg-gray-700 text-white text-[9px] font-extrabold px-1.5 py-1 rounded">AMEX</span>
+          </span>
+          <input type="radio" name="paymethod" class="hidden"/>
+        </label>
+      </div>
+
+      <!-- Payment Summary -->
+      <div class="border border-gray-100 rounded-xl p-4">
+        <h3 class="text-[15px] font-bold text-gray-900 mb-1">Payment Summary</h3>
+        <p id="co-savings-line" class="text-[13px] text-gray-500 mb-3">You are saving ৳710 in this order.</p>
+        <div class="space-y-2 text-[14px]">
+          <div class="flex items-center justify-between text-gray-600">
+            <span>MRP</span>
+            <span id="co-mrp" class="font-medium text-gray-800">৳3,000</span>
+          </div>
+          <div class="flex items-center justify-between text-gray-600">
+            <span>Delivery charge (In Dhaka City)</span>
+            <span class="font-medium text-green-600">Free</span>
+          </div>
+          <div class="flex items-center justify-between text-gray-600">
+            <span>Discount applied</span>
+            <span id="co-discount" class="font-medium text-red-500">-৳710</span>
+          </div>
+          <div class="flex items-center justify-between text-gray-600">
+            <span>MediMart Cash Applied</span>
+            <span id="co-cash" class="font-medium text-gray-800">৳10</span>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+            <span class="font-bold text-gray-900">Payable</span>
+            <span id="co-payable" class="font-extrabold text-primary text-[16px]">৳2,280</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected product items -->
+      <details class="border border-gray-100 rounded-xl group">
+        <summary class="flex items-center justify-between p-4 cursor-pointer">
+          <h3 class="text-[15px] font-bold text-gray-900">Selected product Item(s)</h3>
+          <svg class="co-chevron text-gray-400 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <p id="co-item-count" class="px-4 -mt-2 pb-3 text-[13.5px] text-gray-400">Item Count: 3</p>
+        <div id="co-item-list" class="px-4 pb-4 space-y-3 border-t border-gray-50 pt-3"></div>
+      </details>
+
+      <!-- Monthly auto reorder -->
+      <div class="border border-gray-100 rounded-xl p-4 flex items-center justify-between gap-4">
+        <div>
+          <h3 class="text-[14.5px] font-bold text-gray-900">Monthly auto reorder</h3>
+          <p class="text-[13px] text-gray-400 mt-0.5">Save time with recurring orders. We'll confirm with you before each delivery.</p>
+        </div>
+        <button type="button" onclick="toggleAutoReorder(this)" class="toggle-track shrink-0">
+          <span class="toggle-thumb"></span>
+        </button>
+      </div>
+
+      <!-- Agreement -->
+      <div class="border border-gray-100 rounded-xl p-4">
+        <h3 class="text-[14.5px] font-bold text-gray-900 mb-2.5">Agreement</h3>
+        <label class="flex items-start gap-2.5 cursor-pointer">
+          <button type="button" id="agreement-check" onclick="toggleAgreement()" class="w-5 h-5 rounded-md bg-primary flex items-center justify-center shrink-0 mt-0.5 transition-colors">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="text-[13.5px] text-gray-500 leading-relaxed">
+            I agree to the <a href="#" class="text-primary hover:underline">Terms and Conditions</a>, <a href="#" class="text-primary hover:underline">Privacy Policy</a>, <a href="#" class="text-primary hover:underline">Return and Refund Policy.</a>
+          </span>
+        </label>
+      </div>
+
+    </div>
+
+    <!-- Sticky footer -->
+    <div class="border-t border-gray-100 px-5 py-4 shrink-0 flex items-center justify-between gap-4">
+      <div>
+        <p class="text-[15px] text-gray-800">Payable: <span id="co-payable-footer" class="font-bold">৳2,280</span></p>
+        <p class="text-[12.5px] text-gray-400">Saved: <span id="co-saved-footer">৳710</span></p>
+      </div>
+      <button id="place-order-btn" onclick="placeOrder()" class="bg-primary hover:bg-primary2 text-white font-bold text-[15px] px-7 py-3 rounded-xl transition-colors shrink-0">
+        Place Order
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+  // ── Banner slider ──────────────────────────────────────
+  let current = 0;
+  const slides = document.querySelectorAll('.banner-slide');
+  const dots   = document.querySelectorAll('.banner-dot');
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('w-5', 'bg-white');
+    dots[current].classList.add('w-1.5', 'bg-white/50');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('w-5', 'bg-white');
+    dots[current].classList.remove('w-1.5', 'bg-white/50');
+  }
+
+  document.getElementById('next-btn').addEventListener('click', () => goTo(current + 1));
+  document.getElementById('prev-btn').addEventListener('click', () => goTo(current - 1));
+  dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.index)));
+
+  let timer = setInterval(() => goTo(current + 1), 4500);
+  document.getElementById('hero-banner').addEventListener('mouseenter', () => clearInterval(timer));
+  document.getElementById('hero-banner').addEventListener('mouseleave', () => { timer = setInterval(() => goTo(current + 1), 4500); });
+
+  // ── Category pill tabs ────────────────────────────────
+  document.querySelectorAll('.cat-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-pill').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('text-gray-600');
+      });
+      btn.classList.add('active');
+      btn.classList.remove('text-gray-600');
+    });
+  });
+
+  // ── Flash sale countdown ──────────────────────────────
+  let h = 4, m = 37, s = 22;
+  const ticks = document.querySelectorAll('#flash-sale .countdown-tick');
+
+  function tick() {
+    s--;
+    if (s < 0) { s = 59; m--; }
+    if (m < 0) { m = 59; h--; }
+    if (h < 0) return;
+    const els = document.querySelectorAll('[data-countdown]');
+    if (els.length) {
+      els[0].textContent = String(h).padStart(2,'0');
+      els[1].textContent = String(m).padStart(2,'0');
+      els[2].textContent = String(s).padStart(2,'0');
+    }
+  }
+  setInterval(tick, 1000);
+
+  // ── Login modal ────────────────────────────────────────
+  const loginModal = document.getElementById('login-modal');
+
+  function openLoginModal() {
+    loginModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    showPhoneStep();
+  }
+
+  function closeLoginModal() {
+    loginModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  loginModal.addEventListener('click', (e) => {
+    if (e.target === loginModal) closeLoginModal();
+  });
+
+  function showPhoneStep() {
+    document.getElementById('login-step-phone').classList.remove('hidden');
+    document.getElementById('login-step-otp').classList.add('hidden');
+    document.getElementById('login-phone-error').classList.add('hidden');
+  }
+
+  function backToPhone() {
+    showPhoneStep();
+  }
+
+  function submitPhone() {
+    const input = document.getElementById('login-phone');
+    const val = input.value.trim();
+    const valid = /^01[0-9]{9}$/.test(val);
+    const err = document.getElementById('login-phone-error');
+    if (!valid) {
+      err.classList.remove('hidden');
+      input.classList.add('border-red-400');
+      return;
+    }
+    err.classList.add('hidden');
+    input.classList.remove('border-red-400');
+    document.getElementById('login-phone-display').textContent = '+88 ' + val;
+    document.getElementById('login-step-phone').classList.add('hidden');
+    document.getElementById('login-step-otp').classList.remove('hidden');
+    startResendTimer();
+    const firstOtp = document.querySelector('#login-step-otp input');
+    if (firstOtp) firstOtp.focus();
+  }
+
+  function otpMove(el, idx) {
+    el.value = el.value.replace(/[^0-9]/g, '');
+    const boxes = document.querySelectorAll('#login-step-otp .otp-box');
+    if (el.value && idx < boxes.length - 1) boxes[idx + 1].focus();
+  }
+
+  function submitOtp() {
+    const boxes = document.querySelectorAll('#login-step-otp .otp-box');
+    const code = Array.from(boxes).map(b => b.value).join('');
+    if (code.length < 4) {
+      boxes.forEach(b => { if (!b.value) b.classList.add('border-red-400'); });
+      return;
+    }
+    closeLoginModal();
+  }
+
+  let resendInterval;
+  function startResendTimer() {
+    let t = 30;
+    const timerEl = document.getElementById('resend-timer');
+    clearInterval(resendInterval);
+    timerEl.textContent = ' (' + t + 's)';
+    resendInterval = setInterval(() => {
+      t--;
+      timerEl.textContent = t > 0 ? ' (' + t + 's)' : '';
+      if (t <= 0) clearInterval(resendInterval);
+    }, 1000);
+  }
+
+  function resendOtp() {
+    startResendTimer();
+  }
+
+  // ── Cart drawer ─────────────────────────────────────────
+  const cartOverlay = document.getElementById('cart-overlay');
+  const FREE_DELIVERY_THRESHOLD = 500;
+
+  function openCartDrawer() {
+    cartOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeCartDrawer() {
+    cartOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function formatTaka(n) {
+    return '৳' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
+
+  function changeQty(btn, delta) {
+    const item = btn.closest('.cart-item');
+    let qty = parseInt(item.dataset.qty, 10) + delta;
+    if (qty < 1) qty = 1;
+    item.dataset.qty = qty;
+    item.querySelector('.qty-val').textContent = qty;
+    const price = parseFloat(item.dataset.price);
+    item.querySelector('.item-total').textContent = formatTaka(price * qty);
+    recalcCart();
+  }
+
+  function removeItem(btn) {
+    const item = btn.closest('.cart-item');
+    item.style.transition = 'opacity .2s ease, transform .2s ease';
+    item.style.opacity = '0';
+    item.style.transform = 'translateX(12px)';
+    setTimeout(() => {
+      item.remove();
+      recalcCart();
+    }, 180);
+  }
+
+  function recalcCart() {
+    const items = document.querySelectorAll('.cart-item');
+    let subtotal = 0;
+    let count = 0;
+    items.forEach(item => {
+      const price = parseFloat(item.dataset.price);
+      const qty = parseInt(item.dataset.qty, 10);
+      subtotal += price * qty;
+      count += qty;
+    });
+
+    document.getElementById('cart-subtotal').textContent = formatTaka(subtotal);
+    document.getElementById('cart-total').textContent = formatTaka(subtotal);
+    document.getElementById('cart-count-label').textContent = '(' + count + ')';
+
+    const badge = document.getElementById('cart-badge');
+    const badgeMobile = document.getElementById('cart-badge-mobile');
+    if (badge) badge.textContent = count;
+    if (badgeMobile) badgeMobile.textContent = count;
+
+    const remaining = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
+    const pct = Math.min(100, Math.round((subtotal / FREE_DELIVERY_THRESHOLD) * 100));
+    const deliveryText = document.getElementById('cart-delivery-text');
+    const deliveryBar = document.getElementById('cart-delivery-bar');
+    if (remaining > 0) {
+      deliveryText.textContent = 'Add ' + formatTaka(remaining) + ' more for FREE delivery 🚚';
+      deliveryBar.style.width = pct + '%';
+    } else {
+      deliveryText.textContent = "You've unlocked FREE delivery! 🎉";
+      deliveryBar.style.width = '100%';
+    }
+
+    const emptyState = document.getElementById('cart-empty');
+    const footer = document.getElementById('cart-footer');
+    const deliveryNote = document.getElementById('cart-delivery-note');
+    const itemsWrap = document.getElementById('cart-items');
+    if (items.length === 0) {
+      emptyState.classList.remove('hidden');
+      emptyState.classList.add('flex');
+      footer.classList.add('hidden');
+      deliveryNote.classList.add('hidden');
+      itemsWrap.classList.add('hidden');
+    } else {
+      emptyState.classList.add('hidden');
+      emptyState.classList.remove('flex');
+      footer.classList.remove('hidden');
+      deliveryNote.classList.remove('hidden');
+      itemsWrap.classList.remove('hidden');
+    }
+  }
+
+  recalcCart();
+
+  // ── Mobile nav drawer ───────────────────────────────────
+  const mobilenavOverlay = document.getElementById('mobilenav-overlay');
+
+  function openMobileNav() {
+    mobilenavOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMobileNav() {
+    mobilenavOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+</script>
+
+<!--Checkout-->
+
+<script>
+  // ── Checkout modal ──────────────────────────────────────
+  const checkoutModal = document.getElementById('checkout-modal');
+  let savedAddress = null; // { label, name, phone, address }
+  let pendingAddrLabel = 'Home';
+  let autoReorderOn = false;
+  let agreementChecked = true; // pre-checked to match the reference design
+
+  function formatTk(n) {
+    return '৳' + Math.round(n).toLocaleString('en-US');
+  }
+
+  function openCheckoutModal() {
+    refreshAddressView();
+    refreshPaymentSummary();
+    checkoutModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeCheckoutModal() {
+    checkoutModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  checkoutModal.addEventListener('click', (e) => {
+    if (e.target === checkoutModal) closeCheckoutModal();
+  });
+
+  // Address ------------------------------------------------
+  function refreshAddressView() {
+    const filled = document.getElementById('address-filled');
+    const empty = document.getElementById('address-empty');
+    const form = document.getElementById('address-form');
+    form.classList.add('hidden');
+
+    if (savedAddress) {
+      filled.classList.remove('hidden');
+      empty.classList.add('hidden');
+      document.getElementById('address-label-pill').textContent = savedAddress.label;
+      document.getElementById('address-name').textContent = savedAddress.name;
+      document.getElementById('address-phone').textContent = savedAddress.phone;
+      document.getElementById('address-line').textContent = savedAddress.address;
+    } else {
+      filled.classList.add('hidden');
+      empty.classList.remove('hidden');
+    }
+  }
+
+  function showAddressForm() {
+    document.getElementById('address-filled').classList.add('hidden');
+    document.getElementById('address-empty').classList.add('hidden');
+    document.getElementById('address-form').classList.remove('hidden');
+    document.getElementById('address-form-error').classList.add('hidden');
+
+    if (savedAddress) {
+      document.getElementById('addr-form-name').value = savedAddress.name;
+      document.getElementById('addr-form-phone').value = savedAddress.phone;
+      document.getElementById('addr-form-address').value = savedAddress.address;
+      pendingAddrLabel = savedAddress.label;
+    } else {
+      document.getElementById('addr-form-name').value = '';
+      document.getElementById('addr-form-phone').value = '';
+      document.getElementById('addr-form-address').value = '';
+      pendingAddrLabel = 'Home';
+    }
+    document.querySelectorAll('.addr-label-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.trim().includes(pendingAddrLabel));
+    });
+  }
+
+  function cancelAddressForm() {
+    document.getElementById('address-form').classList.add('hidden');
+    refreshAddressView();
+  }
+
+  function selectAddrLabel(btn, label) {
+    pendingAddrLabel = label;
+    document.querySelectorAll('.addr-label-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function saveAddress() {
+    const name = document.getElementById('addr-form-name').value.trim();
+    const phone = document.getElementById('addr-form-phone').value.trim();
+    const address = document.getElementById('addr-form-address').value.trim();
+    const err = document.getElementById('address-form-error');
+
+    if (!name || !phone || !address) {
+      err.classList.remove('hidden');
+      return;
+    }
+    err.classList.add('hidden');
+    savedAddress = { label: pendingAddrLabel, name, phone, address };
+    document.getElementById('address-form').classList.add('hidden');
+    refreshAddressView();
+  }
+
+  // Payment method ------------------------------------------
+  document.querySelectorAll('#checkout-modal input[name="paymethod"]').forEach(input => {
+    input.closest('label').addEventListener('click', function () {
+      document.querySelectorAll('#checkout-modal .pay-radio').forEach(r => {
+        r.classList.remove('border-primary', 'pay-radio-selected');
+        r.classList.add('border-gray-300');
+        r.innerHTML = '';
+      });
+      const radio = this.querySelector('.pay-radio');
+      radio.classList.remove('border-gray-300');
+      radio.classList.add('border-primary');
+      radio.innerHTML = '<span class="w-2 h-2 rounded-full bg-primary"></span>';
+    });
+  });
+
+  // Payment summary / item list (driven by live cart data) --
+  function refreshPaymentSummary() {
+    const items = document.querySelectorAll('#cart-items .cart-item');
+    let mrp = 0, subtotal = 0, count = 0;
+    const listEl = document.getElementById('co-item-list');
+    listEl.innerHTML = '';
+
+    items.forEach(item => {
+      const price = parseFloat(item.dataset.price);
+      const original = parseFloat(item.dataset.original || item.dataset.price);
+      const qty = parseInt(item.dataset.qty, 10);
+      const name = item.dataset.name || (item.querySelector('p') ? item.querySelector('p').textContent : 'Item');
+      mrp += original * qty;
+      subtotal += price * qty;
+      count += qty;
+
+      const row = document.createElement('div');
+      row.className = 'flex items-center justify-between gap-3';
+      row.innerHTML = `
+        <div class="min-w-0">
+          <p class="text-[13.5px] text-gray-700 leading-snug line-clamp-2">${name}</p>
+          <p class="text-[12px] text-gray-400 mt-0.5">Qty: ${qty}</p>
+        </div>
+        <span class="text-[13.5px] font-semibold text-gray-800 shrink-0">${formatTk(price * qty)}</span>`;
+      listEl.appendChild(row);
+    });
+
+    const discount = Math.max(0, mrp - subtotal);
+    const cashApplied = subtotal > 0 ? Math.min(10, subtotal) : 0;
+    const payable = Math.max(0, subtotal - cashApplied);
+
+    document.getElementById('co-savings-line').textContent = `You are saving ${formatTk(discount)} in this order.`;
+    document.getElementById('co-mrp').textContent = formatTk(mrp);
+    document.getElementById('co-discount').textContent = '-' + formatTk(discount);
+    document.getElementById('co-cash').textContent = formatTk(cashApplied);
+    document.getElementById('co-payable').textContent = formatTk(payable);
+    document.getElementById('co-item-count').textContent = 'Item Count: ' + count;
+    document.getElementById('co-payable-footer').textContent = formatTk(payable);
+    document.getElementById('co-saved-footer').textContent = formatTk(discount);
+  }
+
+  // Auto reorder toggle --------------------------------------
+  function toggleAutoReorder(btn) {
+    autoReorderOn = !autoReorderOn;
+    btn.classList.toggle('on', autoReorderOn);
+  }
+
+  // Agreement --------------------------------------------------
+  function toggleAgreement() {
+    agreementChecked = !agreementChecked;
+    const btn = document.getElementById('agreement-check');
+    if (agreementChecked) {
+      btn.classList.add('bg-primary');
+      btn.classList.remove('bg-white', 'border', 'border-gray-300');
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    } else {
+      btn.classList.remove('bg-primary');
+      btn.classList.add('bg-white', 'border', 'border-gray-300');
+      btn.innerHTML = '';
+    }
+  }
+
+  // Place order --------------------------------------------------
+  function placeOrder() {
+    if (!savedAddress) {
+      showAddressForm();
+      const box = document.getElementById('address-form');
+      box.classList.add('ring-2', 'ring-red-300');
+      setTimeout(() => box.classList.remove('ring-2', 'ring-red-300'), 1500);
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (!agreementChecked) {
+      const btn = document.getElementById('agreement-check');
+      btn.classList.add('ring-2', 'ring-red-400');
+      setTimeout(() => btn.classList.remove('ring-2', 'ring-red-400'), 1200);
+      return;
+    }
+    closeCheckoutModal();
+    showToast('🎉 Order placed successfully!');
+  }
+
+  function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.textContent = msg;
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;transition:opacity .25s ease;';
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity = '1'; });
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 2500);
+  }
+</script>
+
+<script>
+  // ── Contact form validation + mock submit ────────────────
+  document.getElementById('contact-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    let valid = true;
+    document.querySelectorAll('.cf-error').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('#contact-form input, #contact-form textarea').forEach(el => el.classList.remove('border-red-400'));
+
+    const name = document.getElementById('cf-name');
+    const email = document.getElementById('cf-email');
+    const message = document.getElementById('cf-message');
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!name.value.trim()) {
+      valid = false;
+      name.classList.add('border-red-400');
+      name.nextElementSibling.classList.remove('hidden');
+    }
+    if (!email.value.trim() || !emailPattern.test(email.value.trim())) {
+      valid = false;
+      email.classList.add('border-red-400');
+      email.nextElementSibling.classList.remove('hidden');
+    }
+    if (!message.value.trim()) {
+      valid = false;
+      message.classList.add('border-red-400');
+      message.nextElementSibling.classList.remove('hidden');
+    }
+    if (!valid) return;
+
+    const ticketId = '#TCK-' + Math.floor(10000 + Math.random() * 89999);
+    document.getElementById('cs-ticket-id').textContent = ticketId;
+    document.getElementById('contact-form-wrap').classList.add('hidden');
+    const success = document.getElementById('contact-success');
+    success.classList.remove('hidden');
+    success.classList.add('flex');
+  });
+
+  function resetContactForm() {
+    document.getElementById('contact-form').reset();
+    document.getElementById('contact-success').classList.add('hidden');
+    document.getElementById('contact-success').classList.remove('flex');
+    document.getElementById('contact-form-wrap').classList.remove('hidden');
+  }
+
+  function showToastCU(msg) {
+    const toast = document.createElement('div');
+    toast.textContent = msg;
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;transition:opacity .25s ease;';
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity = '1'; });
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2200);
+  }
+</script>
+</body>
+</html>

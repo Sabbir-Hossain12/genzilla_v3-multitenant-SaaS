@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light"/>
+<title>Refund & Return Policy | MediMart</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { primary:'#0e7673', primary2:'#0b6461', primarylt:'#e6f4f4', accent:'#f97316', accentlt:'#fff7ed' },
+    fontFamily: { sans: ['Inter','Noto Sans Bengali','sans-serif'] }
+  } } }
+</script>
+<style>
+  :root { color-scheme: light; box-sizing: border-box; padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); --nav-h:132px; --toc-h:0px; }
+  html { scroll-padding-top: env(safe-area-inset-top,0px); scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } * { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
+  body { background:#f9fafb; color:#1f2937; }
+  .max-w-7xl { max-width:1440px !important; }
+  :focus-visible { outline:2px solid #0e7673; outline-offset:2px; }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+  .nav-shadow { box-shadow:0 1px 6px rgba(0,0,0,.08); }
+
+  .doc-section { scroll-margin-top: calc(var(--nav-h) + var(--toc-h) + 16px); }
+  .doc-section + .doc-section { border-top:1px solid #f3f4f6; margin-top:2rem; padding-top:2rem; }
+  .doc p { margin-top:.75rem; }
+  .doc p:first-of-type { margin-top:0; }
+  .doc ul.bul { margin-top:.75rem; }
+  .doc ul.bul li { position:relative; padding-left:1.25rem; margin-top:.5rem; }
+  .doc ul.bul li::before { content:""; position:absolute; left:.15rem; top:.65em; width:.4rem; height:.4rem; border-radius:9999px; background:#0e7673; }
+
+  .toc-link { color:#4b5563; border-radius:.5rem; transition:background .15s,color .15s; }
+  .toc-link:hover { background:#e6f4f4; color:#0e7673; }
+  .toc-link.active { background:#e6f4f4; color:#0e7673; font-weight:600; }
+
+  @media print {
+    .no-print, nav#nav, footer, #topbar { display:none !important; }
+    body { background:#fff; }
+    .doc-card { border:0 !important; }
+  }
+</style>
+</head>
+<body class="font-sans">
+<!-- TOP BAR -->
+<div id="topbar" class="bg-primary text-white text-sm py-2 hidden sm:block">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+    <p class="flex items-center gap-1.5">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Free delivery on orders over ৳500 | Same-day delivery in Dhaka
+    </p>
+    <div class="flex items-center gap-5">
+      <a href="#" class="hover:text-white/80 transition-colors">Become a Seller</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Track Order</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Help</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="nav" class="sticky z-50 bg-white nav-shadow" style="top:env(safe-area-inset-top,0px)">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center gap-2 sm:gap-3 lg:gap-6 h-16 lg:h-20">
+
+      <a href="#" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="MediMart home">
+        <div class="w-9 h-9 lg:w-11 lg:h-11 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="text-lg sm:text-xl lg:text-2xl font-extrabold text-primary whitespace-nowrap">Medi<span class="text-accent">Mart</span></span>
+      </a>
+
+      <div class="hidden lg:flex flex-1 max-w-2xl">
+        <div class="relative flex w-full">
+          <select aria-label="Search category" class="shrink-0 border border-r-0 border-gray-200 rounded-l-xl px-4 py-3.5 text-base bg-gray-50 text-gray-600 focus:outline-none">
+            <option>All</option><option>Medicine</option><option>Beauty</option><option>Healthcare</option>
+          </select>
+          <input type="text" aria-label="Search" placeholder="Search medicines, brands & more..." class="flex-1 min-w-0 border border-gray-200 px-5 py-3.5 text-base focus:outline-none focus:border-primary transition-colors"/>
+          <button aria-label="Search" class="bg-primary hover:bg-primary2 text-white px-6 py-3.5 rounded-r-xl transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 lg:hidden"></div>
+
+      <div class="flex items-center gap-0 sm:gap-1 lg:gap-4 shrink-0">
+        <a href="#" class="hidden lg:flex items-center gap-2 border border-primary text-primary text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-primarylt transition-colors shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Upload Rx
+        </a>
+        <button class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Account">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Account</span>
+        </button>
+        <button class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Orders">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20 7h-3V6a4 4 0 00-8 0v1H6a1 1 0 00-1 1v11a2 2 0 002 2h10a2 2 0 002-2V8a1 1 0 00-1-1zM11 6a1 1 0 012 0v1h-2V6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Orders</span>
+        </button>
+        <button class="relative flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Cart">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Cart</span>
+          <span id="cart-badge" class="absolute top-0.5 right-1 sm:right-1.5 w-5 h-5 bg-accent text-white text-[11px] font-bold rounded-full flex items-center justify-center">3</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="lg:hidden pb-3">
+      <div class="relative flex w-full">
+        <input type="text" aria-label="Search" placeholder="Search medicines, brands & more..." class="flex-1 min-w-0 border border-gray-200 rounded-l-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors"/>
+        <button aria-label="Search" class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex items-center border-t border-gray-100">
+      <div class="flex items-center overflow-x-auto no-scrollbar">
+        <a href="#" class="flex items-center gap-2 px-5 py-3.5 text-[15px] font-semibold text-white bg-primary whitespace-nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          All Categories
+        </a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💊 Medicine</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">✨ Beauty</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🏥 Healthcare</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🧪 Lab Test</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">👶 Baby & Mom</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🌿 Herbal</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🐾 Pet Care</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💪 Supplement</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🍎 Food & Nutrition</a>
+      </div>
+      <div class="hidden lg:flex items-center gap-6 ml-auto pl-6 pr-1 shrink-0 border-l border-gray-100">
+        <a href="#" class="text-[14px] text-gray-500 hover:text-primary whitespace-nowrap transition-colors">Track Order</a>
+        <a href="tel:+8809610016778" class="flex items-center gap-1.5 text-[14px] font-semibold text-primary whitespace-nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          09610-016778
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 pt-4 pb-8">
+  <nav aria-label="Breadcrumb" class="text-[13px] text-gray-500 flex items-center gap-1.5 mb-4 no-print">
+    <a href="#" class="hover:text-primary">Home</a><span class="text-gray-300">/</span>
+    <span class="text-gray-800 font-medium">Refund & Return Policy</span>
+  </nav>
+
+  <header class="bg-white border border-gray-100 rounded-2xl p-5 sm:p-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+    <div class="max-w-2xl">
+      <h1 class="text-[28px] sm:text-[34px] font-bold text-gray-900 leading-tight">Refund & Return Policy</h1>
+      <p class="text-[16px] text-gray-600 mt-3 leading-relaxed">What you can return, how long you have, and how quickly your money comes back.</p>
+      <p class="text-[13.5px] text-gray-400 mt-4">Last updated 20 September 2026</p>
+    </div>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 no-print">
+      <div class="flex gap-1 p-1 bg-gray-50 border border-gray-100 rounded-xl overflow-x-auto no-scrollbar" role="navigation" aria-label="Legal pages"><a href="refund-return-policy.html" aria-current="page" class="px-4 py-2.5 rounded-lg bg-primary text-white text-[14px] font-semibold whitespace-nowrap">Refund & Return Policy</a><a href="privacy-policy.html" class="px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-primarylt text-[14px] font-medium whitespace-nowrap transition-colors">Privacy Policy</a></div>
+      <button id="print" class="flex items-center justify-center gap-2 border border-gray-200 text-gray-600 hover:border-primary hover:text-primary text-[14px] font-medium px-4 py-2.5 rounded-xl transition-colors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print
+      </button>
+    </div>
+  </header>
+
+  <section aria-label="Summary" class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3 mt-4"><div class="bg-white border border-gray-100 rounded-xl p-4 flex gap-3.5">
+        <span class="shrink-0 w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <div><p class="font-semibold text-gray-900 text-[15px]">7 days</p><p class="text-[13.5px] text-gray-500 mt-0.5 leading-snug">To return sealed, unused beauty and healthcare items.</p></div></div><div class="bg-white border border-gray-100 rounded-xl p-4 flex gap-3.5">
+        <span class="shrink-0 w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+        <div><p class="font-semibold text-gray-900 text-[15px]">24 hours</p><p class="text-[13.5px] text-gray-500 mt-0.5 leading-snug">To report a wrong, damaged or expired item, with a photo.</p></div></div><div class="bg-white border border-gray-100 rounded-xl p-4 flex gap-3.5">
+        <span class="shrink-0 w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+        <div><p class="font-semibold text-gray-900 text-[15px]">Free pickup</p><p class="text-[13.5px] text-gray-500 mt-0.5 leading-snug">When the mistake is ours, we collect the item from you.</p></div></div><div class="bg-white border border-gray-100 rounded-xl p-4 flex gap-3.5">
+        <span class="shrink-0 w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+        <div><p class="font-semibold text-gray-900 text-[15px]">3–5 days</p><p class="text-[13.5px] text-gray-500 mt-0.5 leading-snug">For bKash, Nagad and Rocket refunds after we approve the return.</p></div></div></section>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
+    <aside class="lg:col-span-3 no-print">
+      <nav id="toc" aria-label="On this page" class="sticky z-30 bg-white border border-gray-100 rounded-2xl p-2 lg:p-3 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible no-scrollbar" style="top:var(--nav-h)">
+        <p class="hidden lg:block px-3 pt-1 pb-2 text-[13px] font-semibold text-gray-400">On this page</p>
+        <a href="#overview" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">1. Overview</a><a href="#eligibility" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">2. What you can return</a><a href="#problem-items" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">3. Wrong, damaged or expired items</a><a href="#how-to-return" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">4. How to request a return</a><a href="#refunds" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">5. Refund methods and timelines</a><a href="#cancellations" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">6. Cancelling an order</a><a href="#charges" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">7. Pickup and delivery charges</a><a href="#contact" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">8. Contact us</a>
+      </nav>
+    </aside>
+
+    <article class="lg:col-span-9 bg-white border border-gray-100 rounded-2xl p-5 sm:p-8 doc doc-card">
+      <section id="overview" class="doc-section" data-toc="Overview">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">1.</span>Overview</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>We want you to feel sure about every order. This policy explains which items you can return, how long you have, and when your money comes back. It applies to all orders placed on MediMart, on the website, in the app and by phone.</p><p>Medicines are health products, so some items follow stricter rules than beauty or lifestyle products. These are marked clearly in the table below.</p></div></section><section id="eligibility" class="doc-section" data-toc="What you can return">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">2.</span>What you can return</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>Return windows start on the day your order is delivered.</p><div class="mt-4 border border-gray-100 rounded-xl overflow-x-auto"><table class="w-full min-w-[560px] text-[14.5px] text-gray-600"><thead class="bg-gray-50 text-[13px] text-gray-500"><tr><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">Product type</th><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">Status</th><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">Conditions</th></tr></thead><tbody><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Beauty and personal care</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-green-50 text-green-700 text-[12px] font-semibold px-2.5 py-1">Returnable</span></td><td class="px-4 py-3.5 align-top">Sealed, unused and in the original packaging. Return within 7 days.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Healthcare devices, such as BP monitors, glucometers and thermometers</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-green-50 text-green-700 text-[12px] font-semibold px-2.5 py-1">Returnable</span></td><td class="px-4 py-3.5 align-top">Unopened and complete with all accessories. Return within 7 days. Faults found after opening are covered by the manufacturer’s warranty.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Baby & Mom, Supplements, Food & Nutrition</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-green-50 text-green-700 text-[12px] font-semibold px-2.5 py-1">Returnable</span></td><td class="px-4 py-3.5 align-top">Safety seal intact and expiry date visible. Return within 7 days.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Medicines, with or without a prescription</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-amber-50 text-amber-700 text-[12px] font-semibold px-2.5 py-1">Conditional</span></td><td class="px-4 py-3.5 align-top">Only if the item is wrong, damaged or expired on delivery. Report within 24 hours.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Cold-chain items, such as insulin</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-amber-50 text-amber-700 text-[12px] font-semibold px-2.5 py-1">Conditional</span></td><td class="px-4 py-3.5 align-top">Only if wrong or damaged on arrival. We cannot verify how an item was stored after delivery.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Lab tests</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-amber-50 text-amber-700 text-[12px] font-semibold px-2.5 py-1">Conditional</span></td><td class="px-4 py-3.5 align-top">Cancel before sample collection for a full refund. Reports cannot be returned once issued.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Opened, used or seal-broken items</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-red-50 text-red-600 text-[12px] font-semibold px-2.5 py-1">Not returnable</span></td><td class="px-4 py-3.5 align-top">Applies to every category, unless the item was defective when it arrived.</td></tr></tbody></table></div></div></section><section id="problem-items" class="doc-section" data-toc="Wrong, damaged or expired items">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">3.</span>Wrong, damaged or expired items</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>If your order arrives with a problem, contact us within 24 hours of delivery. We treat these as our responsibility and arrange a replacement or refund at no cost to you.</p><ul class="bul"><li><b class="text-gray-900 font-semibold">Wrong item:</b> a different product, strength or quantity from what you ordered.</li><li><b class="text-gray-900 font-semibold">Damaged item:</b> a broken seal, leaking or crushed pack, or a device that is cracked or does not switch on.</li><li><b class="text-gray-900 font-semibold">Expired or short-dated item:</b> already expired, or expiring within 3 months of delivery, unless the product page states otherwise.</li></ul><div class="mt-4 rounded-xl p-4 flex gap-3 bg-accentlt border border-orange-100">
+      <span class="shrink-0 mt-0.5 text-accent"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg></span>
+      <div class="text-[14.5px] text-gray-700"><p class="font-semibold text-gray-900">Do not use or take the item</p><p class="!mt-1">If you think a medicine is wrong or damaged, keep it in its packaging and do not use it. We will ask for the pack, strip or bottle when we collect it.</p></div></div></div></section><section id="how-to-return" class="doc-section" data-toc="How to request a return">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">4.</span>How to request a return</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><ol class="mt-4 space-y-5"><li class="flex gap-4">
+          <span class="shrink-0 w-8 h-8 rounded-full bg-primarylt text-primary font-bold text-[14px] flex items-center justify-center">1</span>
+          <div class="pt-0.5"><p class="font-semibold text-gray-900">Start your request</p><p class="text-gray-600 mt-0.5">Go to Orders, choose the order and select Return item. You can also call 09610-016778 or message us on WhatsApp.</p></div></li><li class="flex gap-4">
+          <span class="shrink-0 w-8 h-8 rounded-full bg-primarylt text-primary font-bold text-[14px] flex items-center justify-center">2</span>
+          <div class="pt-0.5"><p class="font-semibold text-gray-900">Tell us what happened</p><p class="text-gray-600 mt-0.5">Choose a reason and upload clear photos. For wrong or damaged items, include the pack and the batch and expiry label.</p></div></li><li class="flex gap-4">
+          <span class="shrink-0 w-8 h-8 rounded-full bg-primarylt text-primary font-bold text-[14px] flex items-center justify-center">3</span>
+          <div class="pt-0.5"><p class="font-semibold text-gray-900">We review it</p><p class="text-gray-600 mt-0.5">We reply within 1 working day by SMS and in the app. If more detail is needed, our team will call you.</p></div></li><li class="flex gap-4">
+          <span class="shrink-0 w-8 h-8 rounded-full bg-primarylt text-primary font-bold text-[14px] flex items-center justify-center">4</span>
+          <div class="pt-0.5"><p class="font-semibold text-gray-900">Hand over the item</p><p class="text-gray-600 mt-0.5">Pack the item in its original packaging. Our rider collects it from your delivery address.</p></div></li><li class="flex gap-4">
+          <span class="shrink-0 w-8 h-8 rounded-full bg-primarylt text-primary font-bold text-[14px] flex items-center justify-center">5</span>
+          <div class="pt-0.5"><p class="font-semibold text-gray-900">Get your refund</p><p class="text-gray-600 mt-0.5">We inspect the item and, once approved, send your refund by the method in the next section.</p></div></li></ol></div></section><section id="refunds" class="doc-section" data-toc="Refund methods and timelines">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">5.</span>Refund methods and timelines</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>Refunds go back to the way you paid. The timeline starts when we approve your return after inspection, not when you send the request.</p><div class="mt-4 border border-gray-100 rounded-xl overflow-x-auto"><table class="w-full min-w-[560px] text-[14.5px] text-gray-600"><thead class="bg-gray-50 text-[13px] text-gray-500"><tr><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">You paid with</th><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">Refunded to</th><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">Time</th></tr></thead><tbody><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">bKash, Nagad or Rocket</td><td class="px-4 py-3.5 align-top">The same wallet</td><td class="px-4 py-3.5 align-top">3–5 working days</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Debit or credit card</td><td class="px-4 py-3.5 align-top">The same card</td><td class="px-4 py-3.5 align-top">7–10 working days, depending on your bank</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Cash on delivery</td><td class="px-4 py-3.5 align-top">MediMart Cash, or a bKash or Nagad number you give us</td><td class="px-4 py-3.5 align-top">Instant to MediMart Cash. 3–5 working days to a wallet</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">MediMart Cash</td><td class="px-4 py-3.5 align-top">MediMart Cash</td><td class="px-4 py-3.5 align-top">Instant</td></tr></tbody></table></div><p>If a coupon or MediMart Cash was used on the order, we refund the amount you actually paid for the returned items.</p></div></section><section id="cancellations" class="doc-section" data-toc="Cancelling an order">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">6.</span>Cancelling an order</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><ul class="bul"><li><b class="text-gray-900 font-semibold">Before dispatch:</b> cancel from Orders or by phone for a full refund.</li><li><b class="text-gray-900 font-semibold">After dispatch:</b> you can refuse the parcel at the door, or return it under this policy once it arrives.</li><li><b class="text-gray-900 font-semibold">Prescription orders:</b> you can cancel until our pharmacist confirms the prescription.</li></ul></div></section><section id="charges" class="doc-section" data-toc="Pickup and delivery charges">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">7.</span>Pickup and delivery charges</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><ul class="bul"><li>When the mistake is ours, pickup is free and we refund the delivery charge as well.</li><li>For change-of-mind returns of eligible items, the delivery charge is not refunded. If a return pickup fee applies, we show it before you confirm.</li><li>Outside Dhaka, returns are collected through a courier and may take longer to reach us.</li></ul></div></section><section id="contact" class="doc-section" data-toc="Contact us">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">8.</span>Contact us</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>Talk to us about a return or refund and we will point you to the right next step.</p><div class="grid sm:grid-cols-2 gap-3 mt-4 not-prose">
+      <a href="tel:+8809610016778" class="flex items-center gap-3 border border-gray-100 rounded-xl p-4 hover:border-primary transition-colors"><span class="w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center shrink-0"><svg class="" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span><span><span class="block text-[13px] text-gray-400">Call us</span><span class="font-semibold text-gray-900">09610-016778</span></span></a>
+      <a href="#" class="flex items-center gap-3 border border-gray-100 rounded-xl p-4 hover:border-primary transition-colors"><span class="w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center shrink-0"><svg class="" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span><span><span class="block text-[13px] text-gray-400">WhatsApp</span><span class="font-semibold text-gray-900">01810117100</span></span></a>
+      <a href="mailto:support@medimart.com.bd" class="flex items-center gap-3 border border-gray-100 rounded-xl p-4 hover:border-primary transition-colors"><span class="w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center shrink-0"><svg class="" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg></span><span><span class="block text-[13px] text-gray-400">Email</span><span class="font-semibold text-gray-900 break-all">support@medimart.com.bd</span></span></a>
+      <div class="flex items-center gap-3 border border-gray-100 rounded-xl p-4"><span class="w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center shrink-0"><svg class="" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span><span><span class="block text-[13px] text-gray-400">Office</span><span class="font-semibold text-gray-900">D/15-1, Road-36, Mirpur, Dhaka-1216</span></span></div>
+    </div></div></section>
+    </article>
+  </div>
+
+  <aside class="mt-4 bg-primarylt rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
+    <div>
+      <p class="text-[17px] font-bold text-primary2">Still have a question?</p>
+      <p class="text-[14.5px] text-gray-600 mt-1">Our team and pharmacists are available on call and WhatsApp.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-2.5">
+      <a href="tel:+8809610016778" class="bg-primary hover:bg-primary2 text-white font-semibold text-[14.5px] px-5 py-3 rounded-xl text-center transition-colors">Call 09610-016778</a>
+      <a href="privacy-policy.html" class="bg-white border border-primary text-primary hover:bg-white/60 font-semibold text-[14.5px] px-5 py-3 rounded-xl text-center transition-colors">Read our Privacy Policy</a>
+    </div>
+  </aside>
+</main>
+<!-- FOOTER -->
+<footer class="bg-white border-t border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 pt-10 pb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-10">
+      <div class="lg:col-span-2">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="text-2xl font-extrabold text-primary">Medi<span class="text-accent">Mart</span></span>
+        </div>
+        <p class="text-[15px] text-gray-500 leading-relaxed">Bangladesh's most trusted online pharmacy for medicine, beauty & healthcare products. Serving all 64 districts.</p>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Quick Links</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="privacy-policy.html" class="hover:text-primary">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-primary">Terms & Conditions</a></li>
+          <li><a href="refund-return-policy.html" class="hover:text-primary">Return & Refund</a></li>
+          <li><a href="#" class="hover:text-primary">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Our Services</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="#" class="hover:text-primary">Online Doctor Consultation</a></li>
+          <li><a href="#" class="hover:text-primary">Lab Test, Home Collection</a></li>
+          <li><a href="#" class="hover:text-primary">Medicine Home Delivery</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Payment Partners</h4>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">bKash</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Nagad</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Rocket</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">VISA</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Master</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">COD</span>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-100 pt-6 text-[13px] text-gray-400 text-center sm:text-left">
+      <p>© 2026 MediMart Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const nav = $('#nav'), toc = $('#toc');
+  const desktop = matchMedia('(min-width:1024px)');
+  function offsets() {
+    document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    document.documentElement.style.setProperty('--toc-h', desktop.matches ? '0px' : toc.offsetHeight + 'px');
+  }
+  offsets(); addEventListener('resize', offsets); addEventListener('load', offsets);
+
+  const links = $$('[data-spy]');
+  const secs = links.map(l => $(l.getAttribute('href')));
+  let last = -1;
+  function spy() {
+    const line = nav.offsetHeight + (desktop.matches ? 0 : toc.offsetHeight) + 60;
+    let idx = 0;
+    secs.forEach((s, i) => { if (s.getBoundingClientRect().top <= line) idx = i; });
+    if (idx === last) return;
+    last = idx;
+    links.forEach((l, i) => { l.classList.toggle('active', i === idx); if (i === idx) l.setAttribute('aria-current', 'true'); else l.removeAttribute('aria-current'); });
+    if (!desktop.matches) { const a = links[idx]; toc.scrollTo({ left: a.offsetLeft - 16, behavior: 'smooth' }); }
+  }
+  let tick = false;
+  addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(() => { spy(); tick = false; }); } }, { passive: true });
+  spy();
+  $('#print').addEventListener('click', () => window.print());
+})();
+</script>
+</body>
+</html>

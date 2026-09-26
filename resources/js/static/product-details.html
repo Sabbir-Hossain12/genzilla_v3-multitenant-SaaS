@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light"/>
+<title>Skin1004 Centella Sun Serum SPF50+ | MediMart</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary:  '#0e7673',
+          primary2: '#0b6461',
+          primarylt:'#e6f4f4',
+          accent:   '#f97316',
+          accentlt: '#fff7ed',
+        },
+        fontFamily: { sans: ['Inter','Noto Sans Bengali','sans-serif'] },
+      }
+    }
+  }
+</script>
+<style>
+  :root {
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --nav-h: 132px;
+    --tab-h: 52px;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  body { background:#f9fafb; color:#1f2937; }
+  .max-w-7xl { max-width: 1440px !important; }
+  :focus-visible { outline: 2px solid #0e7673; outline-offset: 2px; }
+
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+
+  .nav-shadow { box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+  .prod-card { transition: box-shadow .2s, transform .2s; }
+  .prod-card:hover { box-shadow:0 8px 24px rgba(0,0,0,.1); transform:translateY(-2px); }
+
+  /* variant chips (same treatment as address chips in the source) */
+  .chip { border:1px solid #e5e7eb; color:#4b5563; background:#fff; transition:border-color .15s, background .15s, color .15s; }
+  .chip:hover { border-color:#0e7673; }
+  .chip[aria-checked="true"] { border-color:#0e7673; color:#0e7673; background:#e6f2f1; }
+
+  /* gallery thumbs */
+  .thumb { border:2px solid #f3f4f6; background:#fff; transition:border-color .15s; }
+  .thumb[aria-selected="true"] { border-color:#0e7673; }
+
+  /* toggle switch (same as source) */
+  .toggle-track { width:2.75rem; height:1.5rem; border-radius:9999px; background:#e5e7eb; position:relative; transition: background .2s ease; flex-shrink:0; }
+  .toggle-track.on { background:#0f766e; }
+  .toggle-thumb { position:absolute; top:2px; left:2px; width:1.25rem; height:1.25rem; border-radius:9999px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition: transform .2s ease; }
+  .toggle-track.on .toggle-thumb { transform:translateX(1.25rem); }
+
+  /* tabs */
+  .tab-link { border-bottom:2px solid transparent; color:#6b7280; transition:color .15s, border-color .15s; }
+  .tab-link:hover { color:#0e7673; }
+  .tab-link.active { color:#0e7673; border-color:#0e7673; font-weight:600; }
+  .anchor-section { scroll-margin-top: calc(var(--nav-h) + var(--tab-h) + 12px); }
+
+  /* accordions */
+  details.qa summary { list-style:none; cursor:pointer; }
+  details.qa summary::-webkit-details-marker { display:none; }
+  details.qa[open] .qa-chevron { transform:rotate(180deg); }
+  .qa-chevron { transition: transform .2s ease; }
+
+  /* mobile buy bar */
+  #buybar { transform: translateY(110%); transition: transform .25s ease; padding-bottom: calc(.75rem + env(safe-area-inset-bottom, 0px)); }
+  #buybar.show { transform: translateY(0); }
+  @media (max-width: 1023px) { body { padding-bottom: 5.5rem; } }
+</style>
+</head>
+<body class="font-sans">
+
+<!-- TOP BAR -->
+<div class="bg-primary text-white text-sm py-2 hidden sm:block">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+    <p class="flex items-center gap-1.5">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Free delivery on orders over ৳500 | Same-day delivery in Dhaka
+    </p>
+    <div class="flex items-center gap-5">
+      <a href="#" class="hover:text-white/80 transition-colors">Become a Seller</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Track Order</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Help</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="nav" class="sticky z-50 bg-white nav-shadow" style="top:env(safe-area-inset-top,0px)">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center gap-2 sm:gap-3 lg:gap-6 h-16 lg:h-20">
+
+      <a href="#" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="MediMart home">
+        <div class="w-9 h-9 lg:w-11 lg:h-11 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="text-lg sm:text-xl lg:text-2xl font-extrabold text-primary whitespace-nowrap">Medi<span class="text-accent">Mart</span></span>
+      </a>
+
+      <div class="hidden lg:flex flex-1 max-w-2xl">
+        <div class="relative flex w-full">
+          <select aria-label="Search category" class="shrink-0 border border-r-0 border-gray-200 rounded-l-xl px-4 py-3.5 text-base bg-gray-50 text-gray-600 focus:outline-none">
+            <option>All</option><option>Medicine</option><option>Beauty</option><option>Healthcare</option>
+          </select>
+          <input type="text" aria-label="Search" placeholder="Search medicines, brands & more..." class="flex-1 min-w-0 border border-gray-200 px-5 py-3.5 text-base focus:outline-none focus:border-primary transition-colors"/>
+          <button aria-label="Search" class="bg-primary hover:bg-primary2 text-white px-6 py-3.5 rounded-r-xl transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 lg:hidden"></div>
+
+      <div class="flex items-center gap-0 sm:gap-1 lg:gap-4 shrink-0">
+        <a href="#" class="hidden lg:flex items-center gap-2 border border-primary text-primary text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-primarylt transition-colors shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Upload Rx
+        </a>
+        <button class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Account">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Account</span>
+        </button>
+        <button class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Orders">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20 7h-3V6a4 4 0 00-8 0v1H6a1 1 0 00-1 1v11a2 2 0 002 2h10a2 2 0 002-2V8a1 1 0 00-1-1zM11 6a1 1 0 012 0v1h-2V6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Orders</span>
+        </button>
+        <button class="relative flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Cart">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Cart</span>
+          <span id="cart-badge" class="absolute top-0.5 right-1 sm:right-1.5 w-5 h-5 bg-accent text-white text-[11px] font-bold rounded-full flex items-center justify-center">3</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="lg:hidden pb-3">
+      <div class="relative flex w-full">
+        <input type="text" aria-label="Search" placeholder="Search medicines, brands & more..." class="flex-1 min-w-0 border border-gray-200 rounded-l-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors"/>
+        <button aria-label="Search" class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex items-center border-t border-gray-100">
+      <div class="flex items-center overflow-x-auto no-scrollbar">
+        <a href="#" class="flex items-center gap-2 px-5 py-3.5 text-[15px] font-semibold text-white bg-primary whitespace-nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          All Categories
+        </a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💊 Medicine</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-primary bg-primarylt font-medium whitespace-nowrap">✨ Beauty</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🏥 Healthcare</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🧪 Lab Test</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">👶 Baby & Mom</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🌿 Herbal</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🐾 Pet Care</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💪 Supplement</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🍎 Food & Nutrition</a>
+      </div>
+      <div class="hidden lg:flex items-center gap-6 ml-auto pl-6 pr-1 shrink-0 border-l border-gray-100">
+        <a href="#" class="text-[14px] text-gray-500 hover:text-primary whitespace-nowrap transition-colors">Track Order</a>
+        <a href="tel:+8809610016778" class="flex items-center gap-1.5 text-[14px] font-semibold text-primary whitespace-nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          09610-016778
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 pt-4 pb-6">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="Breadcrumb" class="text-[13px] text-gray-500 flex items-center gap-1.5 flex-wrap mb-4">
+    <a href="#" class="hover:text-primary">Home</a>
+    <span class="text-gray-300">/</span>
+    <a href="#" class="hover:text-primary">Beauty</a>
+    <span class="text-gray-300">/</span>
+    <a href="#" class="hover:text-primary">Sun Care</a>
+    <span class="text-gray-300">/</span>
+    <span class="text-gray-800 font-medium">Skin1004 Centella Sun Serum SPF50+</span>
+  </nav>
+
+  <!-- ═══ PRODUCT HERO ═══ -->
+  <section class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+    <!-- Gallery -->
+    <div class="lg:col-span-5">
+      <div class="bg-white border border-gray-100 rounded-2xl p-4">
+        <div class="relative">
+          <div id="stage" class="aspect-square w-full rounded-xl overflow-hidden bg-white"></div>
+          <span id="off-badge" class="absolute top-3 left-3 bg-green-500 text-white text-[13px] font-bold px-2.5 py-1 rounded"></span>
+          <div class="absolute top-3 right-3 flex flex-col gap-2">
+            <button id="wish" aria-pressed="false" aria-label="Add to wishlist" class="w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors shadow-sm">
+              <svg id="wish-icon" width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button id="share" aria-label="Copy product link" class="w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-500 hover:text-primary flex items-center justify-center transition-colors shadow-sm">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="2"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="thumbs" role="tablist" aria-label="Product images" class="grid grid-cols-4 gap-2.5 mt-3"></div>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="lg:col-span-4">
+      <div class="bg-white border border-gray-100 rounded-2xl p-5 sm:p-6">
+        <a href="#" class="text-[14px] font-semibold text-primary hover:underline">Skin1004</a>
+        <h1 id="title" class="text-[22px] sm:text-[26px] font-bold text-gray-900 leading-snug mt-1"></h1>
+
+        <div class="flex items-center flex-wrap gap-y-1 mt-3 text-[14px]">
+          <a href="#reviews" class="flex items-center gap-1.5 pr-3">
+            <span class="text-yellow-500 tracking-tight">★★★★★</span>
+            <span class="font-semibold text-gray-800">4.8</span>
+            <span class="text-gray-400">(27 ratings)</span>
+          </a>
+          <span class="pl-3 border-l border-gray-200 text-gray-500">140+ sold</span>
+        </div>
+
+        <div class="mt-5 pt-5 border-t border-gray-100">
+          <div class="flex items-end flex-wrap gap-x-3 gap-y-1">
+            <span id="price" class="text-[32px] leading-none font-bold text-primary"></span>
+            <span id="mrp" class="text-[16px] text-gray-400 line-through pb-0.5"></span>
+            <span id="save" class="text-[13px] font-semibold text-accent bg-accentlt px-2.5 py-1 rounded-md"></span>
+          </div>
+          <p class="text-[12.5px] text-gray-400 mt-2">Inclusive of VAT. Delivery charge is calculated at checkout.</p>
+        </div>
+
+        <!-- Variants -->
+        <div class="mt-5">
+          <p class="text-[14px] font-semibold text-gray-800 mb-2.5">Pack size</p>
+          <div id="variants" role="radiogroup" aria-label="Pack size" class="flex flex-wrap gap-2.5"></div>
+        </div>
+
+        <!-- Highlights -->
+        <div class="mt-6 bg-primarylt rounded-xl p-4">
+          <p class="text-[14px] font-semibold text-primary2 mb-3">Why people pick this</p>
+          <ul class="space-y-2.5 text-[14.5px] text-gray-700">
+            <li class="flex gap-2.5"><svg class="shrink-0 mt-0.5 text-primary" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>SPF50+ PA++++ protection against UVA and UVB rays</li>
+            <li class="flex gap-2.5"><svg class="shrink-0 mt-0.5 text-primary" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Contains Centella Asiatica extract to keep skin calm under the sun</li>
+            <li class="flex gap-2.5"><svg class="shrink-0 mt-0.5 text-primary" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Light serum texture that sits well under makeup</li>
+            <li class="flex gap-2.5"><svg class="shrink-0 mt-0.5 text-primary" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Made for daily use on face and neck</li>
+          </ul>
+        </div>
+
+        <!-- Quick facts -->
+        <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 text-[14px]">
+          <div><dt class="text-gray-400">Brand</dt><dd class="font-medium text-gray-800">Skin1004</dd></div>
+          <div><dt class="text-gray-400">Origin</dt><dd class="font-medium text-gray-800">South Korea</dd></div>
+          <div><dt class="text-gray-400">Skin type</dt><dd class="font-medium text-gray-800">All skin types</dd></div>
+          <div><dt class="text-gray-400">Product code</dt><dd class="font-medium text-gray-800">MM-BT-10482</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Buy box -->
+    <aside class="lg:col-span-3">
+      <div id="buybox" class="bg-white border border-gray-100 rounded-2xl p-5 lg:sticky" style="top:calc(var(--nav-h) + 16px)">
+        <div class="flex items-center gap-2 text-[14px] font-semibold text-green-600">
+          <span class="w-2 h-2 rounded-full bg-green-500"></span> In stock
+        </div>
+
+        <div class="mt-3 flex items-baseline justify-between">
+          <span class="text-[14px] text-gray-500">Total</span>
+          <span id="total" class="text-[26px] font-bold text-gray-900"></span>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+          <span class="text-[14px] font-semibold text-gray-800">Quantity</span>
+          <div class="flex items-center border border-gray-200 rounded-xl">
+            <button id="qty-minus" aria-label="Decrease quantity" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-primary text-xl rounded-l-xl">−</button>
+            <span id="qty" aria-live="polite" class="w-10 text-center font-semibold">1</span>
+            <button id="qty-plus" aria-label="Increase quantity" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-primary text-xl rounded-r-xl">+</button>
+          </div>
+        </div>
+
+        <div id="buy-actions" class="mt-5 space-y-2.5">
+          <button id="add-cart" class="w-full bg-primary hover:bg-primary2 text-white font-semibold text-[15px] py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Add to cart
+          </button>
+          <button id="buy-now" class="w-full bg-accent hover:bg-orange-600 text-white font-semibold text-[15px] py-3.5 rounded-xl transition-colors">Buy now</button>
+        </div>
+
+        <div class="mt-5 flex items-start justify-between gap-3 border border-gray-100 rounded-xl p-3.5">
+          <div>
+            <p class="text-[14px] font-semibold text-gray-800">Monthly auto reorder</p>
+            <p class="text-[12.5px] text-gray-500 mt-0.5">Delivered every month. Skip or cancel anytime.</p>
+          </div>
+          <button id="auto" role="switch" aria-checked="false" aria-label="Monthly auto reorder" class="toggle-track mt-0.5"><span class="toggle-thumb"></span></button>
+        </div>
+
+        <ul class="mt-5 pt-5 border-t border-gray-100 space-y-3.5 text-[13.5px] text-gray-600">
+          <li class="flex gap-3">
+            <svg class="shrink-0 text-primary mt-0.5" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+            <span><b class="text-gray-800 font-semibold">Same-day delivery in Dhaka</b><br>Order before 6 PM. Free above ৳500.</span>
+          </li>
+          <li class="flex gap-3">
+            <svg class="shrink-0 text-primary mt-0.5" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><b class="text-gray-800 font-semibold">7-day easy return</b><br>For sealed, unused products.</span>
+          </li>
+          <li class="flex gap-3">
+            <svg class="shrink-0 text-primary mt-0.5" width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20" stroke="currentColor" stroke-width="2"/></svg>
+            <span><b class="text-gray-800 font-semibold">bKash, Nagad, cards or COD</b><br>Pay the way you prefer.</span>
+          </li>
+          <li class="flex gap-3">
+            <svg class="shrink-0 text-primary mt-0.5" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 3v6c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><b class="text-gray-800 font-semibold">Authentic products</b><br>Sold by MediMart Pharmacy.</span>
+          </li>
+        </ul>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ═══ DETAILS + REVIEWS ═══ -->
+  <div class="mt-4">
+    <div id="tabbar" class="sticky z-40 bg-white border border-gray-100 rounded-2xl" style="top:var(--nav-h)">
+      <div class="flex overflow-x-auto no-scrollbar px-2 sm:px-4 text-[15px]">
+        <a href="#details" data-tab class="tab-link active px-4 py-3.5 whitespace-nowrap">Description</a>
+        <a href="#howto" data-tab class="tab-link px-4 py-3.5 whitespace-nowrap">How to use</a>
+        <a href="#ingredients" data-tab class="tab-link px-4 py-3.5 whitespace-nowrap">Ingredients</a>
+        <a href="#reviews" data-tab class="tab-link px-4 py-3.5 whitespace-nowrap">Reviews (27)</a>
+        <a href="#questions" data-tab class="tab-link px-4 py-3.5 whitespace-nowrap">Questions (3)</a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
+      <div class="lg:col-span-8 space-y-4">
+
+        <!-- Description -->
+        <section id="details" class="anchor-section bg-white border border-gray-100 rounded-2xl p-5 sm:p-6">
+          <h2 class="text-[19px] font-bold text-gray-900 mb-3">Description</h2>
+          <div class="text-[15px] text-gray-600 leading-relaxed space-y-3 max-w-[70ch]">
+            <p>Skin1004 Centella Sun Serum is a daily sunscreen with a serum-like texture. It gives SPF50+ PA++++ protection and spreads thinly, so it works as the last step of a morning routine without a heavy feel.</p>
+            <p>It is made with Centella Asiatica extract from Madagascar, an ingredient widely used in Korean skincare for calming skin. Use it on the face and neck every morning, and on any exposed skin when you are outdoors.</p>
+          </div>
+          <h3 class="text-[15px] font-semibold text-gray-900 mt-6 mb-3">Product details</h3>
+          <dl class="border border-gray-100 rounded-xl overflow-hidden text-[14.5px]">
+            <div class="grid grid-cols-3 bg-gray-50"><dt class="px-4 py-3 text-gray-500">Brand</dt><dd class="col-span-2 px-4 py-3 font-medium">Skin1004</dd></div>
+            <div class="grid grid-cols-3"><dt class="px-4 py-3 text-gray-500">Category</dt><dd class="col-span-2 px-4 py-3 font-medium">Beauty, Sun Care</dd></div>
+            <div class="grid grid-cols-3 bg-gray-50"><dt class="px-4 py-3 text-gray-500">Sun protection</dt><dd class="col-span-2 px-4 py-3 font-medium">SPF50+ PA++++</dd></div>
+            <div class="grid grid-cols-3"><dt class="px-4 py-3 text-gray-500">Net content</dt><dd class="col-span-2 px-4 py-3 font-medium">50 ml</dd></div>
+            <div class="grid grid-cols-3 bg-gray-50"><dt class="px-4 py-3 text-gray-500">Skin type</dt><dd class="col-span-2 px-4 py-3 font-medium">All skin types</dd></div>
+            <div class="grid grid-cols-3"><dt class="px-4 py-3 text-gray-500">Country of origin</dt><dd class="col-span-2 px-4 py-3 font-medium">South Korea</dd></div>
+            <div class="grid grid-cols-3 bg-gray-50"><dt class="px-4 py-3 text-gray-500">Expiry</dt><dd class="col-span-2 px-4 py-3 font-medium">Printed on the pack</dd></div>
+          </dl>
+        </section>
+
+        <!-- How to use -->
+        <section id="howto" class="anchor-section bg-white border border-gray-100 rounded-2xl p-5 sm:p-6">
+          <h2 class="text-[19px] font-bold text-gray-900 mb-4">How to use</h2>
+          <ol class="space-y-4">
+            <li class="flex gap-4">
+              <span class="shrink-0 w-8 h-8 rounded-full bg-primarylt text-primary font-bold text-[14px] flex items-center justify-center">1</span>
+              <p class="text-[15px] text-gray-600 pt-1">Finish your usual skincare. Sunscreen goes on last, after moisturiser.</p>
+            </li>
+            <li class="flex gap-4">
+              <span class="shrink-0 w-8 h-8 rounded-full bg-primarylt text-primary font-bold text-[14px] flex items-center justify-center">2</span>
+              <p class="text-[15px] text-gray-600 pt-1">Take about half a teaspoon for the face and neck.</p>
+            </li>
+            <li class="flex gap-4">
+              <span class="shrink-0 w-8 h-8 rounded-full bg-primarylt text-primary font-bold text-[14px] flex items-center justify-center">3</span>
+              <p class="text-[15px] text-gray-600 pt-1">Dot it over your face and blend evenly. Wait a minute before makeup.</p>
+            </li>
+            <li class="flex gap-4">
+              <span class="shrink-0 w-8 h-8 rounded-full bg-primarylt text-primary font-bold text-[14px] flex items-center justify-center">4</span>
+              <p class="text-[15px] text-gray-600 pt-1">Reapply every 2 hours when outdoors, and after sweating or swimming.</p>
+            </li>
+          </ol>
+          <div class="mt-6 bg-accentlt border border-orange-100 rounded-xl p-4 text-[14px] text-gray-700">
+            <p class="font-semibold text-gray-900 mb-1.5">Precautions</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>For external use only. Avoid contact with eyes; rinse with water if it happens.</li>
+              <li>Stop using it and see a doctor if redness or irritation develops.</li>
+              <li>Store below 30°C, away from direct sunlight, and keep out of reach of children.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Ingredients -->
+        <section id="ingredients" class="anchor-section bg-white border border-gray-100 rounded-2xl p-5 sm:p-6">
+          <h2 class="text-[19px] font-bold text-gray-900 mb-4">Ingredients</h2>
+          <div class="flex gap-4 items-start bg-primarylt rounded-xl p-4">
+            <div class="shrink-0 w-11 h-11 rounded-lg bg-white flex items-center justify-center text-primary">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 22c0-6 2-10 8-12-1 6-3 10-8 12zM12 22C12 16 10 12 4 10c1 6 3 10 8 12zM12 14V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-900 text-[15px]">Centella Asiatica extract</p>
+              <p class="text-[14px] text-gray-600 mt-1">The key botanical in this serum, sourced from Madagascar. Used to help skin feel calm and comfortable.</p>
+            </div>
+          </div>
+          <p class="text-[14px] text-gray-500 mt-4">Please read the full ingredient list on the pack before use, especially if you have known allergies.</p>
+        </section>
+
+        <!-- Reviews -->
+        <section id="reviews" class="anchor-section bg-white border border-gray-100 rounded-2xl p-5 sm:p-6">
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <h2 class="text-[19px] font-bold text-gray-900">Ratings & reviews</h2>
+            <button id="write-review" class="border border-primary text-primary text-[14px] font-semibold px-4 py-2 rounded-xl hover:bg-primarylt transition-colors">Write a review</button>
+          </div>
+
+          <div class="grid sm:grid-cols-[180px_1fr] gap-6 items-center pb-6 border-b border-gray-100">
+            <div class="text-center sm:text-left">
+              <p class="text-[48px] leading-none font-bold text-gray-900">4.8</p>
+              <p class="text-yellow-500 text-[18px] mt-1.5">★★★★★</p>
+              <p class="text-[13px] text-gray-400 mt-1">Based on 27 ratings</p>
+            </div>
+            <div id="bars" class="space-y-2"></div>
+          </div>
+
+          <div class="divide-y divide-gray-100" id="review-list"></div>
+        </section>
+
+        <!-- Q&A -->
+        <section id="questions" class="anchor-section bg-white border border-gray-100 rounded-2xl p-5 sm:p-6">
+          <h2 class="text-[19px] font-bold text-gray-900 mb-4">Questions about this product</h2>
+          <div class="space-y-2.5">
+            <details class="qa border border-gray-100 rounded-xl" open>
+              <summary class="flex items-center justify-between gap-3 px-4 py-3.5 text-[15px] font-medium text-gray-800">
+                Can I use it under makeup?
+                <svg class="qa-chevron shrink-0 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </summary>
+              <p class="px-4 pb-4 text-[14.5px] text-gray-600 leading-relaxed">Yes. Apply it as the last skincare step, give it a minute to settle, then apply makeup as usual.<span class="block text-[12.5px] text-primary font-medium mt-2">Answered by MediMart pharmacist</span></p>
+            </details>
+            <details class="qa border border-gray-100 rounded-xl">
+              <summary class="flex items-center justify-between gap-3 px-4 py-3.5 text-[15px] font-medium text-gray-800">
+                Is it suitable for oily skin?
+                <svg class="qa-chevron shrink-0 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </summary>
+              <p class="px-4 pb-4 text-[14.5px] text-gray-600 leading-relaxed">It is a light serum texture made for all skin types. If your skin is very sensitive, test a small patch on your jaw first.<span class="block text-[12.5px] text-primary font-medium mt-2">Answered by MediMart pharmacist</span></p>
+            </details>
+            <details class="qa border border-gray-100 rounded-xl">
+              <summary class="flex items-center justify-between gap-3 px-4 py-3.5 text-[15px] font-medium text-gray-800">
+                How do I check that the pack is original?
+                <svg class="qa-chevron shrink-0 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </summary>
+              <p class="px-4 pb-4 text-[14.5px] text-gray-600 leading-relaxed">Every MediMart order ships sealed with the batch number and expiry date printed on the pack. If anything looks wrong, call 09610-016778 within 7 days for a return.<span class="block text-[12.5px] text-primary font-medium mt-2">Answered by MediMart pharmacist</span></p>
+            </details>
+          </div>
+        </section>
+      </div>
+
+      <!-- Side help -->
+      <aside class="lg:col-span-4">
+        <div class="bg-white border border-gray-100 rounded-2xl p-5 lg:sticky" style="top:calc(var(--nav-h) + var(--tab-h) + 32px)">
+          <h3 class="text-[16px] font-bold text-gray-900">Need advice before you buy?</h3>
+          <p class="text-[14px] text-gray-500 mt-1.5">Our pharmacists can help you choose the right product for your skin.</p>
+          <a href="tel:+8809610016778" class="mt-4 flex items-center justify-center gap-2 border border-primary text-primary font-semibold text-[14.5px] py-3 rounded-xl hover:bg-primarylt transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Call 09610-016778
+          </a>
+          <a href="#" class="mt-2.5 flex items-center justify-center gap-2 bg-primarylt text-primary2 font-semibold text-[14.5px] py-3 rounded-xl hover:bg-teal-100 transition-colors">
+            WhatsApp 01810117100
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ═══ RELATED ═══ -->
+  <section class="mt-4 bg-white border border-gray-100 rounded-2xl overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+      <h2 class="text-[17px] font-bold text-gray-900">You may also like</h2>
+      <a href="#" class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1">
+        See all
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+    <div id="related" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4"></div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-white border-t border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 pt-10 pb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-10">
+      <div class="lg:col-span-2">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="text-2xl font-extrabold text-primary">Medi<span class="text-accent">Mart</span></span>
+        </div>
+        <p class="text-[15px] text-gray-500 leading-relaxed">Bangladesh's most trusted online pharmacy for medicine, beauty & healthcare products. Serving all 64 districts.</p>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Quick Links</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="#" class="hover:text-primary">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-primary">Terms & Conditions</a></li>
+          <li><a href="#" class="hover:text-primary">Return & Refund</a></li>
+          <li><a href="#" class="hover:text-primary">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Our Services</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="#" class="hover:text-primary">Online Doctor Consultation</a></li>
+          <li><a href="#" class="hover:text-primary">Lab Test, Home Collection</a></li>
+          <li><a href="#" class="hover:text-primary">Medicine Home Delivery</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Payment Partners</h4>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">bKash</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Nagad</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Rocket</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">VISA</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Master</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">COD</span>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-100 pt-6 text-[13px] text-gray-400 text-center sm:text-left">
+      <p>© 2026 MediMart Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Mobile buy bar -->
+<div id="buybar" class="lg:hidden fixed left-0 right-0 bottom-0 z-40 bg-white border-t border-gray-200 px-4 pt-3 shadow-[0_-4px_16px_rgba(0,0,0,.06)]">
+  <div class="flex items-center gap-3">
+    <div class="min-w-0">
+      <p class="text-[12px] text-gray-500 leading-tight">Total</p>
+      <p id="bar-total" class="text-[19px] font-bold text-primary leading-tight"></p>
+    </div>
+    <button id="bar-add" class="ml-auto bg-primary hover:bg-primary2 text-white font-semibold text-[14.5px] px-5 py-3 rounded-xl transition-colors">Add to cart</button>
+    <button id="bar-buy" class="bg-accent hover:bg-orange-600 text-white font-semibold text-[14.5px] px-5 py-3 rounded-xl transition-colors">Buy now</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const tk = n => '৳' + Math.round(n).toLocaleString('en-US');
+
+  /* ---------- Product data ---------- */
+  const variants = [
+    { id: '30',  label: '30 ml',     price: 1080, mrp: 1500 },
+    { id: '50',  label: '50 ml',     price: 1500, mrp: 2100 },
+    { id: '2x50', label: '2 × 50 ml', price: 2850, mrp: 4200 }
+  ];
+  let current = variants[1];
+  let qty = 1;
+  let cartCount = 3;
+
+  /* ---------- Placeholder product art (inline SVG) ---------- */
+  const sun = (cx, cy, r, ray) => {
+    const d = [[1,0],[.707,.707],[0,1],[-.707,.707],[-1,0],[-.707,-.707],[0,-1],[.707,-.707]];
+    const lines = d.map(([x,y]) => `<line x1="${cx + x*(r+8)}" y1="${cy + y*(r+8)}" x2="${cx + x*(r+ray)}" y2="${cy + y*(r+ray)}"/>`).join('');
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#f97316"/><g stroke="#f97316" stroke-width="4" stroke-linecap="round">${lines}</g>`;
+  };
+  const tubeInner = `
+    <ellipse cx="200" cy="364" rx="90" ry="9" fill="#0e7673" opacity=".12"/>
+    <rect x="140" y="36" width="120" height="22" rx="3" fill="#cfe3e2"/>
+    <path d="M148 42h104M148 48h104M148 54h104" stroke="#b6d3d1" stroke-width="1.5"/>
+    <path d="M138 58h124v226c0 14-10 24-24 28l-2 6h-72l-2-6c-14-4-24-14-24-28z" fill="#fff" stroke="#d3e3e2" stroke-width="2"/>
+    <rect x="150" y="70" width="9" height="196" rx="4.5" fill="#e6f4f4"/>
+    ${sun(200, 120, 22, 16)}
+    <text x="200" y="192" text-anchor="middle" font-family="Inter,sans-serif" font-size="20" font-weight="700" fill="#0e7673" letter-spacing="2">CENTELLA</text>
+    <text x="200" y="214" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="600" fill="#0b6461" letter-spacing="2">SUN SERUM</text>
+    <rect x="138" y="230" width="124" height="34" fill="#0e7673"/>
+    <text x="200" y="252" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="700" fill="#fff">SPF50+ PA++++</text>
+    <rect x="164" y="318" width="72" height="40" rx="8" fill="#0e7673"/>
+    <rect x="172" y="324" width="6" height="28" rx="3" fill="#fff" opacity=".18"/>`;
+  const wrap = inner => `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Product image" style="width:100%;height:100%;display:block"><rect width="400" height="400" fill="#f3f9f9"/>${inner}</svg>`;
+
+  const views = [
+    { name: 'Front', svg: wrap(`<circle cx="200" cy="200" r="150" fill="#e6f4f4"/>${tubeInner}`) },
+    { name: 'With box', svg: wrap(`
+      <circle cx="200" cy="210" r="160" fill="#e6f4f4"/>
+      <ellipse cx="140" cy="352" rx="110" ry="9" fill="#0e7673" opacity=".12"/>
+      <path d="M40 120L64 100h160l-24 20z" fill="#0b6461"/>
+      <path d="M200 120l24-20v230l-24 20z" fill="#0a5654"/>
+      <rect x="40" y="120" width="160" height="230" rx="4" fill="#0e7673"/>
+      ${sun(120, 186, 17, 13)}
+      <text x="120" y="248" text-anchor="middle" font-family="Inter,sans-serif" font-size="18" font-weight="700" fill="#fff" letter-spacing="1.5">CENTELLA</text>
+      <text x="120" y="270" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="600" fill="#cfeceb" letter-spacing="2">SUN SERUM</text>
+      <text x="120" y="312" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="#fff">SPF50+ PA++++</text>
+      <g transform="translate(156 88) scale(.72)">${tubeInner}</g>`) },
+    { name: 'Texture', svg: wrap(`
+      <rect x="50" y="70" width="300" height="240" rx="26" fill="#f2d9c4"/>
+      <path d="M92 236C140 170 205 270 262 200S318 214 318 214" fill="none" stroke="#fff" stroke-width="34" stroke-linecap="round" opacity=".96"/>
+      <ellipse cx="112" cy="140" rx="30" ry="22" fill="#fff"/>
+      <ellipse cx="104" cy="133" rx="9" ry="5" fill="#f3f9f9"/>
+      <text x="200" y="352" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="600" fill="#0b6461">Light serum texture</text>`) },
+    { name: 'Protection', svg: wrap(`
+      <circle cx="200" cy="200" r="132" fill="#fff" stroke="#0e7673" stroke-width="6"/>
+      ${sun(200, 122, 14, 12)}
+      <text x="200" y="214" text-anchor="middle" font-family="Inter,sans-serif" font-size="56" font-weight="800" fill="#0e7673">SPF50+</text>
+      <text x="200" y="254" text-anchor="middle" font-family="Inter,sans-serif" font-size="26" font-weight="700" fill="#f97316">PA++++</text>
+      <text x="200" y="290" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#6b7280">UVA and UVB protection</text>`) }
+  ];
+
+  const stage = $('#stage'), thumbs = $('#thumbs');
+  function selectView(i) {
+    stage.innerHTML = views[i].svg;
+    $$('.thumb', thumbs).forEach((t, k) => t.setAttribute('aria-selected', k === i));
+  }
+  views.forEach((v, i) => {
+    const b = document.createElement('button');
+    b.className = 'thumb aspect-square rounded-xl overflow-hidden';
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-label', v.name + ' view');
+    b.innerHTML = v.svg;
+    b.addEventListener('click', () => selectView(i));
+    thumbs.appendChild(b);
+  });
+  selectView(0);
+
+  /* ---------- Variants / price ---------- */
+  const variantsEl = $('#variants');
+  variants.forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'chip rounded-xl px-4 py-2.5 text-[14px] font-medium';
+    b.setAttribute('role', 'radio');
+    b.dataset.id = v.id;
+    b.textContent = v.label;
+    b.addEventListener('click', () => { current = v; render(); });
+    variantsEl.appendChild(b);
+  });
+
+  function render() {
+    const off = Math.round((1 - current.price / current.mrp) * 100);
+    $('#title').textContent = 'Skin1004 Centella Sun Serum SPF50+ ' + current.label;
+    $('#price').textContent = tk(current.price);
+    $('#mrp').textContent = tk(current.mrp);
+    $('#save').textContent = 'Save ' + tk(current.mrp - current.price);
+    $('#off-badge').textContent = off + '% OFF';
+    $('#qty').textContent = qty;
+    const total = tk(current.price * qty);
+    $('#total').textContent = total;
+    $('#bar-total').textContent = total;
+    $$('.chip', variantsEl).forEach(c => c.setAttribute('aria-checked', c.dataset.id === current.id));
+  }
+  render();
+
+  /* ---------- Quantity / cart ---------- */
+  $('#qty-minus').addEventListener('click', () => { qty = Math.max(1, qty - 1); render(); });
+  $('#qty-plus').addEventListener('click', () => { qty = Math.min(10, qty + 1); render(); });
+
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.setAttribute('role', 'status');
+    t.style.cssText = 'position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;transition:opacity .25s ease;max-width:90vw;text-align:center;';
+    document.body.appendChild(t);
+    requestAnimationFrame(() => { t.style.opacity = '1'; });
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2400);
+  }
+  function addToCart() {
+    cartCount += qty;
+    $('#cart-badge').textContent = cartCount;
+    toast('Added ' + qty + ' × Sun Serum ' + current.label + ' to cart');
+  }
+  $('#add-cart').addEventListener('click', addToCart);
+  $('#bar-add').addEventListener('click', addToCart);
+  const buyNow = () => toast('Taking you to checkout');
+  $('#buy-now').addEventListener('click', buyNow);
+  $('#bar-buy').addEventListener('click', buyNow);
+
+  $('#auto').addEventListener('click', e => {
+    const on = !e.currentTarget.classList.contains('on');
+    e.currentTarget.classList.toggle('on', on);
+    e.currentTarget.setAttribute('aria-checked', on);
+    toast(on ? 'Monthly auto reorder is on' : 'Monthly auto reorder is off');
+  });
+
+  /* wishlist + share */
+  $('#wish').addEventListener('click', e => {
+    const b = e.currentTarget, on = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', on);
+    b.classList.toggle('text-red-500', on);
+    $('#wish-icon path').setAttribute('fill', on ? 'currentColor' : 'none');
+    toast(on ? 'Saved to wishlist' : 'Removed from wishlist');
+  });
+  $('#share').addEventListener('click', () => {
+    try { navigator.clipboard.writeText(location.href).then(() => toast('Link copied'), () => toast('Copy the link from the address bar')); }
+    catch (e) { toast('Copy the link from the address bar'); }
+  });
+  $('#write-review').addEventListener('click', () => toast('Log in to write a review'));
+
+  /* mobile buy bar: show once the main buttons scroll out of view */
+  const bar = $('#buybar');
+  new IntersectionObserver(([e]) => {
+    bar.classList.toggle('show', !e.isIntersecting && e.boundingClientRect.top < 0);
+  }, { threshold: 0 }).observe($('#buy-actions'));
+
+  /* ---------- Reviews ---------- */
+  const dist = [[5, 22], [4, 4], [3, 1], [2, 0], [1, 0]];
+  $('#bars').innerHTML = dist.map(([s, n]) => `
+    <div class="flex items-center gap-3 text-[13.5px]">
+      <span class="w-9 text-gray-600 shrink-0">${s} ★</span>
+      <div class="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:${(n / 27 * 100).toFixed(1)}%"></div></div>
+      <span class="w-6 text-right text-gray-400 shrink-0">${n}</span>
+    </div>`).join('');
+
+  const reviews = [
+    { n: 'Nusrat Jahan', d: '12 Aug 2026', s: 5, t: 'Does not feel sticky in Dhaka humidity', b: 'I wear this every day to work and it does not leave a greasy layer. Makeup sits on top without pilling. Will reorder the 50 ml.', h: 14 },
+    { n: 'Tanvir Ahmed', d: '29 Jul 2026', s: 5, t: 'No white cast on my skin', b: 'I was worried about a white cast but it blends in fully after a minute. Good for commuting on a motorbike where I am in the sun for an hour.', h: 9 },
+    { n: 'Farzana Rahman', d: '3 Jul 2026', s: 4, t: 'Nice texture, small tube goes fast', b: 'Love how light it is. Using half a teaspoon for face and neck, the 50 ml lasts me about five weeks. The 2-pack is the better deal.', h: 5 }
+  ];
+  $('#review-list').innerHTML = reviews.map((r, i) => `
+    <article class="py-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-primarylt text-primary font-bold flex items-center justify-center text-[14px]">${r.n.split(' ').map(x => x[0]).join('')}</div>
+        <div>
+          <p class="text-[14.5px] font-semibold text-gray-900">${r.n}</p>
+          <p class="text-[12.5px] text-gray-400 flex items-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" class="text-green-500"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Verified purchase, ${r.d}
+          </p>
+        </div>
+      </div>
+      <p class="mt-3 text-[13px]"><span class="text-yellow-500">${'★'.repeat(r.s)}</span><span class="text-gray-300">${'★'.repeat(5 - r.s)}</span></p>
+      <p class="mt-1 text-[15px] font-semibold text-gray-900">${r.t}</p>
+      <p class="mt-1 text-[14.5px] text-gray-600 leading-relaxed max-w-[70ch]">${r.b}</p>
+      <button data-help="${i}" aria-pressed="false" class="mt-3 text-[13px] text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-primary hover:text-primary transition-colors">Helpful (<span>${r.h}</span>)</button>
+    </article>`).join('');
+  $$('[data-help]').forEach(b => b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    const span = $('span', b);
+    span.textContent = +span.textContent + (on ? 1 : -1);
+    b.setAttribute('aria-pressed', on);
+    b.classList.toggle('border-primary', on);
+    b.classList.toggle('text-primary', on);
+  }));
+
+  /* ---------- Related products ---------- */
+  const mini = (kind, c, c2) => {
+    const shapes = {
+      tube:  `<rect x="70" y="24" width="60" height="12" rx="2" fill="${c2}"/><path d="M68 36h64v100c0 8-6 13-13 15l-1 4h-36l-1-4c-7-2-13-7-13-15z" fill="#fff" stroke="${c2}" stroke-width="1.5"/><rect x="68" y="88" width="64" height="22" fill="${c}"/><rect x="82" y="155" width="36" height="20" rx="4" fill="${c}"/>`,
+      jar:   `<rect x="52" y="60" width="96" height="30" rx="6" fill="${c}"/><rect x="48" y="88" width="104" height="72" rx="10" fill="#fff" stroke="${c2}" stroke-width="1.5"/><rect x="62" y="108" width="76" height="32" rx="4" fill="${c}" opacity=".9"/>`,
+      bottle:`<rect x="88" y="22" width="24" height="24" rx="4" fill="${c}"/><rect x="92" y="44" width="16" height="12" fill="${c2}"/><rect x="62" y="56" width="76" height="120" rx="14" fill="#fff" stroke="${c2}" stroke-width="1.5"/><rect x="62" y="96" width="76" height="38" fill="${c}"/>`
+    };
+    return `<svg viewBox="0 0 200 200" style="width:100%;height:100%;display:block" aria-hidden="true"><rect width="200" height="200" fill="#f3f9f9"/>${shapes[kind]}</svg>`;
+  };
+  const related = [
+    { n: 'Centella Soothing Cream 75ml',        k: 'jar',    c: '#0e7673', c2: '#cfe3e2', p: 1250, m: 1650, r: 5, rc: 41 },
+    { n: 'Hyaluronic Acid Hydrating Toner 200ml', k: 'bottle', c: '#14b8a6', c2: '#b6e3df', p: 980,  m: 1300, r: 5, rc: 18 },
+    { n: 'Mineral Sunscreen Stick SPF50 18g',   k: 'tube',   c: '#f97316', c2: '#fbd5b5', p: 890,  m: 1190, r: 4, rc: 33 },
+    { n: 'Gentle Foaming Cleanser 150ml',       k: 'tube',   c: '#0e7673', c2: '#cfe3e2', p: 640,  m: 850,  r: 5, rc: 62 },
+    { n: 'Barrier Repair Moisturiser 50ml',     k: 'jar',    c: '#f97316', c2: '#fbd5b5', p: 1420, m: 1890, r: 5, rc: 27 }
+  ];
+  $('#related').innerHTML = related.map(p => {
+    const off = Math.round((1 - p.p / p.m) * 100);
+    return `
+    <a href="#" class="prod-card block bg-white border border-gray-100 rounded-xl overflow-hidden">
+      <div class="relative p-3 aspect-square">
+        <span class="absolute top-2 left-2 z-10 bg-green-500 text-white text-[12px] font-bold px-2 py-1 rounded">${off}% OFF</span>
+        <div class="w-full h-full rounded-xl overflow-hidden">${mini(p.k, p.c, p.c2)}</div>
+      </div>
+      <div class="p-3.5 pt-1">
+        <p class="text-[15px] font-medium text-gray-800 leading-snug line-clamp-2 mb-1.5">${p.n}</p>
+        <div class="flex items-center gap-1 mb-1"><span class="text-[12px] text-yellow-500">${'★'.repeat(p.r)}</span><span class="text-[12px] text-gray-400">(${p.rc})</span></div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[17px] font-bold text-primary">${tk(p.p)}</span>
+          <span class="text-[12px] text-gray-400 line-through">${tk(p.m)}</span>
+        </div>
+      </div>
+    </a>`;
+  }).join('');
+
+  /* ---------- Sticky offsets + tab scrollspy ---------- */
+  const nav = $('#nav'), tabbar = $('#tabbar');
+  function setOffsets() {
+    document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    document.documentElement.style.setProperty('--tab-h', tabbar.offsetHeight + 'px');
+  }
+  setOffsets();
+  addEventListener('resize', setOffsets);
+  addEventListener('load', setOffsets);
+
+  const tabs = $$('[data-tab]');
+  const secs = tabs.map(t => $(t.getAttribute('href')));
+  let lastIdx = -1;
+  function spy() {
+    const line = nav.offsetHeight + tabbar.offsetHeight + 40;
+    let idx = 0;
+    secs.forEach((s, i) => { if (s.getBoundingClientRect().top <= line) idx = i; });
+    if (idx === lastIdx) return;
+    lastIdx = idx;
+    tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+    const a = tabs[idx], sc = a.parentElement;
+    if (sc.scrollWidth > sc.clientWidth) sc.scrollTo({ left: a.offsetLeft - 16, behavior: 'smooth' });
+  }
+  let tick = false;
+  addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(() => { spy(); tick = false; }); } }, { passive: true });
+  spy();
+})();
+</script>
+</body>
+</html>

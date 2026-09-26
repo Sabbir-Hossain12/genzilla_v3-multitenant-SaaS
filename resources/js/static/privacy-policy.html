@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light"/>
+<title>Privacy Policy | MediMart</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { primary:'#0e7673', primary2:'#0b6461', primarylt:'#e6f4f4', accent:'#f97316', accentlt:'#fff7ed' },
+    fontFamily: { sans: ['Inter','Noto Sans Bengali','sans-serif'] }
+  } } }
+</script>
+<style>
+  :root { color-scheme: light; box-sizing: border-box; padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); --nav-h:132px; --toc-h:0px; }
+  html { scroll-padding-top: env(safe-area-inset-top,0px); scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } * { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
+  body { background:#f9fafb; color:#1f2937; }
+  .max-w-7xl { max-width:1440px !important; }
+  :focus-visible { outline:2px solid #0e7673; outline-offset:2px; }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+  .nav-shadow { box-shadow:0 1px 6px rgba(0,0,0,.08); }
+
+  .doc-section { scroll-margin-top: calc(var(--nav-h) + var(--toc-h) + 16px); }
+  .doc-section + .doc-section { border-top:1px solid #f3f4f6; margin-top:2rem; padding-top:2rem; }
+  .doc p { margin-top:.75rem; }
+  .doc p:first-of-type { margin-top:0; }
+  .doc ul.bul { margin-top:.75rem; }
+  .doc ul.bul li { position:relative; padding-left:1.25rem; margin-top:.5rem; }
+  .doc ul.bul li::before { content:""; position:absolute; left:.15rem; top:.65em; width:.4rem; height:.4rem; border-radius:9999px; background:#0e7673; }
+
+  .toc-link { color:#4b5563; border-radius:.5rem; transition:background .15s,color .15s; }
+  .toc-link:hover { background:#e6f4f4; color:#0e7673; }
+  .toc-link.active { background:#e6f4f4; color:#0e7673; font-weight:600; }
+
+  @media print {
+    .no-print, nav#nav, footer, #topbar { display:none !important; }
+    body { background:#fff; }
+    .doc-card { border:0 !important; }
+  }
+</style>
+</head>
+<body class="font-sans">
+<!-- TOP BAR -->
+<div id="topbar" class="bg-primary text-white text-sm py-2 hidden sm:block">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+    <p class="flex items-center gap-1.5">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Free delivery on orders over ৳500 | Same-day delivery in Dhaka
+    </p>
+    <div class="flex items-center gap-5">
+      <a href="#" class="hover:text-white/80 transition-colors">Become a Seller</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Track Order</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Help</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="nav" class="sticky z-50 bg-white nav-shadow" style="top:env(safe-area-inset-top,0px)">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center gap-2 sm:gap-3 lg:gap-6 h-16 lg:h-20">
+
+      <a href="#" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="MediMart home">
+        <div class="w-9 h-9 lg:w-11 lg:h-11 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="text-lg sm:text-xl lg:text-2xl font-extrabold text-primary whitespace-nowrap">Medi<span class="text-accent">Mart</span></span>
+      </a>
+
+      <div class="hidden lg:flex flex-1 max-w-2xl">
+        <div class="relative flex w-full">
+          <select aria-label="Search category" class="shrink-0 border border-r-0 border-gray-200 rounded-l-xl px-4 py-3.5 text-base bg-gray-50 text-gray-600 focus:outline-none">
+            <option>All</option><option>Medicine</option><option>Beauty</option><option>Healthcare</option>
+          </select>
+          <input type="text" aria-label="Search" placeholder="Search medicines, brands & more..." class="flex-1 min-w-0 border border-gray-200 px-5 py-3.5 text-base focus:outline-none focus:border-primary transition-colors"/>
+          <button aria-label="Search" class="bg-primary hover:bg-primary2 text-white px-6 py-3.5 rounded-r-xl transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 lg:hidden"></div>
+
+      <div class="flex items-center gap-0 sm:gap-1 lg:gap-4 shrink-0">
+        <a href="#" class="hidden lg:flex items-center gap-2 border border-primary text-primary text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-primarylt transition-colors shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Upload Rx
+        </a>
+        <button class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Account">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Account</span>
+        </button>
+        <button class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Orders">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20 7h-3V6a4 4 0 00-8 0v1H6a1 1 0 00-1 1v11a2 2 0 002 2h10a2 2 0 002-2V8a1 1 0 00-1-1zM11 6a1 1 0 012 0v1h-2V6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Orders</span>
+        </button>
+        <button class="relative flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Cart">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Cart</span>
+          <span id="cart-badge" class="absolute top-0.5 right-1 sm:right-1.5 w-5 h-5 bg-accent text-white text-[11px] font-bold rounded-full flex items-center justify-center">3</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="lg:hidden pb-3">
+      <div class="relative flex w-full">
+        <input type="text" aria-label="Search" placeholder="Search medicines, brands & more..." class="flex-1 min-w-0 border border-gray-200 rounded-l-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors"/>
+        <button aria-label="Search" class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex items-center border-t border-gray-100">
+      <div class="flex items-center overflow-x-auto no-scrollbar">
+        <a href="#" class="flex items-center gap-2 px-5 py-3.5 text-[15px] font-semibold text-white bg-primary whitespace-nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          All Categories
+        </a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💊 Medicine</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">✨ Beauty</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🏥 Healthcare</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🧪 Lab Test</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">👶 Baby & Mom</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🌿 Herbal</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🐾 Pet Care</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💪 Supplement</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🍎 Food & Nutrition</a>
+      </div>
+      <div class="hidden lg:flex items-center gap-6 ml-auto pl-6 pr-1 shrink-0 border-l border-gray-100">
+        <a href="#" class="text-[14px] text-gray-500 hover:text-primary whitespace-nowrap transition-colors">Track Order</a>
+        <a href="tel:+8809610016778" class="flex items-center gap-1.5 text-[14px] font-semibold text-primary whitespace-nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          09610-016778
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 pt-4 pb-8">
+  <nav aria-label="Breadcrumb" class="text-[13px] text-gray-500 flex items-center gap-1.5 mb-4 no-print">
+    <a href="#" class="hover:text-primary">Home</a><span class="text-gray-300">/</span>
+    <span class="text-gray-800 font-medium">Privacy Policy</span>
+  </nav>
+
+  <header class="bg-white border border-gray-100 rounded-2xl p-5 sm:p-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+    <div class="max-w-2xl">
+      <h1 class="text-[28px] sm:text-[34px] font-bold text-gray-900 leading-tight">Privacy Policy</h1>
+      <p class="text-[16px] text-gray-600 mt-3 leading-relaxed">What we collect, why we collect it, and the choices you have over your information.</p>
+      <p class="text-[13.5px] text-gray-400 mt-4">Last updated 20 September 2026</p>
+    </div>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 no-print">
+      <div class="flex gap-1 p-1 bg-gray-50 border border-gray-100 rounded-xl overflow-x-auto no-scrollbar" role="navigation" aria-label="Legal pages"><a href="refund-return-policy.html" class="px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-primarylt text-[14px] font-medium whitespace-nowrap transition-colors">Refund & Return Policy</a><a href="privacy-policy.html" aria-current="page" class="px-4 py-2.5 rounded-lg bg-primary text-white text-[14px] font-semibold whitespace-nowrap">Privacy Policy</a></div>
+      <button id="print" class="flex items-center justify-center gap-2 border border-gray-200 text-gray-600 hover:border-primary hover:text-primary text-[14px] font-medium px-4 py-2.5 rounded-xl transition-colors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print
+      </button>
+    </div>
+  </header>
+
+  <section aria-label="Summary" class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3 mt-4"><div class="bg-white border border-gray-100 rounded-xl p-4 flex gap-3.5">
+        <span class="shrink-0 w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></span>
+        <div><p class="font-semibold text-gray-900 text-[15px]">Only what an order needs</p><p class="text-[13.5px] text-gray-500 mt-0.5 leading-snug">We ask for the details required to deliver and support your order.</p></div></div><div class="bg-white border border-gray-100 rounded-xl p-4 flex gap-3.5">
+        <span class="shrink-0 w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></span>
+        <div><p class="font-semibold text-gray-900 text-[15px]">Prescriptions stay private</p><p class="text-[13.5px] text-gray-500 mt-0.5 leading-snug">Only pharmacists and the pharmacy filling your order can see them.</p></div></div><div class="bg-white border border-gray-100 rounded-xl p-4 flex gap-3.5">
+        <span class="shrink-0 w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V5z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <div><p class="font-semibold text-gray-900 text-[15px]">We do not sell your data</p><p class="text-[13.5px] text-gray-500 mt-0.5 leading-snug">Your personal information is never sold to advertisers or brokers.</p></div></div><div class="bg-white border border-gray-100 rounded-xl p-4 flex gap-3.5">
+        <span class="shrink-0 w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg></span>
+        <div><p class="font-semibold text-gray-900 text-[15px]">You stay in control</p><p class="text-[13.5px] text-gray-500 mt-0.5 leading-snug">Access, correct or delete your data, and turn off marketing any time.</p></div></div></section>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
+    <aside class="lg:col-span-3 no-print">
+      <nav id="toc" aria-label="On this page" class="sticky z-30 bg-white border border-gray-100 rounded-2xl p-2 lg:p-3 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible no-scrollbar" style="top:var(--nav-h)">
+        <p class="hidden lg:block px-3 pt-1 pb-2 text-[13px] font-semibold text-gray-400">On this page</p>
+        <a href="#who-we-are" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">1. Who we are</a><a href="#collect" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">2. Information we collect</a><a href="#use" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">3. How we use your information</a><a href="#health" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">4. Prescriptions and health information</a><a href="#sharing" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">5. Who we share it with</a><a href="#cookies" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">6. Cookies and similar tools</a><a href="#retention" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">7. How long we keep it</a><a href="#security" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">8. Keeping your information safe</a><a href="#rights" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">9. Your choices and rights</a><a href="#children" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">10. Children</a><a href="#changes" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">11. Changes to this policy</a><a href="#contact" data-spy class="toc-link px-3 py-2 text-[14px] whitespace-nowrap lg:whitespace-normal">12. Contact us</a>
+      </nav>
+    </aside>
+
+    <article class="lg:col-span-9 bg-white border border-gray-100 rounded-2xl p-5 sm:p-8 doc doc-card">
+      <section id="who-we-are" class="doc-section" data-toc="Who we are">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">1.</span>Who we are</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>MediMart Ltd. (“MediMart”, “we”, “us”) runs the MediMart website and apps, an online pharmacy for medicine, beauty and healthcare products in Bangladesh. We decide how the personal information described in this policy is used.</p><p>Registered office: D/15-1, Road-36, Mirpur, Dhaka-1216.</p></div></section><section id="collect" class="doc-section" data-toc="Information we collect">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">2.</span>Information we collect</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>We collect information you give us, information created when you use MediMart, and information from our delivery and payment partners.</p><div class="mt-4 border border-gray-100 rounded-xl overflow-x-auto"><table class="w-full min-w-[560px] text-[14.5px] text-gray-600"><thead class="bg-gray-50 text-[13px] text-gray-500"><tr><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">Type</th><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">What we collect</th><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">Why</th></tr></thead><tbody><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Account</td><td class="px-4 py-3.5 align-top">Name, mobile number, email address, and the OTP you use to log in.</td><td class="px-4 py-3.5 align-top">To create your account and keep it secure.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Delivery</td><td class="px-4 py-3.5 align-top">Address, contact number and delivery notes.</td><td class="px-4 py-3.5 align-top">To deliver your order and reach you about it.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Orders and payments</td><td class="px-4 py-3.5 align-top">Items ordered, order value, payment method and transaction ID.</td><td class="px-4 py-3.5 align-top">To process orders, refunds and receipts. Card numbers are handled by our payment gateway and are not stored by MediMart.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Health information</td><td class="px-4 py-3.5 align-top">Prescription images, medicines ordered, lab test requests and consultation details.</td><td class="px-4 py-3.5 align-top">To verify prescriptions and fulfil health orders. See section 4.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Device and usage</td><td class="px-4 py-3.5 align-top">IP address, device type, pages viewed and cookie IDs.</td><td class="px-4 py-3.5 align-top">To keep the site working, prevent fraud and improve the experience.</td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Support</td><td class="px-4 py-3.5 align-top">Messages, call notes and photos you send us.</td><td class="px-4 py-3.5 align-top">To resolve your request and improve our service.</td></tr></tbody></table></div></div></section><section id="use" class="doc-section" data-toc="How we use your information">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">3.</span>How we use your information</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><ul class="bul"><li>Process, deliver and support your orders.</li><li>Have a licensed pharmacist verify prescriptions before medicines are dispensed.</li><li>Send order updates by SMS, in the app or by email.</li><li>Detect and prevent fraud, and protect your account.</li><li>Improve our products, search and delivery times.</li><li>Send offers and health tips, only if you agree. You can opt out at any time.</li><li>Meet legal, tax and pharmacy regulation requirements.</li></ul></div></section><section id="health" class="doc-section" data-toc="Prescriptions and health information">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">4.</span>Prescriptions and health information</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>Prescriptions and medicine orders can reveal sensitive details about your health, so we handle them with extra care.</p><div class="mt-4 rounded-xl p-4 flex gap-3 bg-primarylt">
+      <span class="shrink-0 mt-0.5 text-primary"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg></span>
+      <div class="text-[14.5px] text-gray-700"><p class="font-semibold text-primary2">How we protect health information</p><p class="!mt-1">Only our pharmacists, authorised support staff and the licensed pharmacy filling your order can see your prescriptions. We do not use them for advertising.</p></div></div><ul class="bul"><li>We use prescriptions only to verify and fulfil your order.</li><li>You can delete uploaded prescriptions from your account. Where pharmacy regulations require us to keep a dispensing record, we keep only that record.</li><li>We never share health information with advertisers.</li></ul></div></section><section id="sharing" class="doc-section" data-toc="Who we share it with">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">5.</span>Who we share it with</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>We share information only when it is needed to serve you or required by law.</p><ul class="bul"><li><b class="text-gray-900 font-semibold">Delivery partners:</b> your name, address, phone number and the parcel they carry.</li><li><b class="text-gray-900 font-semibold">Payment providers:</b> bKash, Nagad, Rocket, card networks and banks, to take payment and issue refunds.</li><li><b class="text-gray-900 font-semibold">Licensed pharmacies and sellers:</b> the details needed to fill and ship your order.</li><li><b class="text-gray-900 font-semibold">Doctors and labs:</b> details for consultations and tests you book through MediMart.</li><li><b class="text-gray-900 font-semibold">Service providers:</b> SMS, hosting and analytics companies working for us under contract.</li><li><b class="text-gray-900 font-semibold">Authorities:</b> when a court, regulator or law enforcement body lawfully requires it.</li></ul><p><b class="text-gray-900 font-semibold">We do not sell your personal information.</b></p></div></section><section id="cookies" class="doc-section" data-toc="Cookies and similar tools">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">6.</span>Cookies and similar tools</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>Cookies are small files stored on your device. You can change your choices in your browser or in Account settings.</p><div class="mt-4 border border-gray-100 rounded-xl overflow-x-auto"><table class="w-full min-w-[560px] text-[14.5px] text-gray-600"><thead class="bg-gray-50 text-[13px] text-gray-500"><tr><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">Type</th><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">What it does</th><th scope="col" class="text-left font-medium px-4 py-3 whitespace-nowrap">Setting</th></tr></thead><tbody><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Essential</td><td class="px-4 py-3.5 align-top">Keeps you logged in, remembers your cart and secures checkout.</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-primarylt text-primary2 text-[12px] font-semibold px-2.5 py-1">Always on</span></td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Analytics</td><td class="px-4 py-3.5 align-top">Shows us which pages and features people find useful.</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-gray-100 text-gray-600 text-[12px] font-semibold px-2.5 py-1">Optional</span></td></tr><tr class="border-t border-gray-100"><td class="px-4 py-3.5 align-top font-semibold text-gray-900">Marketing</td><td class="px-4 py-3.5 align-top">Helps us show offers that are relevant to you.</td><td class="px-4 py-3.5 align-top"><span class="inline-block whitespace-nowrap rounded-full bg-gray-100 text-gray-600 text-[12px] font-semibold px-2.5 py-1">Optional</span></td></tr></tbody></table></div></div></section><section id="retention" class="doc-section" data-toc="How long we keep it">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">7.</span>How long we keep it</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>We keep information only as long as we need it for the reasons above.</p><ul class="bul"><li>Account information is kept while your account is active and removed after you delete it.</li><li>Order and payment records are kept for as long as tax and accounting law requires.</li><li>Prescription and dispensing records are kept for as long as pharmacy regulations require.</li><li>Support and device data is kept for a shorter period, then deleted or anonymised.</li></ul></div></section><section id="security" class="doc-section" data-toc="Keeping your information safe">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">8.</span>Keeping your information safe</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>We use encrypted connections (HTTPS), OTP login and role-based access so staff see only what their job needs. No system is completely secure, so please protect your account too.</p><div class="mt-4 rounded-xl p-4 flex gap-3 bg-accentlt border border-orange-100">
+      <span class="shrink-0 mt-0.5 text-accent"><svg class="" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg></span>
+      <div class="text-[14.5px] text-gray-700"><p class="font-semibold text-gray-900">Never share your OTP</p><p class="!mt-1">MediMart staff will never ask you for your OTP or password, by phone, WhatsApp or SMS.</p></div></div></div></section><section id="rights" class="doc-section" data-toc="Your choices and rights">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">9.</span>Your choices and rights</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><ul class="bul"><li>See and download the information we hold about you.</li><li>Correct anything that is wrong or out of date.</li><li>Delete your account and data. Some records must be kept where the law requires it.</li><li>Stop marketing messages using the unsubscribe link or Account settings.</li><li>Withdraw your consent for optional uses of your information.</li></ul><p>To use any of these, email privacy@medimart.com.bd or call 09610-016778. We reply within 15 working days.</p></div></section><section id="children" class="doc-section" data-toc="Children">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">10.</span>Children</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>MediMart is meant for adults. If you are under 18, please order with a parent or guardian. We do not knowingly collect information from children without a guardian’s consent.</p></div></section><section id="changes" class="doc-section" data-toc="Changes to this policy">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">11.</span>Changes to this policy</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>We may update this policy from time to time. For important changes, we will tell you in the app or by SMS before they take effect. The date at the top of this page shows the latest version.</p></div></section><section id="contact" class="doc-section" data-toc="Contact us">
+      <h2 class="text-[20px] font-bold text-gray-900 mb-3"><span class="text-primary mr-2">12.</span>Contact us</h2>
+      <div class="text-[15px] text-gray-600 leading-relaxed max-w-[75ch]"><p>Questions about your privacy or your data? Reach our privacy team here.</p><div class="grid sm:grid-cols-2 gap-3 mt-4 not-prose">
+      <a href="tel:+8809610016778" class="flex items-center gap-3 border border-gray-100 rounded-xl p-4 hover:border-primary transition-colors"><span class="w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center shrink-0"><svg class="" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span><span><span class="block text-[13px] text-gray-400">Call us</span><span class="font-semibold text-gray-900">09610-016778</span></span></a>
+      <a href="#" class="flex items-center gap-3 border border-gray-100 rounded-xl p-4 hover:border-primary transition-colors"><span class="w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center shrink-0"><svg class="" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span><span><span class="block text-[13px] text-gray-400">WhatsApp</span><span class="font-semibold text-gray-900">01810117100</span></span></a>
+      <a href="mailto:privacy@medimart.com.bd" class="flex items-center gap-3 border border-gray-100 rounded-xl p-4 hover:border-primary transition-colors"><span class="w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center shrink-0"><svg class="" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg></span><span><span class="block text-[13px] text-gray-400">Privacy email</span><span class="font-semibold text-gray-900 break-all">privacy@medimart.com.bd</span></span></a>
+      <div class="flex items-center gap-3 border border-gray-100 rounded-xl p-4"><span class="w-10 h-10 rounded-lg bg-primarylt text-primary flex items-center justify-center shrink-0"><svg class="" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span><span><span class="block text-[13px] text-gray-400">Office</span><span class="font-semibold text-gray-900">D/15-1, Road-36, Mirpur, Dhaka-1216</span></span></div>
+    </div></div></section>
+    </article>
+  </div>
+
+  <aside class="mt-4 bg-primarylt rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
+    <div>
+      <p class="text-[17px] font-bold text-primary2">Still have a question?</p>
+      <p class="text-[14.5px] text-gray-600 mt-1">Our team and pharmacists are available on call and WhatsApp.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-2.5">
+      <a href="tel:+8809610016778" class="bg-primary hover:bg-primary2 text-white font-semibold text-[14.5px] px-5 py-3 rounded-xl text-center transition-colors">Call 09610-016778</a>
+      <a href="refund-return-policy.html" class="bg-white border border-primary text-primary hover:bg-white/60 font-semibold text-[14.5px] px-5 py-3 rounded-xl text-center transition-colors">Read our Refund & Return Policy</a>
+    </div>
+  </aside>
+</main>
+<!-- FOOTER -->
+<footer class="bg-white border-t border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 pt-10 pb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-10">
+      <div class="lg:col-span-2">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="text-2xl font-extrabold text-primary">Medi<span class="text-accent">Mart</span></span>
+        </div>
+        <p class="text-[15px] text-gray-500 leading-relaxed">Bangladesh's most trusted online pharmacy for medicine, beauty & healthcare products. Serving all 64 districts.</p>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Quick Links</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="privacy-policy.html" class="hover:text-primary">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-primary">Terms & Conditions</a></li>
+          <li><a href="refund-return-policy.html" class="hover:text-primary">Return & Refund</a></li>
+          <li><a href="#" class="hover:text-primary">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Our Services</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="#" class="hover:text-primary">Online Doctor Consultation</a></li>
+          <li><a href="#" class="hover:text-primary">Lab Test, Home Collection</a></li>
+          <li><a href="#" class="hover:text-primary">Medicine Home Delivery</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Payment Partners</h4>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">bKash</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Nagad</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Rocket</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">VISA</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Master</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">COD</span>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-100 pt-6 text-[13px] text-gray-400 text-center sm:text-left">
+      <p>© 2026 MediMart Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const nav = $('#nav'), toc = $('#toc');
+  const desktop = matchMedia('(min-width:1024px)');
+  function offsets() {
+    document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    document.documentElement.style.setProperty('--toc-h', desktop.matches ? '0px' : toc.offsetHeight + 'px');
+  }
+  offsets(); addEventListener('resize', offsets); addEventListener('load', offsets);
+
+  const links = $$('[data-spy]');
+  const secs = links.map(l => $(l.getAttribute('href')));
+  let last = -1;
+  function spy() {
+    const line = nav.offsetHeight + (desktop.matches ? 0 : toc.offsetHeight) + 60;
+    let idx = 0;
+    secs.forEach((s, i) => { if (s.getBoundingClientRect().top <= line) idx = i; });
+    if (idx === last) return;
+    last = idx;
+    links.forEach((l, i) => { l.classList.toggle('active', i === idx); if (i === idx) l.setAttribute('aria-current', 'true'); else l.removeAttribute('aria-current'); });
+    if (!desktop.matches) { const a = links[idx]; toc.scrollTo({ left: a.offsetLeft - 16, behavior: 'smooth' }); }
+  }
+  let tick = false;
+  addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(() => { spy(); tick = false; }); } }, { passive: true });
+  spy();
+  $('#print').addEventListener('click', () => window.print());
+})();
+</script>
+</body>
+</html>

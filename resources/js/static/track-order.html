@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Track Order — MediMart</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary:  '#0e7673',
+          primary2: '#0b6461',
+          primarylt:'#e6f4f4',
+          accent:   '#f97316',
+          accentlt: '#fff7ed',
+        },
+        fontFamily: { sans: ['Inter','sans-serif'] },
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family:'Inter',sans-serif; }
+
+  /* ── stepper ── */
+  .step-line { position:absolute; top:1.25rem; left:0; right:0; height:3px; background:#e5e7eb; z-index:0; }
+  .step-line-fill { position:absolute; top:0; left:0; height:100%; background:#0e7673; transition:width .5s ease; z-index:1; }
+  .step-dot {
+    width:2.5rem; height:2.5rem; border-radius:9999px; display:flex; align-items:center; justify-content:center;
+    position:relative; z-index:2; background:#fff; border:3px solid #e5e7eb; color:#9ca3af; transition:all .3s ease;
+  }
+  .step-dot.done { border-color:#0e7673; background:#0e7673; color:#fff; }
+  .step-dot.current { border-color:#0e7673; background:#fff; color:#0e7673; }
+  .step-dot.current::after {
+    content:''; position:absolute; inset:-6px; border-radius:9999px; border:2px solid #0e7673; opacity:.4;
+    animation:pulse-ring 1.6s ease-out infinite;
+  }
+  @keyframes pulse-ring {
+    0%   { transform:scale(.9); opacity:.5; }
+    100% { transform:scale(1.35); opacity:0; }
+  }
+  .step-label { color:#9ca3af; }
+  .step-label.active { color:#0e7673; font-weight:700; }
+
+  /* ── vertical timeline ── */
+  .tl-item { position:relative; padding-left:2.25rem; }
+  .tl-item::before {
+    content:''; position:absolute; left:0.5rem; top:1.5rem; bottom:-1.25rem; width:2px; background:#e5e7eb;
+  }
+  .tl-item:last-child::before { display:none; }
+  .tl-dot {
+    position:absolute; left:0; top:0.15rem; width:1.25rem; height:1.25rem; border-radius:9999px;
+    background:#e5e7eb; display:flex; align-items:center; justify-content:center;
+  }
+  .tl-item.done .tl-dot { background:#0e7673; }
+  .tl-item.current .tl-dot { background:#0e7673; box-shadow:0 0 0 4px #e6f4f4; }
+
+  ::-webkit-scrollbar { height:6px; width:6px; }
+  ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:9999px; }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- ════════════════════════════════════════
+     MINI HEADER
+════════════════════════════════════════ -->
+<header class="bg-white border-b border-gray-100 sticky top-0 z-20">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="text-xl font-extrabold text-primary">Medi<span class="text-accent">Mart</span></span>
+    </a>
+    <a href="#" class="flex items-center gap-1.5 text-[14px] font-semibold text-gray-500 hover:text-primary transition-colors">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Orders
+    </a>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-5">
+
+  <!-- ════════════════════════════════════════
+       ORDER HEADER
+  ════════════════════════════════════════ -->
+  <div class="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <p class="text-[13px] text-gray-400">Order ID: <span class="font-semibold text-gray-600">#MM-58213</span> &nbsp;·&nbsp; Placed on Sep 20, 2026</p>
+      <h1 id="status-heading" class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-1">Out for Delivery</h1>
+      <p id="status-subtext" class="text-[14.5px] text-gray-500 mt-1">Your order is on the way — arriving today by 6:00 PM</p>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="flex items-center gap-1.5 border border-gray-200 text-gray-600 text-[13.5px] font-semibold px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 15V3m0 12l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Invoice
+      </button>
+      <button class="flex items-center gap-1.5 bg-primary hover:bg-primary2 text-white text-[13.5px] font-semibold px-4 py-2.5 rounded-xl transition-colors">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M18 10a6 6 0 00-12 0v4l-2 3h16l-2-3v-4zM9 21a3 3 0 006 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Need Help?
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PROGRESS STEPPER
+  ════════════════════════════════════════ -->
+  <div class="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6">
+    <div class="flex items-start justify-between relative" id="stepper">
+      <div class="step-line"><div id="step-line-fill" class="step-line-fill" style="width:62%"></div></div>
+
+      <div class="flex flex-col items-center gap-2 relative z-10 flex-1">
+        <div class="step-dot done" data-step="0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="step-label active text-[12px] sm:text-[13px] text-center">Order<br class="sm:hidden"> Placed</span>
+        <span class="text-[11px] text-gray-400">10:12 AM</span>
+      </div>
+
+      <div class="flex flex-col items-center gap-2 relative z-10 flex-1">
+        <div class="step-dot done" data-step="1">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="step-label active text-[12px] sm:text-[13px] text-center">Confirmed</span>
+        <span class="text-[11px] text-gray-400">10:24 AM</span>
+      </div>
+
+      <div class="flex flex-col items-center gap-2 relative z-10 flex-1">
+        <div class="step-dot done" data-step="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 12V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l3-1.72M16 17l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="step-label active text-[12px] sm:text-[13px] text-center">Packed</span>
+        <span class="text-[11px] text-gray-400">11:05 AM</span>
+      </div>
+
+      <div class="flex flex-col items-center gap-2 relative z-10 flex-1">
+        <div class="step-dot current" data-step="3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 16V6a1 1 0 011-1h9v11M3 16h13M3 16v1a2 2 0 002 2h1m10-3v-4h4l3 3v4a2 2 0 01-2 2h-1m-10 0a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="step-label active text-[12px] sm:text-[13px] text-center">Out for<br class="sm:hidden"> Delivery</span>
+        <span class="text-[11px] text-gray-400">1:15 PM</span>
+      </div>
+
+      <div class="flex flex-col items-center gap-2 relative z-10 flex-1">
+        <div class="step-dot" data-step="4">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12l2-2m0 0l7-7 7 7m-14 0v8a1 1 0 001 1h3m10-9l2 2m-2-2v8a1 1 0 01-1 1h-3m-6 0a2 2 0 004 0m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="step-label text-[12px] sm:text-[13px] text-center">Delivered</span>
+        <span class="text-[11px] text-gray-300">Pending</span>
+      </div>
+    </div>
+
+    <!-- Demo controls: switch order status to preview each stage -->
+    <div class="flex flex-wrap gap-2 justify-center mt-6 pt-5 border-t border-dashed border-gray-100">
+      <span class="text-[12px] text-gray-400 self-center mr-1">Preview status:</span>
+      <button onclick="setStatus(0)" class="status-btn text-[12.5px] font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-colors">Placed</button>
+      <button onclick="setStatus(1)" class="status-btn text-[12.5px] font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-colors">Confirmed</button>
+      <button onclick="setStatus(2)" class="status-btn text-[12.5px] font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-colors">Packed</button>
+      <button onclick="setStatus(3)" class="status-btn text-[12.5px] font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-colors">Out for Delivery</button>
+      <button onclick="setStatus(4)" class="status-btn text-[12.5px] font-semibold px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-colors">Delivered</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       RIDER CARD (shown only for "Out for Delivery")
+  ════════════════════════════════════════ -->
+  <div id="rider-card" class="bg-primarylt rounded-2xl p-5 flex items-center gap-4">
+    <div class="w-14 h-14 rounded-full overflow-hidden shrink-0 ring-2 ring-white">
+      <img src="https://loremflickr.com/200/200/deliveryman,courier?lock=401" alt="Delivery rider" class="w-full h-full object-cover"/>
+    </div>
+    <div class="flex-1 min-w-0">
+      <p class="text-[12px] text-primary font-semibold uppercase tracking-wide">Your delivery rider</p>
+      <p class="text-[15px] font-bold text-gray-900 truncate">Rafiqul Islam</p>
+      <p class="text-[13px] text-gray-500">Motorbike · DHK-3421</p>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <a href="tel:+8801711000000" class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-gray-50 transition-colors">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#" class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-gray-50 transition-colors">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       MAIN GRID: Summary + Timeline / Sidebar
+  ════════════════════════════════════════ -->
+  <div class="grid lg:grid-cols-3 gap-5">
+
+    <!-- Left column -->
+    <div class="lg:col-span-2 space-y-5">
+
+      <!-- Order Summary -->
+      <div class="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-[16px] font-bold text-gray-900">Order Summary</h2>
+          <span class="text-[13px] text-gray-400">3 items</span>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex gap-3">
+            <div class="w-16 h-16 shrink-0 rounded-xl overflow-hidden">
+              <img src="https://loremflickr.com/200/200/hairserum,bottle?lock=101" alt="" class="w-full h-full object-cover"/>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-medium text-gray-800 leading-snug line-clamp-2">Kirkland Minoxidil 5% Hair Regrowth 60ml</p>
+              <p class="text-[12.5px] text-gray-400 mt-0.5">Qty: 1 &nbsp;·&nbsp; ৳799</p>
+            </div>
+            <span class="text-[14.5px] font-bold text-gray-800 shrink-0">৳799</span>
+          </div>
+
+          <div class="flex gap-3">
+            <div class="w-16 h-16 shrink-0 rounded-xl overflow-hidden">
+              <img src="https://loremflickr.com/200/200/serum,skincare?lock=102" alt="" class="w-full h-full object-cover"/>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-medium text-gray-800 leading-snug line-clamp-2">The Ordinary Niacinamide 10%+Zinc 30ml</p>
+              <p class="text-[12.5px] text-gray-400 mt-0.5">Qty: 1 &nbsp;·&nbsp; ৳1,090</p>
+            </div>
+            <span class="text-[14.5px] font-bold text-gray-800 shrink-0">৳1,090</span>
+          </div>
+
+          <div class="flex gap-3">
+            <div class="w-16 h-16 shrink-0 rounded-xl overflow-hidden">
+              <img src="https://loremflickr.com/200/200/moisturizer,cream?lock=103" alt="" class="w-full h-full object-cover"/>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-medium text-gray-800 leading-snug line-clamp-2">Simple Kind to Skin Moisturiser 125ml</p>
+              <p class="text-[12.5px] text-gray-400 mt-0.5">Qty: 1 &nbsp;·&nbsp; ৳650</p>
+            </div>
+            <span class="text-[14.5px] font-bold text-gray-800 shrink-0">৳650</span>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-100 mt-5 pt-4 space-y-2 text-[14px]">
+          <div class="flex items-center justify-between text-gray-500">
+            <span>MRP</span><span class="font-medium text-gray-700">৳4,340</span>
+          </div>
+          <div class="flex items-center justify-between text-gray-500">
+            <span>Discount</span><span class="font-medium text-red-500">-৳1,801</span>
+          </div>
+          <div class="flex items-center justify-between text-gray-500">
+            <span>Delivery Charge</span><span class="font-medium text-green-600">Free</span>
+          </div>
+          <div class="flex items-center justify-between text-gray-500">
+            <span>MediMart Cash Applied</span><span class="font-medium text-gray-700">৳10</span>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+            <span class="font-bold text-gray-900">Total Paid</span>
+            <span class="font-extrabold text-primary text-[17px]">৳2,529</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed timeline -->
+      <div class="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6">
+        <h2 class="text-[16px] font-bold text-gray-900 mb-5">Order Timeline</h2>
+        <div class="space-y-5" id="timeline">
+          <div class="tl-item done" data-step="0">
+            <div class="tl-dot"></div>
+            <p class="text-[14px] font-semibold text-gray-800">Order Placed</p>
+            <p class="text-[12.5px] text-gray-400">You placed the order · Sep 20, 10:12 AM</p>
+          </div>
+          <div class="tl-item done" data-step="1">
+            <div class="tl-dot"></div>
+            <p class="text-[14px] font-semibold text-gray-800">Order Confirmed</p>
+            <p class="text-[12.5px] text-gray-400">Pharmacy confirmed your order · Sep 20, 10:24 AM</p>
+          </div>
+          <div class="tl-item done" data-step="2">
+            <div class="tl-dot"></div>
+            <p class="text-[14px] font-semibold text-gray-800">Packed</p>
+            <p class="text-[12.5px] text-gray-400">Items packed and ready for pickup · Sep 20, 11:05 AM</p>
+          </div>
+          <div class="tl-item current" data-step="3">
+            <div class="tl-dot"></div>
+            <p class="text-[14px] font-semibold text-gray-800">Out for Delivery</p>
+            <p class="text-[12.5px] text-gray-400">Rafiqul Islam picked up your parcel · Sep 20, 1:15 PM</p>
+          </div>
+          <div class="tl-item" data-step="4">
+            <div class="tl-dot"></div>
+            <p class="text-[14px] font-semibold text-gray-400">Delivered</p>
+            <p class="text-[12.5px] text-gray-300">Estimated by 6:00 PM today</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column — sidebar -->
+    <div class="space-y-5">
+
+      <!-- Delivery address -->
+      <div class="bg-white rounded-2xl border border-gray-100 p-5">
+        <h3 class="text-[14.5px] font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-primary"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/></svg>
+          Delivery Address
+        </h3>
+        <span class="inline-block bg-primarylt text-primary text-[11.5px] font-semibold px-2 py-0.5 rounded-md mb-2">Home</span>
+        <p class="text-[14px] font-bold text-gray-900">Sabbir Hossain</p>
+        <p class="text-[13.5px] text-gray-500 mt-0.5">+880 1926241906</p>
+        <p class="text-[13.5px] text-gray-500 mt-1 leading-snug">549 Ashkona, Apartment: Bhuiyan Manjil, near Baytul mahfuj jame moshjid, Dhaka 1230, Ashkona, Dakshin Khan, Dhaka City, Dhaka</p>
+      </div>
+
+      <!-- Payment method -->
+      <div class="bg-white rounded-2xl border border-gray-100 p-5">
+        <h3 class="text-[14.5px] font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-primary"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20" stroke="currentColor" stroke-width="2"/></svg>
+          Payment Method
+        </h3>
+        <div class="flex items-center justify-between">
+          <span class="text-[14px] text-gray-700">Cash on Delivery</span>
+          <span class="text-lg">💵</span>
+        </div>
+        <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
+          <span class="text-[13px] text-gray-400">Payment status</span>
+          <span class="text-[12.5px] font-semibold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-md">Due on delivery</span>
+        </div>
+      </div>
+
+      <!-- Support -->
+      <div class="bg-gray-900 rounded-2xl p-5 text-center">
+        <p class="text-[14px] font-bold text-white mb-1">Need help with this order?</p>
+        <p class="text-[12.5px] text-gray-400 mb-4">Our support team is available 24/7</p>
+        <a href="tel:+88016778" class="block w-full bg-white text-gray-900 text-[13.5px] font-bold py-2.5 rounded-xl hover:bg-gray-100 transition-colors">
+          Call 16778
+        </a>
+      </div>
+
+      <button class="w-full border border-primary text-primary text-[14px] font-semibold py-3 rounded-xl hover:bg-primarylt transition-colors">
+        Cancel Order
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const STATUS_META = [
+    { heading: 'Order Placed',    sub: "We've received your order and it's being reviewed." },
+    { heading: 'Order Confirmed', sub: 'Pharmacy has confirmed your order and is preparing it.' },
+    { heading: 'Packed',          sub: 'Your items are packed and awaiting pickup.' },
+    { heading: 'Out for Delivery',sub: 'Your order is on the way — arriving today by 6:00 PM' },
+    { heading: 'Delivered',       sub: 'Delivered successfully. Enjoy your order!' },
+  ];
+  const FILL_PCT = [6, 30, 46, 62, 100];
+
+  function setStatus(step) {
+    // Stepper dots
+    document.querySelectorAll('.step-dot').forEach(dot => {
+      const s = parseInt(dot.dataset.step, 10);
+      dot.classList.remove('done', 'current');
+      if (s < step) dot.classList.add('done');
+      else if (s === step) dot.classList.add('current');
+    });
+    document.querySelectorAll('.step-label').forEach((label, i) => {
+      label.classList.toggle('active', i <= step);
+    });
+    document.getElementById('step-line-fill').style.width = FILL_PCT[step] + '%';
+
+    // Timeline
+    document.querySelectorAll('.tl-item').forEach(item => {
+      const s = parseInt(item.dataset.step, 10);
+      item.classList.remove('done', 'current');
+      const title = item.querySelector('p:first-of-type');
+      const sub = item.querySelector('p:last-of-type');
+      if (s < step) {
+        item.classList.add('done');
+        title.classList.replace('text-gray-400', 'text-gray-800');
+        sub.classList.replace('text-gray-300', 'text-gray-400');
+      } else if (s === step) {
+        item.classList.add('current');
+        title.classList.replace('text-gray-400', 'text-gray-800');
+        sub.classList.replace('text-gray-300', 'text-gray-400');
+      } else {
+        title.classList.replace('text-gray-800', 'text-gray-400');
+        sub.classList.replace('text-gray-400', 'text-gray-300');
+      }
+    });
+
+    // Header text
+    document.getElementById('status-heading').textContent = STATUS_META[step].heading;
+    document.getElementById('status-subtext').textContent = STATUS_META[step].sub;
+
+    // Rider card only visible while out for delivery
+    document.getElementById('rider-card').style.display = (step === 3) ? 'flex' : 'none';
+
+    // Active preview button
+    document.querySelectorAll('.status-btn').forEach((btn, i) => {
+      btn.classList.toggle('border-primary', i === step);
+      btn.classList.toggle('text-primary', i === step);
+      btn.classList.toggle('bg-primarylt', i === step);
+    });
+  }
+
+  setStatus(3); // default: Out for Delivery, matching the design above
+</script>
+</body>
+</html>

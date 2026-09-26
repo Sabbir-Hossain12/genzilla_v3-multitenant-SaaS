@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Order confirmed | MediMart</title>
+
+<!-- ▼ PASTE BASE TRACKING CODE HERE (GTM / GA4 gtag.js, Meta Pixel, TikTok Pixel).
+       The purchase events are fired by the script at the bottom of this file. -->
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { primary:'#0e7673', primary2:'#0b6461', primarylt:'#e6f4f4', accent:'#f97316', accentlt:'#fff7ed' },
+    fontFamily: { sans: ['Inter','Noto Sans Bengali','sans-serif'] }
+  } } }
+</script>
+<style>
+  :root { color-scheme: light; box-sizing: border-box; padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); --nav-h:132px; }
+  html { scroll-padding-top: env(safe-area-inset-top,0px); }
+  body { background:#f9fafb; color:#1f2937; }
+  .max-w-7xl { max-width:1440px !important; }
+  :focus-visible { outline:2px solid #0e7673; outline-offset:2px; }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+  .nav-shadow { box-shadow:0 1px 6px rgba(0,0,0,.08); }
+
+  /* success mark: drawn once on load */
+  @keyframes pop  { 0% { transform:scale(.6); opacity:0; } 100% { transform:scale(1); opacity:1; } }
+  @keyframes draw { to { stroke-dashoffset:0; } }
+  .ok-ring  { animation: pop .35s ease-out both; }
+  .ok-check { stroke-dasharray:32; stroke-dashoffset:32; animation: draw .4s .3s ease-out forwards; }
+
+  /* order progress */
+  .steps { display:grid; gap:1.25rem; }
+  .steps li { position:relative; display:flex; gap:.875rem; }
+  .steps li:not(:last-child)::after { content:""; position:absolute; left:15px; top:34px; bottom:-1.25rem; width:2px; background:#e5e7eb; }
+  .steps li.done:not(:last-child)::after { background:#0e7673; }
+  @media (min-width:640px) {
+    .steps { grid-template-columns:repeat(5,1fr); gap:0; }
+    .steps li { flex-direction:column; align-items:center; text-align:center; gap:.625rem; }
+    .steps li:not(:last-child)::after { left:calc(50% + 22px); right:calc(-50% + 22px); width:auto; top:15px; bottom:auto; height:2px; }
+  }
+
+  @media print {
+    .no-print, nav#nav, footer, #topbar { display:none !important; }
+    body { background:#fff; }
+    .print-flat { border:0 !important; box-shadow:none !important; position:static !important; }
+  }
+</style>
+</head>
+<body class="font-sans">
+<!-- TOP BAR -->
+<div id="topbar" class="bg-primary text-white text-sm py-2 hidden sm:block">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+    <p class="flex items-center gap-1.5">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Free delivery on orders over ৳500 | Same-day delivery in Dhaka
+    </p>
+    <div class="flex items-center gap-5">
+      <a href="#" class="hover:text-white/80 transition-colors">Become a Seller</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Track Order</a>
+      <a href="#" class="hover:text-white/80 transition-colors">Help</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="nav" class="sticky z-50 bg-white nav-shadow" style="top:env(safe-area-inset-top,0px)">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center gap-2 sm:gap-3 lg:gap-6 h-16 lg:h-20">
+
+      <a href="#" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="MediMart home">
+        <div class="w-9 h-9 lg:w-11 lg:h-11 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="text-lg sm:text-xl lg:text-2xl font-extrabold text-primary whitespace-nowrap">Medi<span class="text-accent">Mart</span></span>
+      </a>
+
+      <div class="hidden lg:flex flex-1 max-w-2xl">
+        <div class="relative flex w-full">
+          <select aria-label="Search category" class="shrink-0 border border-r-0 border-gray-200 rounded-l-xl px-4 py-3.5 text-base bg-gray-50 text-gray-600 focus:outline-none">
+            <option>All</option><option>Medicine</option><option>Beauty</option><option>Healthcare</option>
+          </select>
+          <input type="text" aria-label="Search" placeholder="Search medicines, brands & more..." class="flex-1 min-w-0 border border-gray-200 px-5 py-3.5 text-base focus:outline-none focus:border-primary transition-colors"/>
+          <button aria-label="Search" class="bg-primary hover:bg-primary2 text-white px-6 py-3.5 rounded-r-xl transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 lg:hidden"></div>
+
+      <div class="flex items-center gap-0 sm:gap-1 lg:gap-4 shrink-0">
+        <a href="#" class="hidden lg:flex items-center gap-2 border border-primary text-primary text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-primarylt transition-colors shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Upload Rx
+        </a>
+        <button class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Account">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Account</span>
+        </button>
+        <button class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Orders">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20 7h-3V6a4 4 0 00-8 0v1H6a1 1 0 00-1 1v11a2 2 0 002 2h10a2 2 0 002-2V8a1 1 0 00-1-1zM11 6a1 1 0 012 0v1h-2V6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Orders</span>
+        </button>
+        <button class="relative flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0" aria-label="Cart">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Cart</span>
+          <span id="cart-badge" class="absolute top-0.5 right-1 sm:right-1.5 w-5 h-5 bg-accent text-white text-[11px] font-bold rounded-full flex items-center justify-center">3</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="lg:hidden pb-3">
+      <div class="relative flex w-full">
+        <input type="text" aria-label="Search" placeholder="Search medicines, brands & more..." class="flex-1 min-w-0 border border-gray-200 rounded-l-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors"/>
+        <button aria-label="Search" class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex items-center border-t border-gray-100">
+      <div class="flex items-center overflow-x-auto no-scrollbar">
+        <a href="#" class="flex items-center gap-2 px-5 py-3.5 text-[15px] font-semibold text-white bg-primary whitespace-nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          All Categories
+        </a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💊 Medicine</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">✨ Beauty</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🏥 Healthcare</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🧪 Lab Test</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">👶 Baby & Mom</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🌿 Herbal</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🐾 Pet Care</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">💪 Supplement</a>
+        <a href="#" class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap">🍎 Food & Nutrition</a>
+      </div>
+      <div class="hidden lg:flex items-center gap-6 ml-auto pl-6 pr-1 shrink-0 border-l border-gray-100">
+        <a href="#" class="text-[14px] text-gray-500 hover:text-primary whitespace-nowrap transition-colors">Track Order</a>
+        <a href="tel:+8809610016778" class="flex items-center gap-1.5 text-[14px] font-semibold text-primary whitespace-nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          09610-016778
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 pt-6 pb-8">
+
+  <!-- ═══ CONFIRMATION HEADER ═══ -->
+  <header class="bg-white border border-gray-100 rounded-2xl p-5 sm:p-8 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-8">
+    <div class="ok-ring shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primarylt flex items-center justify-center" aria-hidden="true">
+      <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-primary flex items-center justify-center">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path class="ok-check" d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <h1 class="text-[26px] sm:text-[32px] font-bold text-gray-900 leading-tight">Thank you, <span id="cust-first"></span>. Your order is confirmed.</h1>
+      <p class="text-[15.5px] text-gray-600 mt-2.5 leading-relaxed max-w-2xl">We have sent your receipt by SMS and email. You will get another message when your order is on its way.</p>
+      <div class="mt-4 inline-flex items-center gap-1 bg-gray-50 border border-gray-100 rounded-xl pl-4 pr-1.5 py-1.5">
+        <span class="text-[13.5px] text-gray-500 mr-1">Order number</span>
+        <span id="order-id" class="font-bold text-gray-900 text-[15px]"></span>
+        <button id="copy" aria-label="Copy order number" class="ml-1 w-8 h-8 rounded-lg text-gray-500 hover:text-primary hover:bg-white flex items-center justify-center transition-colors no-print"><svg class="" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 lg:w-56 shrink-0 no-print">
+      <a id="track-link" href="track-order.html" class="bg-primary hover:bg-primary2 text-white font-semibold text-[15px] px-6 py-3.5 rounded-xl text-center transition-colors flex items-center justify-center gap-2">Track your order <svg class="" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="#" class="border border-primary text-primary hover:bg-primarylt font-semibold text-[15px] px-6 py-3.5 rounded-xl text-center transition-colors">Continue shopping</a>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
+
+    <div class="lg:col-span-8 space-y-4">
+
+      <!-- Progress -->
+      <section class="bg-white border border-gray-100 rounded-2xl p-5 sm:p-6" aria-labelledby="progress-h">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <h2 id="progress-h" class="text-[18px] font-bold text-gray-900">Order progress</h2>
+          <div class="flex items-center gap-2 bg-primarylt text-primary2 text-[14px] font-semibold px-3.5 py-2 rounded-lg self-start">
+            <svg class="" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <span id="eta"></span>
+          </div>
+        </div>
+        <ol class="steps" id="steps"></ol>
+      </section>
+
+      <!-- Items -->
+      <section class="bg-white border border-gray-100 rounded-2xl overflow-hidden" aria-labelledby="items-h">
+        <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-100">
+          <h2 id="items-h" class="text-[18px] font-bold text-gray-900">Items in this order</h2>
+          <span id="item-count" class="text-[14px] text-gray-500"></span>
+        </div>
+        <ul id="items" class="divide-y divide-gray-100"></ul>
+      </section>
+
+      <!-- Delivery + payment -->
+      <section class="bg-white border border-gray-100 rounded-2xl p-5 sm:p-6 grid sm:grid-cols-3 gap-6" aria-label="Delivery and payment details">
+        <div>
+          <p class="flex items-center gap-2 text-[14px] font-semibold text-gray-900"><svg class="text-primary" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> Delivery address</p>
+          <p class="mt-3 text-[14.5px] text-gray-600 leading-relaxed">
+            <span id="addr-label" class="inline-block bg-primarylt text-primary text-[12px] font-semibold px-2 py-0.5 rounded mb-1.5"></span><br>
+            <span id="addr-name" class="font-semibold text-gray-900"></span><br>
+            <span id="addr-phone"></span><br>
+            <span id="addr-line"></span>
+          </p>
+        </div>
+        <div>
+          <p class="flex items-center gap-2 text-[14px] font-semibold text-gray-900"><svg class="text-primary" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Delivery method</p>
+          <p class="mt-3 text-[14.5px] text-gray-600 leading-relaxed"><span class="font-semibold text-gray-900">Same-day delivery</span><br>Dhaka city<br>Free on orders over ৳500</p>
+        </div>
+        <div>
+          <p class="flex items-center gap-2 text-[14px] font-semibold text-gray-900"><svg class="text-primary" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Payment</p>
+          <p class="mt-3 text-[14.5px] text-gray-600 leading-relaxed"><span id="pay-method" class="font-semibold text-gray-900"></span><br><span id="pay-account"></span><br><span id="pay-txn" class="text-[13.5px] text-gray-400"></span></p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Receipt -->
+    <aside class="lg:col-span-4">
+      <section class="print-flat bg-white border border-gray-100 rounded-2xl p-5 sm:p-6 lg:sticky" style="top:calc(var(--nav-h) + 16px)" aria-labelledby="receipt-h">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 id="receipt-h" class="text-[18px] font-bold text-gray-900">Receipt</h2>
+            <p id="receipt-date" class="text-[13.5px] text-gray-400 mt-0.5"></p>
+          </div>
+          <span class="bg-green-50 text-green-700 text-[12px] font-semibold px-2.5 py-1 rounded-full">Paid</span>
+        </div>
+
+        <dl class="mt-5 space-y-3 text-[14.5px]">
+          <div class="flex justify-between"><dt class="text-gray-500">Price before discount</dt><dd id="r-mrp" class="text-gray-800 font-medium"></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Discount</dt><dd id="r-discount" class="text-green-600 font-medium"></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Delivery charge</dt><dd id="r-delivery" class="text-gray-800 font-medium"></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">MediMart Cash used</dt><dd id="r-cash" class="text-gray-800 font-medium"></dd></div>
+        </dl>
+
+        <div class="mt-4 pt-4 border-t border-gray-100 flex items-baseline justify-between">
+          <span class="text-[15px] font-semibold text-gray-900">Total paid</span>
+          <span id="r-total" class="text-[26px] font-bold text-primary"></span>
+        </div>
+
+        <p id="r-saving" class="mt-4 bg-accentlt text-orange-700 text-[13.5px] font-medium rounded-lg px-3.5 py-2.5"></p>
+
+        <button id="print" class="no-print mt-5 w-full flex items-center justify-center gap-2 border border-gray-200 text-gray-700 hover:border-primary hover:text-primary font-semibold text-[14.5px] py-3 rounded-xl transition-colors">
+          <svg class="" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print or save receipt
+        </button>
+      </section>
+    </aside>
+  </div>
+
+  <!-- Help -->
+  <aside class="mt-4 bg-primarylt rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
+    <div>
+      <p class="text-[17px] font-bold text-primary2">Something not right with your order?</p>
+      <p class="text-[14.5px] text-gray-600 mt-1">Call or message us and we will sort it out. Read how <a href="refund-return-policy.html" class="text-primary font-semibold underline underline-offset-2">returns and refunds</a> work.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-2.5 shrink-0">
+      <a href="tel:+8809610016778" class="bg-primary hover:bg-primary2 text-white font-semibold text-[14.5px] px-5 py-3 rounded-xl text-center transition-colors flex items-center justify-center gap-2"><svg class="" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> 09610-016778</a>
+      <a href="#" class="bg-white border border-primary text-primary hover:bg-white/60 font-semibold text-[14.5px] px-5 py-3 rounded-xl text-center transition-colors">WhatsApp 01810117100</a>
+    </div>
+  </aside>
+</main>
+<!-- FOOTER -->
+<footer class="bg-white border-t border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 pt-10 pb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-10">
+      <div class="lg:col-span-2">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="text-2xl font-extrabold text-primary">Medi<span class="text-accent">Mart</span></span>
+        </div>
+        <p class="text-[15px] text-gray-500 leading-relaxed">Bangladesh's most trusted online pharmacy for medicine, beauty & healthcare products. Serving all 64 districts.</p>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Quick Links</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="privacy-policy.html" class="hover:text-primary">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-primary">Terms & Conditions</a></li>
+          <li><a href="refund-return-policy.html" class="hover:text-primary">Return & Refund</a></li>
+          <li><a href="#" class="hover:text-primary">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Our Services</h4>
+        <ul class="space-y-2.5 text-[15px] text-gray-500">
+          <li><a href="#" class="hover:text-primary">Online Doctor Consultation</a></li>
+          <li><a href="#" class="hover:text-primary">Lab Test, Home Collection</a></li>
+          <li><a href="#" class="hover:text-primary">Medicine Home Delivery</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-[16px] font-bold text-gray-800 mb-4">Payment Partners</h4>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">bKash</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Nagad</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Rocket</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">VISA</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">Master</span>
+          <span class="bg-gray-100 text-gray-600 text-[13px] font-semibold px-2.5 py-1.5 rounded">COD</span>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-100 pt-6 text-[13px] text-gray-400 text-center sm:text-left">
+      <p>© 2026 MediMart Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script>
+/* ════════════════════════════════════════════════════════════
+   ORDER DATA — single source of truth for this page and for
+   the tracking events below. Replace with the values your
+   backend renders for the order that was just paid.
+════════════════════════════════════════════════════════════ */
+const ORDER = {
+  id: 'MM-260920-04821',
+  placedAt: '20 September 2026, 2:41 PM',
+  eta: 'Today, 6 PM to 8 PM',
+  currency: 'BDT',
+  customer: { first: 'Tanvir', name: 'Tanvir Ahmed', phone: '01712-XXX678' },
+  address:  { label: 'Home', line: 'House 14, Road 7, Block C, Banani, Dhaka-1213' },
+  payment:  { method: 'bKash', account: '01712-XXX678', txn: 'TrxID 9K4M2X7Q1P' },
+  cashUsed: 10,
+  items: [
+    { sku: 'MM-BT-10482', name: 'Skin1004 Centella Sun Serum SPF50+', pack: '50 ml',  qty: 1, price: 1500, mrp: 2100, art: 'tube', c: '#f97316', c2: '#fbd5b5' },
+    { sku: 'MM-BT-10517', name: 'Centella Soothing Cream',            pack: '75 ml',  qty: 1, price: 1250, mrp: 1650, art: 'jar',  c: '#0e7673', c2: '#cfe3e2' },
+    { sku: 'MM-BT-10563', name: 'Gentle Foaming Cleanser',            pack: '150 ml', qty: 1, price: 640,  mrp: 850,  art: 'tube', c: '#14b8a6', c2: '#b6e3df' }
+  ],
+  deliveryCharge: 0,
+  trackUrl: 'track-order.html'
+};
+
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const tk = n => '৳' + Math.round(n).toLocaleString('en-US');
+  const O = ORDER;
+
+  /* totals */
+  const units    = O.items.reduce((s, i) => s + i.qty, 0);
+  const mrp      = O.items.reduce((s, i) => s + i.mrp * i.qty, 0);
+  const subtotal = O.items.reduce((s, i) => s + i.price * i.qty, 0);
+  const discount = mrp - subtotal;
+  const total    = subtotal + O.deliveryCharge - O.cashUsed;
+
+  /* header + details */
+  $('#cust-first').textContent = O.customer.first;
+  $('#order-id').textContent = O.id;
+  $('#track-link').href = O.trackUrl + '?order=' + encodeURIComponent(O.id);
+  $('#eta').textContent = 'Estimated delivery: ' + O.eta;
+  $('#addr-label').textContent = O.address.label;
+  $('#addr-name').textContent = O.customer.name;
+  $('#addr-phone').textContent = O.customer.phone;
+  $('#addr-line').textContent = O.address.line;
+  $('#pay-method').textContent = O.payment.method;
+  $('#pay-account').textContent = O.payment.account;
+  $('#pay-txn').textContent = O.payment.txn;
+
+  /* receipt */
+  $('#receipt-date').textContent = O.id + ', ' + O.placedAt;
+  $('#r-mrp').textContent = tk(mrp);
+  $('#r-discount').textContent = '−' + tk(discount);
+  $('#r-delivery').textContent = O.deliveryCharge ? tk(O.deliveryCharge) : 'Free';
+  $('#r-cash').textContent = O.cashUsed ? '−' + tk(O.cashUsed) : '৳0';
+  $('#r-total').textContent = tk(total);
+  $('#r-saving').textContent = 'You saved ' + tk(discount) + ' on this order.';
+
+  /* items */
+  const art = (k, c, c2) => {
+    const s = {
+      tube: `<rect x="70" y="24" width="60" height="12" rx="2" fill="${c2}"/><path d="M68 36h64v100c0 8-6 13-13 15l-1 4h-36l-1-4c-7-2-13-7-13-15z" fill="#fff" stroke="${c2}" stroke-width="1.5"/><rect x="68" y="88" width="64" height="22" fill="${c}"/><rect x="82" y="155" width="36" height="20" rx="4" fill="${c}"/>`,
+      jar:  `<rect x="52" y="60" width="96" height="30" rx="6" fill="${c}"/><rect x="48" y="88" width="104" height="72" rx="10" fill="#fff" stroke="${c2}" stroke-width="1.5"/><rect x="62" y="108" width="76" height="32" rx="4" fill="${c}" opacity=".9"/>`
+    }[k];
+    return `<svg viewBox="0 0 200 200" style="width:100%;height:100%;display:block" aria-hidden="true"><rect width="200" height="200" fill="#f3f9f9"/>${s}</svg>`;
+  };
+  $('#item-count').textContent = units + (units === 1 ? ' item' : ' items');
+  $('#items').innerHTML = O.items.map(i => `
+    <li class="flex items-center gap-4 px-5 sm:px-6 py-4">
+      <div class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-gray-100">${art(i.art, i.c, i.c2)}</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[15px] font-medium text-gray-900 leading-snug line-clamp-2">${i.name}</p>
+        <p class="text-[13.5px] text-gray-500 mt-1">${i.pack}, Qty ${i.qty}</p>
+      </div>
+      <div class="text-right shrink-0">
+        <p class="text-[15px] font-bold text-gray-900">${tk(i.price * i.qty)}</p>
+        ${i.mrp > i.price ? `<p class="text-[12.5px] text-gray-400 line-through">${tk(i.mrp * i.qty)}</p>` : ''}
+      </div>
+    </li>`).join('');
+
+  /* progress */
+  const steps = [
+    ['Order placed', O.placedAt.split(', ')[1], 'done'],
+    ['Confirmed', 'We are checking your items', 'current'],
+    ['Packed', 'Sealed and labelled', ''],
+    ['Out for delivery', 'Rider on the way', ''],
+    ['Delivered', 'At your door', '']
+  ];
+  const check = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  $('#steps').innerHTML = steps.map(([t, d, st]) => {
+    const dot = st === 'done'
+      ? `<span class="relative z-10 w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">${check}</span>`
+      : st === 'current'
+      ? `<span class="relative z-10 w-8 h-8 rounded-full bg-primarylt border-2 border-primary flex items-center justify-center shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span></span>`
+      : `<span class="relative z-10 w-8 h-8 rounded-full bg-white border-2 border-gray-200 shrink-0"></span>`;
+    return `<li class="${st}">${dot}<div><p class="text-[14.5px] ${st ? 'font-semibold text-gray-900' : 'font-medium text-gray-400'}">${t}</p><p class="text-[12.5px] ${st ? 'text-gray-500' : 'text-gray-300'} mt-0.5">${d}</p></div></li>`;
+  }).join('');
+
+  /* cart is empty after purchase */
+  const badge = document.getElementById('cart-badge');
+  if (badge) badge.style.display = 'none';
+
+  /* actions */
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.textContent = msg; t.setAttribute('role', 'status');
+    t.style.cssText = 'position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;transition:opacity .25s ease;';
+    document.body.appendChild(t);
+    requestAnimationFrame(() => { t.style.opacity = '1'; });
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2200);
+  }
+  $('#copy').addEventListener('click', () => {
+    try { navigator.clipboard.writeText(O.id).then(() => toast('Order number copied'), () => toast('Copy failed')); }
+    catch (e) { toast('Copy failed'); }
+  });
+  $('#print').addEventListener('click', () => window.print());
+  const nav = document.getElementById('nav');
+  const setNav = () => document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+  setNav(); addEventListener('resize', setNav); addEventListener('load', setNav);
+
+  /* ════════════════════════════════════════════════════════
+     PURCHASE TRACKING — fires once per order.
+     Each call is a no-op unless that tag is loaded in <head>.
+     Value = amount actually paid. Event ID = order number,
+     so the browser event can be de-duplicated against a
+     server-side Conversions API event.
+  ════════════════════════════════════════════════════════ */
+  (function trackPurchase() {
+    const key = 'mm_purchase_tracked_' + O.id;
+    try { if (sessionStorage.getItem(key)) return; } catch (e) {}
+
+    const contents = O.items.map(i => ({ id: i.sku, quantity: i.qty, item_price: i.price }));
+
+    /* Google Tag Manager / GA4 */
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ ecommerce: null });
+    window.dataLayer.push({
+      event: 'purchase',
+      ecommerce: {
+        transaction_id: O.id,
+        value: total,
+        currency: O.currency,
+        shipping: O.deliveryCharge,
+        payment_type: O.payment.method,
+        items: O.items.map(i => ({ item_id: i.sku, item_name: i.name, item_variant: i.pack, price: i.price, quantity: i.qty, discount: i.mrp - i.price }))
+      }
+    });
+
+    /* Meta (Facebook) Pixel */
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'Purchase', { value: total, currency: O.currency, content_type: 'product', contents: contents, num_items: units }, { eventID: O.id });
+    }
+
+    /* TikTok Pixel */
+    if (window.ttq && typeof window.ttq.track === 'function') {
+      window.ttq.track('CompletePayment', { value: total, currency: O.currency, content_type: 'product', contents: contents.map(c => ({ content_id: c.id, quantity: c.quantity, price: c.item_price })) }, { event_id: O.id });
+    }
+
+    try { sessionStorage.setItem(key, '1'); } catch (e) {}
+  })();
+})();
+</script>
+</body>
+</html>
