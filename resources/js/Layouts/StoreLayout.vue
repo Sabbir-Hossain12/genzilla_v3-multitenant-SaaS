@@ -16,5 +16,7 @@ import Footer from "@/Components/Footer.vue";
 </template>
 
 <style scoped>
+.vss{
 
+}
 </style>
