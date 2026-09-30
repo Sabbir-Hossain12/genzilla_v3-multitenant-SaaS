@@ -1,5 +1,6 @@
 <script setup>
-
+import { openCartDrawer, openLoginModal } from '@/composables/useStoreUi'
+import { cartCount } from '@/composables/useCart'
 </script>
 
 <template>
@@ -117,17 +118,18 @@
             </svg>
             <span class="text-[12px] font-medium mt-0.5">Search</span>
         </a>
-        <button onclick="openCartDrawer()"
+        <button @click="openCartDrawer"
                 class="flex-1 flex flex-col items-center py-2.5 text-gray-400 hover:text-primary relative">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor"
-                      stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <span id="cart-badge-mobile"
-                  class="absolute top-1.5 right-4 w-4 h-4 bg-accent text-white text-[11px] font-bold rounded-full flex items-center justify-center">3</span>
+                  class="absolute top-1.5 right-4 w-4 h-4 bg-accent text-white text-[11px] font-bold rounded-full flex items-center justify-center">{{ cartCount }}</span>
             <span class="text-[12px] font-medium mt-0.5">Cart</span>
         </button>
-        <button onclick="openLoginModal()"
+        <button @click="openLoginModal"
+
                 class="flex-1 flex flex-col items-center py-2.5 text-gray-400 hover:text-primary">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor"

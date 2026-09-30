@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 @plugin "@tailwindcss/forms";
 
 @theme {
@@ -14,25 +15,106 @@
 }
 
 /* scrollbar hide for carousels */
-.no-scrollbar::-webkit-scrollbar { display:none; }
-.no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
 
-/* banner slide */
-.banner-slide { display:none; }
-.banner-slide.active { display:block; }
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
 
+/* Swiper hero banner — visibility is owned by Swiper, not by a CSS state class. */
+#hero-banner .swiper,
+#hero-banner .swiper-wrapper,
+#hero-banner .swiper-slide {
+    height: 100%;
+}
+
+/* Swiper's own arrows are restyled to match the prototype's 32px white pills.
+   The defaults (44px, 4px offset, colour from --swiper-theme-color) are reset here
+   because the Vue wrapper adds .swiper-button-prev/next itself. */
+#hero-banner .swiper-button-prev,
+#hero-banner .swiper-button-next {
+    --swiper-navigation-size: 32px;
+    --swiper-navigation-sides-offset: 12px;
+    width: 32px;
+    height: 32px;
+    margin-top: -16px;
+    background: rgba(255, 255, 255, .8);
+    border-radius: 9999px;
+    color: #374151;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+    transition: background .2s ease;
+}
+
+#hero-banner .swiper-button-prev:hover,
+#hero-banner .swiper-button-next:hover {
+    background: #fff;
+}
+
+/* Swiper v14 draws the arrow glyph in ::after; swap in a chevron. */
+#hero-banner .swiper-button-prev::after,
+#hero-banner .swiper-button-next::after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+#hero-banner .swiper-button-prev::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E");
+}
+
+#hero-banner .swiper-button-next::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
+}
+
+/* Pagination bullets mimic the previous w-1.5 -> w-5 pill morph. */
+#hero-banner .swiper-pagination {
+    bottom: 12px;
+}
+
+#hero-banner .swiper-pagination-bullet {
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    opacity: .5;
+    transition: width .2s ease, opacity .2s ease;
+}
+
+#hero-banner .swiper-pagination-bullet-active {
+    width: 20px;
+    border-radius: 9999px;
+    opacity: 1;
+}
 /* product card hover */
-.prod-card { transition: box-shadow .2s, transform .2s; }
-.prod-card:hover { box-shadow:0 8px 24px rgba(0,0,0,.1); transform:translateY(-2px); }
+.prod-card {
+    transition: box-shadow .2s, transform .2s;
+}
+
+.prod-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+    transform: translateY(-2px);
+}
 
 /* sticky nav shadow */
-.nav-shadow { box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+.nav-shadow {
+    box-shadow: 0 1px 6px rgba(0, 0, 0, .08);
+}
 
 /* gradient shimmer on badge */
 @keyframes shimmer {
-    0%  { background-position:-200% center; }
-    100%{ background-position:200% center; }
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
 }
+
 .shimmer-badge {
     background: linear-gradient(90deg, #0e7673 0%, #14b8a6 40%, #0e7673 80%);
     background-size: 200% auto;
@@ -41,92 +123,219 @@
 
 /* category pill active */
 .cat-pill.active {
-    background:#0e7673; color:#fff;
+    background: #0e7673;
+    color: #fff;
 }
 
 /* flash sale pulse */
 @keyframes pulse-dot {
-    0%,100%{ opacity:1; } 50%{ opacity:.4; }
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .4;
+    }
 }
-.pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
+
+.pulse-dot {
+    animation: pulse-dot 1.2s ease-in-out infinite;
+}
 
 /* login modal */
-#login-modal { display:none; }
-#login-modal.open { display:flex; }
-@keyframes modal-pop {
-    0%   { opacity:0; transform:translateY(12px) scale(.97); }
-    100% { opacity:1; transform:translateY(0) scale(1); }
+#login-modal {
+    display: none;
 }
-#login-modal.open .modal-card { animation: modal-pop .22s ease-out; }
-.otp-box { width:2.75rem; height:3.25rem; }
+
+#login-modal.open {
+    display: flex;
+}
+
+@keyframes modal-pop {
+    0% {
+        opacity: 0;
+        transform: translateY(12px) scale(.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+#login-modal.open .modal-card {
+    animation: modal-pop .22s ease-out;
+}
+
+.otp-box {
+    width: 2.75rem;
+    height: 3.25rem;
+}
 
 /* cart drawer */
 #cart-overlay {
-    position:fixed; inset:0; z-index:100;
-    background:rgba(0,0,0,0); pointer-events:none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0);
+    pointer-events: none;
     transition: background .3s ease;
 }
-#cart-overlay.open { background:rgba(0,0,0,.5); pointer-events:auto; }
-#cart-drawer {
-    position:fixed; top:0; right:0; height:100%; z-index:101;
-    width:100%; max-width:26rem;
-    background:#fff;
-    transform:translateX(100%);
-    transition: transform .32s cubic-bezier(.4,0,.2,1);
-    display:flex; flex-direction:column;
-    box-shadow:-8px 0 30px rgba(0,0,0,.12);
+
+#cart-overlay.open {
+    background: rgba(0, 0, 0, .5);
+    pointer-events: auto;
 }
-#cart-overlay.open #cart-drawer { transform:translateX(0); }
-.qty-btn { width:1.75rem; height:1.75rem; }
+
+#cart-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    z-index: 101;
+    width: 100%;
+    max-width: 26rem;
+    background: #fff;
+    transform: translateX(100%);
+    transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -8px 0 30px rgba(0, 0, 0, .12);
+}
+
+#cart-overlay.open #cart-drawer {
+    transform: translateX(0);
+}
+
+.qty-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+}
 
 /* mobile nav drawer */
 #mobilenav-overlay {
-    position:fixed; inset:0; z-index:100;
-    background:rgba(0,0,0,0); pointer-events:none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0);
+    pointer-events: none;
     transition: background .3s ease;
 }
-#mobilenav-overlay.open { background:rgba(0,0,0,.5); pointer-events:auto; }
-#mobilenav-drawer {
-    position:fixed; top:0; left:0; height:100%; z-index:101;
-    width:88%; max-width:22rem;
-    background:#fff;
-    transform:translateX(-100%);
-    transition: transform .3s cubic-bezier(.4,0,.2,1);
-    display:flex; flex-direction:column;
-    box-shadow:8px 0 30px rgba(0,0,0,.12);
+
+#mobilenav-overlay.open {
+    background: rgba(0, 0, 0, .5);
+    pointer-events: auto;
 }
-#mobilenav-overlay.open #mobilenav-drawer { transform:translateX(0); }
-#mobilenav-drawer summary { list-style:none; }
-#mobilenav-drawer summary::-webkit-details-marker { display:none; }
-#mobilenav-drawer details[open] .accordion-chevron { transform:rotate(180deg); }
-.accordion-chevron { transition: transform .2s ease; }
+
+#mobilenav-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 101;
+    width: 88%;
+    max-width: 22rem;
+    background: #fff;
+    transform: translateX(-100%);
+    transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 8px 0 30px rgba(0, 0, 0, .12);
+}
+
+#mobilenav-overlay.open #mobilenav-drawer {
+    transform: translateX(0);
+}
+
+#mobilenav-drawer summary {
+    list-style: none;
+}
+
+#mobilenav-drawer summary::-webkit-details-marker {
+    display: none;
+}
+
+#mobilenav-drawer details[open] .accordion-chevron {
+    transform: rotate(180deg);
+}
+
+.accordion-chevron {
+    transition: transform .2s ease;
+}
 
 /* ── modal open/close + entrance animation ── */
-#checkout-modal { display:none; }
-#checkout-modal.open { display:flex; }
-#checkout-modal .modal-card { animation: modal-pop .22s ease-out; }
+#checkout-modal {
+    display: none;
+}
+
+#checkout-modal.open {
+    display: flex;
+}
+
+#checkout-modal .modal-card {
+    animation: modal-pop .22s ease-out;
+}
 
 /* ── toggle switch (Monthly auto reorder) ── */
 .toggle-track {
-    width:2.75rem; height:1.5rem; border-radius:9999px; background:#e5e7eb;
-    position:relative; transition: background .2s ease; flex-shrink:0;
+    width: 2.75rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    background: #e5e7eb;
+    position: relative;
+    transition: background .2s ease;
+    flex-shrink: 0;
 }
-.toggle-track.on { background:#0f766e; }
+
+.toggle-track.on {
+    background: #0f766e;
+}
+
 .toggle-thumb {
-    position:absolute; top:2px; left:2px; width:1.25rem; height:1.25rem; border-radius:9999px;
-    background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition: transform .2s ease;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+    transition: transform .2s ease;
 }
-.toggle-track.on .toggle-thumb { transform:translateX(1.25rem); }
+
+.toggle-track.on .toggle-thumb {
+    transform: translateX(1.25rem);
+}
 
 /* ── coupon / product-items accordions ── */
-#checkout-modal details summary { list-style:none; }
-#checkout-modal details summary::-webkit-details-marker { display:none; }
-#checkout-modal details[open] .co-chevron { transform:rotate(90deg); }
-.co-chevron { transition: transform .2s ease; }
+#checkout-modal details summary {
+    list-style: none;
+}
+
+#checkout-modal details summary::-webkit-details-marker {
+    display: none;
+}
+
+#checkout-modal details[open] .co-chevron {
+    transform: rotate(90deg);
+}
+
+.co-chevron {
+    transition: transform .2s ease;
+}
 
 /* ── address label chips (Home / Office / Other) ── */
-.addr-label-btn { border-color:#e5e7eb; color:#6b7280; background:#fff; }
-.addr-label-btn.active { border-color:#0e7673; color:#0e7673; background:#e6f2f1; }
+.addr-label-btn {
+    border-color: #e5e7eb;
+    color: #6b7280;
+    background: #fff;
+}
+
+.addr-label-btn.active {
+    border-color: #0e7673;
+    color: #0e7673;
+    background: #e6f2f1;
+}
 
 /* ── payment method radio ── */
-.pay-radio-selected { border-color:#0e7673 !important; }
+.pay-radio-selected {
+    border-color: #0e7673 !important;
+}

@@ -1,5 +1,6 @@
 <script setup>
-
+import { openCartDrawer, openLoginModal, openMobileNav } from '@/composables/useStoreUi'
+import { cartCount } from '@/composables/useCart'
 </script>
 
 <template>
@@ -32,7 +33,7 @@
             <div class="flex items-center gap-2 sm:gap-3 lg:gap-6 h-16 lg:h-20">
 
                 <!-- Hamburger (mobile/tablet only) -->
-                <button onclick="openMobileNav()"
+                <button @click="openMobileNav"
                         class="lg:hidden shrink-0 w-9 h-9 flex items-center justify-center text-gray-700 -ml-1.5">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2"
@@ -94,7 +95,7 @@
                     </a>
 
                     <!-- Account (always visible — core action) -->
-                    <button onclick="openLoginModal()"
+                    <button @click="openLoginModal"
                             class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0">
                         <svg width="21" height="21" viewBox="0 0 24 24" fill="none"
                              class="sm:w-[22px] sm:h-[22px] lg:w-6 lg:h-6">
@@ -106,7 +107,7 @@
                     </button>
 
                     <!-- Orders (hidden on the smallest phones, shown from sm and up) -->
-                    <button onclick="openLoginModal()"
+                    <button @click="openLoginModal"
                             class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="lg:w-6 lg:h-6">
                             <path
@@ -117,7 +118,7 @@
                     </button>
 
                     <!-- Inbox (hidden on the smallest phones, shown from sm and up) -->
-                    <button onclick="openLoginModal()"
+                    <button @click="openLoginModal"
                             class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="lg:w-6 lg:h-6">
                             <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -128,7 +129,7 @@
                     </button>
 
                     <!-- Cart (always visible — core action) -->
-                    <button onclick="openCartDrawer()"
+                    <button @click="openCartDrawer"
                             class="relative flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0">
                         <svg width="21" height="21" viewBox="0 0 24 24" fill="none"
                              class="sm:w-[22px] sm:h-[22px] lg:w-6 lg:h-6">
@@ -138,7 +139,7 @@
                         </svg>
                         <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Cart</span>
                         <span id="cart-badge"
-                              class="absolute top-0.5 right-1 sm:right-1.5 w-[1.125rem] h-[1.125rem] sm:w-5 sm:h-5 bg-accent text-white text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center">3</span>
+                              class="absolute top-0.5 right-1 sm:right-1.5 w-[1.125rem] h-[1.125rem] sm:w-5 sm:h-5 bg-accent text-white text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center">{{ cartCount }}</span>
                     </button>
 
                 </div>
