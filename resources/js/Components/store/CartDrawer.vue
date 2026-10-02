@@ -9,8 +9,8 @@ import {
     changeQty,
     removeItem,
     formatTaka,
-} from '@/composables/useCart'
-import { cartOpen, closeCartDrawer, openCheckoutModal } from '@/composables/useStoreUi'
+} from '@/composables/store/useCart'
+import { cartOpen, closeCartDrawer, openCheckoutModal } from '@/composables/store/useStoreUi'
 </script>
 
 <template>

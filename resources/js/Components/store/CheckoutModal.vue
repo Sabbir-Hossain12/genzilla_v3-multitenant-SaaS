@@ -9,8 +9,8 @@ import {
     cashApplied,
     cartPayable,
     formatTaka,
-} from '@/composables/useCart'
-import { checkoutOpen, closeCheckoutModal } from '@/composables/useStoreUi'
+} from '@/composables/store/useCart'
+import { checkoutOpen, closeCheckoutModal } from '@/composables/store/useStoreUi'
 
 // Address
 const savedAddress = ref(null)

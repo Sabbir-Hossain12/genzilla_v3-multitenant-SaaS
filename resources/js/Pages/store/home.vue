@@ -1,4 +1,5 @@
 <script setup>
+import { Head } from '@inertiajs/vue3'
 import StoreLayout from '@/Layouts/StoreLayout.vue'
 import CategorySidebar from '@/Components/store/CategorySidebar.vue'
 import BannerSlider from '@/Components/store/BannerSlider.vue'
@@ -6,10 +7,12 @@ import ProductGrid from '@/Components/store/ProductGrid.vue'
 import CategoryTiles from '@/Components/store/CategoryTiles.vue'
 import FlashSaleHeader from '@/Components/store/FlashSaleHeader.vue'
 import { products, quickActions, promos, stats, trustBadges } from '@/data/store'
-import { addToCart } from '@/composables/useCart'
+import { addToCart } from '@/composables/store/useCart'
 </script>
 
 <template>
+    <Head title="Medicine, Beauty & Healthcare" />
+
     <StoreLayout>
         <!-- ════════════════════════════════════════
              HERO — BANNER + SIDEBAR

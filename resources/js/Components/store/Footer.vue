@@ -1,6 +1,6 @@
 <script setup>
-import { openCartDrawer, openLoginModal } from '@/composables/useStoreUi'
-import { cartCount } from '@/composables/useCart'
+import { openCartDrawer, openLoginModal } from '@/composables/store/useStoreUi'
+import { cartCount } from '@/composables/store/useCart'
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import Header from '@/Components/Header.vue'
-import Footer from '@/Components/Footer.vue'
+import Header from '@/Components/store/Header.vue'
+import Footer from '@/Components/store/Footer.vue'
 import LoginModal from '@/Components/store/LoginModal.vue'
 import CartDrawer from '@/Components/store/CartDrawer.vue'
 import CheckoutModal from '@/Components/store/CheckoutModal.vue'
@@ -21,8 +21,17 @@ function showToast(message) {
     }, 2500)
 }
 
-onMounted(() => window.addEventListener('medimart:toast', onToast))
+// Inertia does not re-render <body> on client-side navigation, and app.blade.php
+// hard-codes these storefront colours there. Claiming them on mount keeps the
+// storefront correct after navigating over from the platform marketing site.
+const BODY_CLASS = 'bg-gray-50 text-gray-800 font-sans'
+
+onMounted(() => {
+    document.body.className = BODY_CLASS
+    window.addEventListener('medimart:toast', onToast)
+})
 onBeforeUnmount(() => {
+    document.body.style.overflow = ''
     window.removeEventListener('medimart:toast', onToast)
     clearTimeout(toastTimer)
     clearTimeout(fadeTimer)

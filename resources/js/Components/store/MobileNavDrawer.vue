@@ -1,6 +1,6 @@
 <script setup>
 import { categories, moreLinks } from '@/data/store'
-import { navOpen, closeMobileNav, openLoginModal } from '@/composables/useStoreUi'
+import { navOpen, closeMobileNav, openLoginModal } from '@/composables/store/useStoreUi'
 
 function goToLogin() {
     closeMobileNav()

@@ -9,6 +9,13 @@
     --color-accent: #f97316;
     --color-accentlt: #fff7ed;
 
+    /* Registered here so Tailwind emits the utility classes. The storefront never
+       references them; resources/css/platform.css supplies their real values inside
+       .platform-scope, which keeps the marketing palette off :root. */
+    --color-ink: #0f172a;
+    --color-primarydark: #4338ca;
+    --color-accentdark: #059669;
+
     --font-sans: "Inter", sans-serif;
 
     --container-7xl: 1440px;

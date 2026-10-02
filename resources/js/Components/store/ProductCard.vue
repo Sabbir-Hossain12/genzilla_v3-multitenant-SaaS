@@ -1,5 +1,5 @@
 <script setup>
-import { formatTaka } from '@/composables/useCart'
+import { formatTaka } from '@/composables/store/useCart'
 
 defineProps({
     product: { type: Object, required: true },

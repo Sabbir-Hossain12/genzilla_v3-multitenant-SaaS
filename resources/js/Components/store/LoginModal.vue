@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onBeforeUnmount, nextTick } from 'vue'
-import { loginOpen, closeLoginModal } from '@/composables/useStoreUi'
+import { loginOpen, closeLoginModal } from '@/composables/store/useStoreUi'
 
 const step = ref('phone')          // 'phone' | 'otp'
 const phone = ref('')

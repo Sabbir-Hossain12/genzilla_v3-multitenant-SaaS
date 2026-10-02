@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pricing — Shopwave</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary:     '#4f46e5',
+          primarydark: '#4338ca',
+          primarylt:   '#eef2ff',
+          accent:      '#10b981',
+          accentdark:  '#059669',
+          ink:         '#0f172a',
+        },
+        fontFamily: { sans: ['Inter','sans-serif'] },
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family:'Inter',sans-serif; }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+
+  /* mobile nav drawer */
+  #mnav-overlay { position:fixed; inset:0; z-index:100; background:rgba(15,23,42,0); pointer-events:none; transition:background .3s ease; }
+  #mnav-overlay.open { background:rgba(15,23,42,.5); pointer-events:auto; }
+  #mnav-panel { position:fixed; top:0; right:0; height:100%; width:85%; max-width:22rem; background:#fff; z-index:101; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); display:flex; flex-direction:column; box-shadow:-8px 0 30px rgba(0,0,0,.15); }
+  #mnav-overlay.open #mnav-panel { transform:translateX(0); }
+
+  /* accordion */
+  .acc-item summary { list-style:none; }
+  .acc-item summary::-webkit-details-marker { display:none; }
+  .acc-item[open] .acc-chevron { transform:rotate(180deg); }
+  .acc-chevron { transition:transform .2s ease; }
+
+  /* pricing toggle */
+  .toggle-track { width:3rem; height:1.6rem; border-radius:9999px; background:#e5e7eb; position:relative; transition:background .2s ease; }
+  .toggle-track.on { background:#4f46e5; }
+  .toggle-thumb { position:absolute; top:2px; left:2px; width:1.3rem; height:1.3rem; border-radius:9999px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:transform .2s ease; }
+  .toggle-track.on .toggle-thumb { transform:translateX(1.4rem); }
+
+  .grad-hero { background: radial-gradient(circle at 20% 20%, rgba(79,70,229,.15), transparent 40%), radial-gradient(circle at 80% 0%, rgba(16,185,129,.12), transparent 40%); }
+  .bg-grid { background-image: linear-gradient(rgba(15,23,42,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,.04) 1px, transparent 1px); background-size: 32px 32px; }
+</style>
+</head>
+<body class="bg-white text-ink font-sans antialiased">
+
+<!-- ════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════ -->
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 shrink-0">
+      <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary flex items-center justify-center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12c3-4 6 4 9 0s6-4 9 0M3 18c3-4 6 4 9 0s6-4 9 0" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <span class="text-lg sm:text-xl font-extrabold tracking-tight">Shop<span class="text-accent">wave</span></span>
+    </a>
+
+    <nav class="hidden lg:flex items-center gap-8">
+      <a href="features.html" class="text-[14.5px] font-medium text-gray-600 hover:text-ink transition-colors">Features</a>
+      <a href="features.html#use-cases" class="text-[14.5px] font-medium text-gray-600 hover:text-ink transition-colors">Use Cases</a>
+      <a href="pricing.html" class="text-[14.5px] font-medium text-gray-600 hover:text-ink transition-colors">Pricing</a>
+      <a href="#" class="text-[14.5px] font-medium text-gray-600 hover:text-ink transition-colors">Blog</a>
+    </nav>
+
+    <div class="hidden lg:flex items-center gap-3">
+      <a href="login.html" class="text-[14.5px] font-semibold text-gray-700 hover:text-ink transition-colors px-2">Log in</a>
+      <a href="signup.html" class="bg-primary hover:bg-primarydark text-white text-[14.5px] font-semibold px-5 py-2.5 rounded-xl transition-colors">Start Free Trial</a>
+    </div>
+
+    <button onclick="openMNav()" class="lg:hidden w-9 h-9 flex items-center justify-center text-gray-700">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile nav drawer -->
+<div id="mnav-overlay" onclick="if(event.target===this) closeMNav()">
+  <div id="mnav-panel">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+      <span class="text-lg font-extrabold">Shop<span class="text-accent">wave</span></span>
+      <button onclick="closeMNav()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <nav class="flex-1 overflow-y-auto p-5 space-y-1">
+      <a href="features.html" class="block px-3 py-3 rounded-xl text-[15px] font-medium text-gray-700 hover:bg-gray-50">Features</a>
+      <a href="features.html#use-cases" class="block px-3 py-3 rounded-xl text-[15px] font-medium text-gray-700 hover:bg-gray-50">Use Cases</a>
+      <a href="pricing.html" class="block px-3 py-3 rounded-xl text-[15px] font-medium text-gray-700 hover:bg-gray-50">Pricing</a>
+      <a href="#" class="block px-3 py-3 rounded-xl text-[15px] font-medium text-gray-700 hover:bg-gray-50">Blog</a>
+    </nav>
+    <div class="p-5 border-t border-gray-100 space-y-2.5">
+      <a href="login.html" class="block text-center border border-gray-200 text-gray-700 font-semibold text-[14.5px] py-3 rounded-xl">Log in</a>
+      <a href="signup.html" class="block text-center bg-primary hover:bg-primarydark text-white font-semibold text-[14.5px] py-3 rounded-xl">Start Free Trial</a>
+    </div>
+  </div>
+</div>
+<!-- ════════════════════════════════════════
+     PRICING HEADER
+════════════════════════════════════════ -->
+<section class="grad-hero py-14 sm:py-20 text-center">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6">
+    <h1 class="text-[32px] sm:text-5xl font-extrabold tracking-tight text-ink">Simple, transparent pricing</h1>
+    <p class="text-gray-500 text-[15px] sm:text-lg mt-4">Start free for 14 days. No setup fees, no hidden costs — upgrade, downgrade, or cancel anytime.</p>
+
+    <!-- Monthly / Yearly toggle -->
+    <div class="flex items-center justify-center gap-3 mt-8">
+      <span id="billing-monthly-label" class="text-[14px] font-semibold text-ink">Monthly</span>
+      <button onclick="toggleBilling(this)" class="toggle-track"><span class="toggle-thumb"></span></button>
+      <span id="billing-yearly-label" class="text-[14px] font-medium text-gray-400">Yearly</span>
+      <span class="bg-emerald-50 text-accentdark text-[11.5px] font-bold px-2.5 py-1 rounded-full">Save 20%</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     PRICING CARDS
+════════════════════════════════════════ -->
+<section class="pb-16 sm:pb-20 -mt-4">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
+
+      <!-- Basic -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-7">
+        <p class="text-[15px] font-bold text-gray-500 mb-1">Basic</p>
+        <p class="text-[13px] text-gray-400 mb-5">For new merchants getting started</p>
+        <p class="text-ink">
+          <span class="price-monthly text-4xl font-extrabold">$19</span>
+          <span class="price-yearly text-4xl font-extrabold hidden">$15</span>
+          <span class="text-[14px] font-medium text-gray-400">/mo</span>
+        </p>
+        <p class="text-[12.5px] text-gray-400 mt-1 mb-6">2.0% transaction fee per order</p>
+        <a href="signup.html" class="block text-center border border-gray-300 text-ink font-semibold text-[14px] py-3 rounded-xl hover:bg-gray-50 transition-colors mb-6">Start Free Trial</a>
+        <ul class="space-y-3 text-[13.5px] text-gray-600">
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Up to 100 products</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Standard checkout</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>1 staff account</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Email support</li>
+        </ul>
+      </div>
+
+      <!-- Pro -->
+      <div class="bg-ink border border-ink rounded-2xl p-7 relative lg:-mt-4 shadow-2xl">
+        <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[11.5px] font-bold px-3.5 py-1.5 rounded-full whitespace-nowrap">MOST POPULAR</span>
+        <p class="text-[15px] font-bold text-gray-300 mb-1">Pro</p>
+        <p class="text-[13px] text-gray-400 mb-5">For growing stores that need more</p>
+        <p class="text-white">
+          <span class="price-monthly text-4xl font-extrabold">$49</span>
+          <span class="price-yearly text-4xl font-extrabold hidden">$39</span>
+          <span class="text-[14px] font-medium text-gray-400">/mo</span>
+        </p>
+        <p class="text-[12.5px] text-gray-400 mt-1 mb-6">1.0% transaction fee per order</p>
+        <a href="signup.html" class="block text-center bg-white text-ink font-bold text-[14px] py-3 rounded-xl hover:bg-gray-100 transition-colors mb-6">Start Free Trial</a>
+        <ul class="space-y-3 text-[13.5px] text-gray-300">
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited products</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Abandoned cart recovery</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Custom domain</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>5 staff accounts</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Priority support</li>
+        </ul>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-7">
+        <p class="text-[15px] font-bold text-gray-500 mb-1">Enterprise</p>
+        <p class="text-[13px] text-gray-400 mb-5">For high-volume & multi-brand businesses</p>
+        <p class="text-ink">
+          <span class="text-4xl font-extrabold">Custom</span>
+        </p>
+        <p class="text-[12.5px] text-gray-400 mt-1 mb-6">Negotiated transaction fees</p>
+        <a href="contact.html" class="block text-center border border-gray-300 text-ink font-semibold text-[14px] py-3 rounded-xl hover:bg-gray-50 transition-colors mb-6">Contact Sales</a>
+        <ul class="space-y-3 text-[13.5px] text-gray-600">
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited staff accounts</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Dedicated account manager</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Full API access</li>
+          <li class="flex items-start gap-2.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-accent shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>99.9% uptime SLA</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     TRANSACTION FEE CALLOUT
+════════════════════════════════════════ -->
+<section class="pb-14">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="bg-primarylt border border-primary/10 rounded-2xl p-6 sm:p-7 flex flex-col sm:flex-row items-start gap-4">
+      <div class="w-11 h-11 rounded-xl bg-white flex items-center justify-center shrink-0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-primary"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h3 class="text-[15.5px] font-bold text-ink mb-1.5">How transaction fees work</h3>
+        <p class="text-[13.5px] text-gray-600 leading-relaxed">
+          Every order has two components: a <strong>card processing fee</strong> of 2.9% + $0.30 (charged by our payment partners, same on every plan), and a <strong>platform fee</strong> that decreases as you upgrade — 2.0% on Basic, 1.0% on Pro, and negotiable on Enterprise. Digital products are billed identically to physical products — there's no separate fee structure for downloads, licenses, or subscriptions.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     COMPARISON TABLE
+════════════════════════════════════════ -->
+<section class="pb-16 sm:pb-20">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+    <h2 class="text-2xl sm:text-[30px] font-extrabold tracking-tight text-ink text-center mb-10">Compare all features</h2>
+    <div class="overflow-x-auto rounded-2xl border border-gray-200">
+      <table class="w-full text-left border-collapse min-w-[640px]">
+        <thead>
+          <tr class="bg-gray-50">
+            <th class="text-[13px] font-bold text-gray-500 uppercase tracking-wide px-5 py-4">Feature</th>
+            <th class="text-[14px] font-bold text-ink px-5 py-4 text-center">Basic</th>
+            <th class="text-[14px] font-bold text-primary px-5 py-4 text-center">Pro</th>
+            <th class="text-[14px] font-bold text-ink px-5 py-4 text-center">Enterprise</th>
+          </tr>
+        </thead>
+        <tbody class="text-[13.5px] text-gray-600">
+          <tr class="border-t border-gray-100"><td class="px-5 py-3.5 font-medium text-gray-700">Products</td><td class="px-5 py-3.5 text-center">100</td><td class="px-5 py-3.5 text-center font-semibold text-primary">Unlimited</td><td class="px-5 py-3.5 text-center">Unlimited</td></tr>
+          <tr class="border-t border-gray-100 bg-gray-50/50"><td class="px-5 py-3.5 font-medium text-gray-700">Staff accounts</td><td class="px-5 py-3.5 text-center">1</td><td class="px-5 py-3.5 text-center font-semibold text-primary">5</td><td class="px-5 py-3.5 text-center">Unlimited</td></tr>
+          <tr class="border-t border-gray-100"><td class="px-5 py-3.5 font-medium text-gray-700">Transaction fee</td><td class="px-5 py-3.5 text-center">2.0%</td><td class="px-5 py-3.5 text-center font-semibold text-primary">1.0%</td><td class="px-5 py-3.5 text-center">Negotiated</td></tr>
+          <tr class="border-t border-gray-100 bg-gray-50/50"><td class="px-5 py-3.5 font-medium text-gray-700">Custom domain</td><td class="px-5 py-3.5 text-center text-gray-300">—</td><td class="px-5 py-3.5 text-center"><svg class="inline text-accent" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td><td class="px-5 py-3.5 text-center"><svg class="inline text-accent" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr>
+          <tr class="border-t border-gray-100"><td class="px-5 py-3.5 font-medium text-gray-700">Abandoned cart recovery</td><td class="px-5 py-3.5 text-center text-gray-300">—</td><td class="px-5 py-3.5 text-center"><svg class="inline text-accent" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td><td class="px-5 py-3.5 text-center"><svg class="inline text-accent" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr>
+          <tr class="border-t border-gray-100 bg-gray-50/50"><td class="px-5 py-3.5 font-medium text-gray-700">Advanced reporting</td><td class="px-5 py-3.5 text-center text-gray-300">—</td><td class="px-5 py-3.5 text-center"><svg class="inline text-accent" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td><td class="px-5 py-3.5 text-center"><svg class="inline text-accent" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr>
+          <tr class="border-t border-gray-100"><td class="px-5 py-3.5 font-medium text-gray-700">API access</td><td class="px-5 py-3.5 text-center text-gray-300">—</td><td class="px-5 py-3.5 text-center text-gray-300">—</td><td class="px-5 py-3.5 text-center"><svg class="inline text-accent" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr>
+          <tr class="border-t border-gray-100 bg-gray-50/50"><td class="px-5 py-3.5 font-medium text-gray-700">Uptime SLA</td><td class="px-5 py-3.5 text-center text-gray-300">—</td><td class="px-5 py-3.5 text-center text-gray-300">—</td><td class="px-5 py-3.5 text-center"><svg class="inline text-accent" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     PRICING FAQ
+════════════════════════════════════════ -->
+<section class="pb-16 sm:pb-20">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6">
+    <h2 class="text-2xl sm:text-[30px] font-extrabold tracking-tight text-ink text-center mb-8">Pricing questions</h2>
+    <div class="space-y-2.5">
+      <details class="acc-item bg-white border border-gray-200 rounded-xl px-5">
+        <summary class="flex items-center justify-between gap-3 py-4 cursor-pointer">
+          <span class="text-[14.5px] font-semibold text-ink">Can I change plans at any time?</span>
+          <svg class="acc-chevron text-gray-400 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <p class="text-[13.5px] text-gray-500 leading-relaxed pb-4">Yes. Upgrade or downgrade anytime from your dashboard — changes take effect immediately and billing is prorated for the current cycle.</p>
+      </details>
+      <details class="acc-item bg-white border border-gray-200 rounded-xl px-5">
+        <summary class="flex items-center justify-between gap-3 py-4 cursor-pointer">
+          <span class="text-[14.5px] font-semibold text-ink">Is there a free trial?</span>
+          <svg class="acc-chevron text-gray-400 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <p class="text-[13.5px] text-gray-500 leading-relaxed pb-4">Every plan includes a 14-day free trial with full access to Pro features — no credit card required to start.</p>
+      </details>
+      <details class="acc-item bg-white border border-gray-200 rounded-xl px-5">
+        <summary class="flex items-center justify-between gap-3 py-4 cursor-pointer">
+          <span class="text-[14.5px] font-semibold text-ink">What happens if I exceed my plan's product limit?</span>
+          <svg class="acc-chevron text-gray-400 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <p class="text-[13.5px] text-gray-500 leading-relaxed pb-4">We'll notify you as you approach the limit. Your store keeps running as normal — you'll just need to upgrade to add more products beyond your plan's cap.</p>
+      </details>
+      <details class="acc-item bg-white border border-gray-200 rounded-xl px-5">
+        <summary class="flex items-center justify-between gap-3 py-4 cursor-pointer">
+          <span class="text-[14.5px] font-semibold text-ink">Do digital products have different fees?</span>
+          <svg class="acc-chevron text-gray-400 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <p class="text-[13.5px] text-gray-500 leading-relaxed pb-4">No — digital and physical products share the same transaction fee structure based on your plan. There are no extra fees for hosting downloads or generating license keys.</p>
+      </details>
+      <details class="acc-item bg-white border border-gray-200 rounded-xl px-5">
+        <summary class="flex items-center justify-between gap-3 py-4 cursor-pointer">
+          <span class="text-[14.5px] font-semibold text-ink">Do you offer discounts for annual billing?</span>
+          <svg class="acc-chevron text-gray-400 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <p class="text-[13.5px] text-gray-500 leading-relaxed pb-4">Yes — switch to yearly billing with the toggle above and save 20% compared to paying monthly, on any plan.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     FINAL CTA
+════════════════════════════════════════ -->
+<section class="bg-ink">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center">
+    <h2 class="text-2xl sm:text-[34px] font-extrabold tracking-tight text-white">Still comparing options?</h2>
+    <p class="text-gray-400 text-[15px] mt-3">Talk to our team about which plan fits your business — no pressure, no sales script.</p>
+    <a href="contact.html" class="inline-block mt-7 bg-white text-ink font-bold text-[15px] px-7 py-3.5 rounded-xl hover:bg-gray-100 transition-colors">Talk to Sales</a>
+  </div>
+</section>
+<!-- ════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer class="bg-ink text-gray-400">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-8">
+
+    <!-- Newsletter -->
+    <div class="flex flex-col lg:flex-row items-center justify-between gap-5 pb-10 mb-10 border-b border-white/10">
+      <div class="text-center lg:text-left">
+        <h3 class="text-white text-[19px] font-bold">Stay in the loop</h3>
+        <p class="text-[13.5px] mt-1">Product updates, ecommerce tips, and playbooks — no spam.</p>
+      </div>
+      <form class="flex w-full max-w-md gap-2">
+        <input type="email" placeholder="Enter your email" class="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[14px] text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"/>
+        <button type="submit" class="bg-primary hover:bg-primarydark text-white font-semibold text-[14px] px-5 rounded-xl transition-colors shrink-0">Subscribe</button>
+      </form>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
+      <div class="col-span-2 sm:col-span-1 lg:col-span-2">
+        <a href="index.html" class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12c3-4 6 4 9 0s6-4 9 0M3 18c3-4 6 4 9 0s6-4 9 0" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <span class="text-white text-lg font-extrabold">Shop<span class="text-accent">wave</span></span>
+        </a>
+        <p class="text-[13.5px] leading-relaxed max-w-xs">The all-in-one commerce platform for selling physical and digital products online — trusted by 10,000+ merchants worldwide.</p>
+        <div class="flex items-center gap-2 mt-4">
+          <a href="#" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.7 18.63.5 12 .5S0 5.7 0 12.07c0 5.75 4.39 10.52 10.13 11.43v-8.09H7.08v-3.34h3.05V9.41c0-3 1.8-4.67 4.55-4.67 1.32 0 2.7.24 2.7.24v2.94h-1.52c-1.5 0-1.97.92-1.97 1.87v2.24h3.35l-.54 3.34h-2.81v8.09C19.61 22.59 24 17.82 24 12.07z"/></svg></a>
+          <a href="#" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a href="#" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+          <a href="#" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="9" width="4" height="12" stroke="currentColor" stroke-width="2"/><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="2"/></svg></a>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-white text-[13.5px] font-bold mb-3">Product</p>
+        <ul class="space-y-2.5 text-[13.5px]">
+          <li><a href="features.html" class="hover:text-white transition-colors">Features</a></li>
+          <li><a href="pricing.html" class="hover:text-white transition-colors">Pricing</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Integrations</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Changelog</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-white text-[13.5px] font-bold mb-3">Solutions</p>
+        <ul class="space-y-2.5 text-[13.5px]">
+          <li><a href="features.html#use-cases" class="hover:text-white transition-colors">Sell Physical Goods</a></li>
+          <li><a href="features.html#use-cases" class="hover:text-white transition-colors">Sell Digital Goods</a></li>
+          <li><a href="features.html#use-cases" class="hover:text-white transition-colors">Subscriptions</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Enterprise</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-white text-[13.5px] font-bold mb-3">Company</p>
+        <ul class="space-y-2.5 text-[13.5px]">
+          <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Contact Sales</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-white text-[13.5px] font-bold mb-3">Resources</p>
+        <ul class="space-y-2.5 text-[13.5px]">
+          <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">API Docs</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Community</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Status</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-10 pt-6 border-t border-white/10 text-[12.5px]">
+      <p>© 2026 Shopwave, Inc. All rights reserved.</p>
+      <div class="flex items-center gap-5">
+        <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+        <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-white transition-colors">Cookie Settings</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const mnavOverlay = document.getElementById('mnav-overlay');
+  function openMNav() { mnavOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeMNav() { mnavOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+</script>
+
+<script>
+  function toggleBilling(btn) {
+    const yearly = !btn.classList.contains('on');
+    btn.classList.toggle('on', yearly);
+    document.getElementById('billing-monthly-label').classList.toggle('font-semibold', !yearly);
+    document.getElementById('billing-monthly-label').classList.toggle('text-ink', !yearly);
+    document.getElementById('billing-monthly-label').classList.toggle('text-gray-400', yearly);
+    document.getElementById('billing-monthly-label').classList.toggle('font-medium', yearly);
+    document.getElementById('billing-yearly-label').classList.toggle('font-semibold', yearly);
+    document.getElementById('billing-yearly-label').classList.toggle('text-ink', yearly);
+    document.getElementById('billing-yearly-label').classList.toggle('text-gray-400', !yearly);
+    document.getElementById('billing-yearly-label').classList.toggle('font-medium', !yearly);
+
+    document.querySelectorAll('.price-monthly').forEach(el => el.classList.toggle('hidden', yearly));
+    document.querySelectorAll('.price-yearly').forEach(el => el.classList.toggle('hidden', !yearly));
+  }
+</script>
+
+</body>
+</html>

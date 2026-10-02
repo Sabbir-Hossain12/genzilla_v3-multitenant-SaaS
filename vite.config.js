@@ -12,7 +12,9 @@ export default defineConfig({
     },
     plugins: [
         laravel({
-            input: 'resources/js/app.js',
+            // app.css is pulled in by app.js's import; platform.css is standalone
+            // (no Tailwind import) so it has to be declared as its own entry.
+            input: ['resources/js/app.js', 'resources/css/platform.css'],
             refresh: true,
         }),
         vue({
