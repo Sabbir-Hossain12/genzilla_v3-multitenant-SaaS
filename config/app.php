@@ -53,7 +53,7 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
-
+    'base_domain' => env('BASE_DOMAIN', '127.0.0.1'),
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
