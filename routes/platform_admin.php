@@ -12,8 +12,9 @@ Route::domain(config('app.base_domain'))->prefix('admin')->group(function () {
 
 //______ Admin Panel Starts _____//
 
-        Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
+    Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
 
+    Route::middleware('permission:Platform Admin Dashboard')->group(function () {
 //______ Dashboard _____//
         Route::resource('/dashboard', DashboardController::class)->names('admin.dashboard');
 //
@@ -31,4 +32,5 @@ Route::domain(config('app.base_domain'))->prefix('admin')->group(function () {
 //    Route::get('/assign-permission-page/{id}', [AdminRoleController::class, 'assignPermissionsToRolePage'])->name('role.permission.edit');
 //    Route::put('role/{id}/permission/update', [AdminRoleController::class, 'assignPermissionsToRole'])->name('role.permission.update');
 
+    });
 });

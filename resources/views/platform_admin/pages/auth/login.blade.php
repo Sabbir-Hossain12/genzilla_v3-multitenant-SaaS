@@ -10,14 +10,14 @@
                             <div class="d-flex flex-column h-100">
                                 <div class="mb-4 mb-md-3 text-center">
                                     <a href="" class="d-block auth-logo">
-                                        <img src=" {{asset('backend')}}/assets/images/logo-sm.svg" alt=""
-                                             height="28"> <span class="logo-txt">Eco Bazar</span>
+                                        <img src=" {{ asset($basic_info->black_logo) }}" alt=""
+                                             height="28"> <span class="logo-txt">{{ $basic_info->platform_name ?? 'Genzilla' }}</span>
                                     </a>
                                 </div>
                                 <div class="auth-content my-auto">
                                     <div class="text-center">
                                         <h5 class="mb-0">Welcome Back !</h5>
-                                        <p class="text-muted mt-2">Sign in to continue to Eco Bazar.</p>
+                                        <p class="text-muted mt-2">Sign in to continue to {{ $basic_info->platform_name ?? 'Genzilla' }}</p>
                                     </div>
                                     <form class="mt-4 pt-2" method="POST" action="{{ route('admin.login.store')}}">
                                         @csrf
@@ -74,7 +74,7 @@
                                 <div class="mt-4 mt-md-5 text-center">
                                     <p class="mb-0">©
                                         <script>document.write(new Date().getFullYear())</script>
-                                        Minia . Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesbrand
+                                        {{ $basic_info->platform_name ?? 'Genzilla' }}: All rights reserved
                                     </p>
                                 </div>
                             </div>

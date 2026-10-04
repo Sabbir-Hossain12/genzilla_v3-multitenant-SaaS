@@ -16,6 +16,7 @@ class BasicInfoSeeder extends Seeder
             'black_logo' => 'public/backend/images/logo/1722452305Screenshot_2024-08-01_005602-removebg-preview (1).png',
             'light_logo' => 'public/backend/images/logo/1722452305Screenshot_2024-08-01_005602-removebg-preview (1).png',
             'email' => 'admin@admin.com',
+            'platform_name' => 'Genzilla_v3',
             'phone_1' => '+8801700000000',
             'fb_link' => 'https://facebook.com/',
             'x_link' => 'https://x.com/',

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('basic_infos', function (Blueprint $table) {
             $table->id();
+            $table->string('platform_name')->nullable();
             $table->string('email')->nullable();
             $table->string('phone_1')->nullable();
             $table->string('fb_link')->nullable();
@@ -35,7 +36,6 @@ return new class extends Migration
             $table->string('app_download_link')->nullable();
             $table->string('app_download_img')->nullable();
             $table->string('payment_methods_img')->nullable();
-
 
             $table->timestamps();
         });

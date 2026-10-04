@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Tenant;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,11 +27,11 @@ class IdentifyStorefront
             // Extract subdomain prefix (e.g., "mystore" from "mystore.yourplatform.com" or "mystore.127.0.0.1.nip.io")
             $subdomain = explode('.', $host)[0];
 
-            $store = Store::where('subdomain', $subdomain)->first();
+            $store = Tenant::where('subdomain', $subdomain)->first();
         }
         // 2. Otherwise, treat it as a Custom Domain
         else {
-            $store = Store::where('custom_domain', $host)->first();
+            $store = Tenant::where('custom_domain', $host)->first();
         }
 
         // 3. Handle Store Not Found
@@ -39,8 +40,8 @@ class IdentifyStorefront
         }
 
         // 4. Bind the resolved store instance into the container or request context
-        app()->instance(Store::class, $store); //app(Store::class)
-        $request->attributes->set('store', $store); //$request->attributes->get('store')
+        app()->instance(Tenant::class, $store); // app(Store::class)
+        $request->attributes->set('store', $store); // $request->attributes->get('store')
 
         return $next($request);
     }
