@@ -1,17 +1,14 @@
-@extends('backend.layout.master')
+@extends('platform_admin.layout.master')
 
 @push('backendCss')
     {{--    <meta name="csrf_token" content="{{ csrf_token() }}" />--}}
-
     <link href="{{asset('backend')}}/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css"
           rel="stylesheet" type="text/css">
     <link href="{{asset('backend')}}/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css"
           rel="stylesheet" type="text/css">
-
 @endpush
 
 @section('contents')
-
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -23,7 +20,6 @@
                         <li class="breadcrumb-item active">Admins</li>
                     </ol>
                 </div>
-
             </div>
         </div>
     </div>
@@ -38,7 +34,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="card-title">Admins List</h4>
 {{--                       @can('Create Admin')--}}
-                       @if(Auth::guard('admin')->user()->can('Create Admin'))
+                       @if(Auth::user()->can('Create Admin'))
                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAdminModal">
                                 Create Admin
                             </button>
@@ -57,8 +53,6 @@
                                 <th>Email</th>
                                 <th>Role</th>
                                 <th>Status</th>
-
-
                                 <th>Actions</th>
 
                             </tr>

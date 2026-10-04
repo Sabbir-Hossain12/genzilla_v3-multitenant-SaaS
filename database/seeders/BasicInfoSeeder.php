@@ -13,8 +13,8 @@ class BasicInfoSeeder extends Seeder
     public function run(): void
     {
         BasicInfo::updateOrCreate(['id' => 1], [
-            'black_logo' => 'public/backend/images/logo/1722452305Screenshot_2024-08-01_005602-removebg-preview (1).png',
-            'light_logo' => 'public/backend/images/logo/1722452305Screenshot_2024-08-01_005602-removebg-preview (1).png',
+            'black_logo' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRLHWSou-grk0QEK3HWwYQG4cW5--XCihByIjGvsIv0WR9EWh9ao_yN5wK&s=10',
+            'light_logo' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRLHWSou-grk0QEK3HWwYQG4cW5--XCihByIjGvsIv0WR9EWh9ao_yN5wK&s=10',
             'email' => 'admin@admin.com',
             'platform_name' => 'Genzilla_v3',
             'phone_1' => '+8801700000000',

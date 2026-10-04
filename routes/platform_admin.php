@@ -3,6 +3,7 @@
 //Admin Auth Routes
 use App\Http\Controllers\Platform\Admin\AuthController;
 use App\Http\Controllers\Platform\Admin\DashboardController;
+use App\Http\Controllers\Platform\Admin\PlatformAdminController;
 
 Route::domain(config('app.base_domain'))->prefix('admin')->group(function () {
     Route::get('login', [AuthController::class, 'loginPage'])
@@ -12,18 +13,18 @@ Route::domain(config('app.base_domain'))->prefix('admin')->group(function () {
 
 //______ Admin Panel Starts _____//
 
-    Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
+    Route::middleware(['auth', 'permission:Platform Admin Dashboard'])->group(function () {
+        Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
 
-    Route::middleware('permission:Platform Admin Dashboard')->group(function () {
 //______ Dashboard _____//
         Route::resource('/dashboard', DashboardController::class)->names('admin.dashboard');
-//
+
 ////______ Admins _____//
-//    Route::resource('/admins', AdminController::class)->names('admin.admins');
-//    Route::post('/change-admin-status', [AdminController::class, 'changeAdminStatus'])->name('admin.status');
-//    Route::get('/data', [AdminController::class, 'getData'])->name('admin.data');
-//
-////______ Role and Permission _____//
+    Route::resource('/admins', PlatformAdminController::class)->names('admin.admins');
+    Route::post('/change-admin-status', [PlatformAdminController::class, 'changeAdminStatus'])->name('admin.status');
+    Route::get('/data', [PlatformAdminController::class, 'getData'])->name('admin.data');
+
+//////______ Role and Permission _____//
 //    Route::resource('/roles', AdminRoleController::class)->names('admin.role');
 //    Route::resource('/permissions', AdminPermissionController::class)->names('admin.permission');
 //    Route::get('/roles-data', [AdminRoleController::class, 'getData'])->name('admin.role.data');

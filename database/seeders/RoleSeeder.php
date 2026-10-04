@@ -10,14 +10,16 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        $roles=['Platform SuperAdmin','Platform Coadmin','Platform Staff'];
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        foreach($roles as $role){
+        $roles = ['Platform SuperAdmin', 'Platform Coadmin', 'Platform Staff'];
+
+        foreach ($roles as $role) {
             Role::firstOrCreate([
-                'name'=>$role,
-                'guard_name'=>'web'
+                'name' => $role,
+                'guard_name' => 'web'
             ]);
         }
-
     }
 }

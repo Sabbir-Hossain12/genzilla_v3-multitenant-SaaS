@@ -1,6 +1,6 @@
 <?php
 //
-//use App\Http\Controllers\Backend\AdminController;
+//use App\Http\Controllers\Backend\PlatformAdminController;
 //use App\Http\Controllers\Backend\AdminPermissionController;
 //use App\Http\Controllers\Backend\AdminRoleController;
 //use App\Http\Controllers\Backend\AttributeController;
@@ -56,9 +56,9 @@
 //    Route::resource('/dashboard', DashboardController::class)->names('admin.dashboard');
 //
 //    //______ Admins _____//
-//    Route::resource('/admins', AdminController::class)->names('admin.admins');
-//    Route::post('/change-admin-status', [AdminController::class, 'changeAdminStatus'])->name('admin.status');
-//    Route::get('/data', [AdminController::class, 'getData'])->name('admin.data');
+//    Route::resource('/admins', PlatformAdminController::class)->names('admin.admins');
+//    Route::post('/change-admin-status', [PlatformAdminController::class, 'changeAdminStatus'])->name('admin.status');
+//    Route::get('/data', [PlatformAdminController::class, 'getData'])->name('admin.data');
 //
 //    //______ Role and Permission _____//
 //    Route::resource('/roles', AdminRoleController::class)->names('admin.role');

@@ -2,11 +2,11 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
-                <script>document.write(new Date().getFullYear())</script> © Eco Bazar.
+                <script>document.write(new Date().getFullYear())</script> © {{ $basic_info->platform_name ?? 'Genzilla' }}.
             </div>
             <div class="col-sm-6">
                 <div class="text-sm-end d-none d-sm-block">
-                    Design & Develop by <a href="#" class="text-decoration-underline">Nazmul and Sabbir</a>
+                    Design & Develop by <a href="#" class="text-decoration-underline">{{ $basic_info->platform_name ?? 'Genzilla' }}</a>
                 </div>
             </div>
         </div>

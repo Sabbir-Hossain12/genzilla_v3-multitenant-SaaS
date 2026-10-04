@@ -11,6 +11,9 @@ class PermissionSeeder extends Seeder
 
     public function run(): void
     {
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
         $table_rows = array(
             [
                 'group_name' => 'Platform Admin Dashboard',
@@ -27,7 +30,7 @@ class PermissionSeeder extends Seeder
                     'Edit Role',
                     'Delete Role',
                     'Assign Role',
-                    'Assign Permission', //12
+                    'Assign Permission',
                 ]
             ],
             [
@@ -41,12 +44,14 @@ class PermissionSeeder extends Seeder
 
         );
 
-        foreach ($table_rows as $i => $iValue) {
+        foreach ($table_rows as $iValue) {
             $group_name = $iValue['group_name'];
 
-            foreach ($iValue['permissions'] as $j => $jValue) {
-                Permission::create([
-                    'name' => $iValue['permissions'][$j],
+            foreach ($iValue['permissions'] as $permission_name) {
+                Permission::firstOrCreate([
+                    'name' => $permission_name,
+                    'guard_name' => 'web'
+                ], [
                     'group_name' => $group_name
                 ]);
             }

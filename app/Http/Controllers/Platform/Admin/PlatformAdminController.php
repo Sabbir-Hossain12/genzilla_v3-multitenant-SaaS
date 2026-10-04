@@ -3,52 +3,33 @@
 namespace App\Http\Controllers\Platform\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Facades\DataTables;
 
-class AdminController extends Controller implements HasMiddleware
+
+class PlatformAdminController extends Controller
 {
-
-    public static function middleware(): array
-    {
-        return [
-
-            new Middleware('permission:View Admin,admin', only: ['index']),
-            new Middleware('permission:Create Admin,admin', only: ['store']),
-            new Middleware('permission:Edit Admin,admin', only: ['update']),
-            new Middleware('permission:Delete Admin,admin', only: ['destroy']),
-            new Middleware('permission:Status Admin,admin', only: ['changeAdminStatus']),
-
-        ];
-    }
-
 
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $admins = Admin::get();
-
-
-        return view('backend.pages.admins.index', compact('admins'));
+        return view('platform_admin.pages.admins.index');
     }
 
     public function getData()
     {
-        $admin = Admin::all();
+        $admin = User::permission('Platform Admin Dashboard');
 
 
-        return DataTables::of($admin)
+        return DataTables::eloquent($admin)
             ->addColumn('status', function ($admin) {
 
-                if(Auth::guard('admin')->user()->can('Status Admin')) {
+                if(Auth::user()->can('Status Admin')) {
                     if ($admin->status == 1) {
                         return ' <a class="status" id="adminStatus" href="javascript:void(0)"
                                                data-id="'.$admin->id.'" data-status="'.$admin->status.'"> <i
@@ -77,7 +58,7 @@ class AdminController extends Controller implements HasMiddleware
                 $editAction = '';
                 $deleteAction = '';
 
-                if(Auth::guard('admin')->user()->can('Edit Admin')) {
+                if(Auth::user()->can('Edit Admin')) {
 
                     $editAction= '<a class="editButton btn btn-sm btn-primary" href="javascript:void(0)"
                                     data-id="'.$admin->id.'" data-bs-toggle="modal" data-bs-target="#editAdminModal">
@@ -85,7 +66,7 @@ class AdminController extends Controller implements HasMiddleware
 
                 }
 
-                if(Auth::guard('admin')->user()->can('Delete Admin')) {
+                if(Auth::user()->can('Delete Admin')) {
 
                     $deleteAction= '<a class="btn btn-sm btn-danger" href="javascript:void(0)"
                                     data-id="'.$admin->id.'" id="deleteAdminBtn"">
@@ -114,7 +95,7 @@ class AdminController extends Controller implements HasMiddleware
      */
     public function store(Request $request)
     {
-        $admin = new Admin();
+        $admin = new User();
         $admin->name = $request->name;
         $admin->email = $request->email;
         $admin->phone = $request->phone;
@@ -141,8 +122,8 @@ class AdminController extends Controller implements HasMiddleware
     public function edit(string $id)
     {
         $roles = Role::get();
-//            dd($roles);
-        $admin = Admin::findOrFail($id);
+
+        $admin = User::findOrFail($id);
 
         if ($admin) {
             return response()->json(['message' => 'success', 'data' => $admin, 'roles' => $roles], 200);
@@ -156,7 +137,7 @@ class AdminController extends Controller implements HasMiddleware
      */
     public function update(Request $request, string $id)
     {
-        $admin = Admin::findOrFail($id);
+        $admin = User::findOrFail($id);
 
         if ($admin) {
             $admin->name = $request->name;
@@ -178,7 +159,7 @@ class AdminController extends Controller implements HasMiddleware
      */
     public function destroy(string $id)
     {
-        $admin = Admin::findOrFail($id);
+        $admin = User::findOrFail($id);
 
         if ($admin) {
             $admin->delete();
@@ -200,7 +181,7 @@ class AdminController extends Controller implements HasMiddleware
             $stat = 1;
         }
 
-        $page = Admin::findOrFail($id);
+        $page = User::findOrFail($id);
         $page->status = $stat;
         $page->save();
 

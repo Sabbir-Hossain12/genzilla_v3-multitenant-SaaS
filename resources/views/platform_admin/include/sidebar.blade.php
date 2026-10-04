@@ -23,17 +23,17 @@
                     </a>
                 </li>
 
-{{--                <li>--}}
-{{--                    <a href="javascript: void(0);" class="has-arrow">--}}
-{{--                        <i class="fa-solid fa-user-secret"></i>--}}
-{{--                        <span data-key="t-apps">Admins</span>--}}
-{{--                    </a>--}}
-{{--                    <ul class="sub-menu" aria-expanded="false">--}}
-{{--                        <li>--}}
-{{--                            <a href="{{ route('admin.admins.index') }}">--}}
-{{--                                <span data-key="t-calendar">Admin List</span>--}}
-{{--                            </a>--}}
-{{--                        </li>--}}
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow">
+                        <i class="fa-solid fa-user-secret"></i>
+                        <span data-key="t-apps">Admins</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.admins.index') }}">
+                                <span data-key="t-calendar">Admin List</span>
+                            </a>
+                        </li>
 {{--                        <li>--}}
 {{--                            <a href="{{route('admin.role.index')}}">--}}
 {{--                                <span data-key="t-calendar">Roles</span>--}}
@@ -44,8 +44,8 @@
 {{--                                <span data-key="t-calendar">Permissions</span>--}}
 {{--                            </a>--}}
 {{--                        </li>--}}
-{{--                    </ul>--}}
-{{--                </li>--}}
+                    </ul>
+                </li>
 
 {{--                <li>--}}
 {{--                    <a href="javascript: void(0);" class="has-arrow">--}}

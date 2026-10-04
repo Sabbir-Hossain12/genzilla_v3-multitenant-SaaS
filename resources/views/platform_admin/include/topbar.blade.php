@@ -5,22 +5,22 @@
             <div class="navbar-brand-box">
                 <a href="" class="logo logo-dark">
                    <span class="logo-sm">
-{{--                 <img src="{{asset($basic_info->black_logo)}}" alt="" width="80%" height="24">--}}
+                 <img src="{{asset($basic_info->black_logo)}}" alt="" width="80%" height="24">
                    </span>
-{{--                    <span class="logo-lg">--}}
-{{--                       <img src="{{asset($basic_info->black_logo)}}" alt="" width="100%" height="50">--}}
-{{--                    </span>--}}
+                    <span class="logo-lg">
+                       <img src="{{asset($basic_info->black_logo)}}" alt="" width="100%" height="50">
+                    </span>
                 </a>
 
                 <a href="" class="logo logo-light">
                     <span class="logo-sm">
-{{--                    <img src="{{asset($basic_info->light_logo)}}" alt="" height="24">--}}
+                    <img src="{{asset($basic_info->light_logo)}}" alt="" height="24">
                     </span>
 
-{{--                    <span class="logo-lg">--}}
-{{--                        <img src="{{ asset($basic_info->light_logo) }}" alt="" height="24"> <span--}}
-{{--                            class="logo-txt">Minia</span>--}}
-{{--                    </span>--}}
+                    <span class="logo-lg">
+                        <img src="{{ asset($basic_info->light_logo) }}" alt="" height="24"> <span
+                            class="logo-txt">{{ $basic_info->platform_name ?? 'Genzilla' }}</span>
+                    </span>
                 </a>
             </div>
 
@@ -171,7 +171,7 @@
                     <img class="rounded-circle header-profile-user"
                          src="{{ asset('backend') }}/assets/images/users/avatar-1.jpg"
                          alt="Header Avatar">
-                    <span class="d-none d-xl-inline-block ms-1 fw-medium">####</span>
+                    <span class="d-none d-xl-inline-block ms-1 fw-medium">{{ Auth::user()->name ?? 'SuperAdmin' }}</span>
                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
