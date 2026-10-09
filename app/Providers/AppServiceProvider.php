@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\BasicInfo;
+use App\Models\PlatformSetting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
@@ -32,9 +33,9 @@ class AppServiceProvider extends ServiceProvider
 
             // Cache the basic info for 24 hours to prevent hitting the DB on every page load
             $basicInfo = Cache::remember('platform_basic_info', now()->addDay(), function () {
-                return BasicInfo::first();
+                return PlatformSetting::first();
             });
-
+//dd($basicInfo);
             $view->with('basic_info', $basicInfo);
         });
 

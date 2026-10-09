@@ -1,25 +1,42 @@
 <header id="page-topbar">
     <div class="navbar-header">
-        <div class="d-flex">
+        <div class="d-flex align-items-center">
             <!-- LOGO -->
             <div class="navbar-brand-box">
-                <a href="" class="logo logo-dark">
-                   <span class="logo-sm">
-                 <img src="{{asset($basic_info->black_logo)}}" alt="" width="80%" height="24">
-                   </span>
+                <a href="{{ route('admin.dashboard.index') }}" class="logo logo-dark">
+                    <span class="logo-sm">
+                        @if(!empty($basic_info?->black_logo))
+                            <img src="{{ asset('storage/' . ltrim($basic_info->black_logo, '/')) }}" alt="Logo" style="max-height: 26px; max-width: 100%; object-fit: contain;">
+                        @else
+                            <img src="{{ asset('backend/assets/images/logo-sm.svg') }}" alt="Logo" style="max-height: 24px; width: auto;">
+                        @endif
+                    </span>
                     <span class="logo-lg">
-                       <img src="{{asset($basic_info->black_logo)}}" alt="" width="100%" height="50">
+                        @if(!empty($basic_info?->black_logo))
+                            <img src="{{ asset('storage/' . ltrim($basic_info->black_logo, '/')) }}" alt="Logo" style="max-height: 38px; max-width: 160px; object-fit: contain;">
+                        @else
+                            <img src="{{ asset('backend/assets/images/logo-sm.svg') }}" alt="Logo" style="max-height: 24px; width: auto;">
+                            <span class="logo-txt fw-bold ms-1 font-size-18 text-dark">{{ $basic_info?->platform_name ?? 'Genzilla' }}</span>
+                        @endif
                     </span>
                 </a>
 
-                <a href="" class="logo logo-light">
+                <a href="{{ route('admin.dashboard.index') }}" class="logo logo-light">
                     <span class="logo-sm">
-                    <img src="{{asset($basic_info->light_logo)}}" alt="" height="24">
+                        @if(!empty($basic_info?->light_logo))
+                            <img src="{{ asset('storage/' . ltrim($basic_info->light_logo, '/')) }}" alt="Logo" style="max-height: 26px; max-width: 100%; object-fit: contain;">
+                        @else
+                            <img src="{{ asset('backend/assets/images/logo-sm.svg') }}" alt="Logo" style="max-height: 24px; width: auto;">
+                        @endif
                     </span>
 
                     <span class="logo-lg">
-                        <img src="{{ asset($basic_info->light_logo) }}" alt="" height="24"> <span
-                            class="logo-txt">{{ $basic_info->platform_name ?? 'Genzilla' }}</span>
+                        @if(!empty($basic_info?->light_logo))
+                            <img src="{{ asset('storage/' . ltrim($basic_info->light_logo, '/')) }}" alt="Logo" style="max-height: 38px; max-width: 160px; object-fit: contain;">
+                        @else
+                            <img src="{{ asset('backend/assets/images/logo-sm.svg') }}" alt="Logo" style="max-height: 24px; width: auto;">
+                            <span class="logo-txt fw-bold ms-1 font-size-18 text-white">{{ $basic_info?->platform_name ?? 'Genzilla' }}</span>
+                        @endif
                     </span>
                 </a>
             </div>
