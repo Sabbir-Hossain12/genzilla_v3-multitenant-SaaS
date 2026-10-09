@@ -3,11 +3,19 @@
 namespace App\Http\Controllers\Platform\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PlatformBlogCategory;
 use App\Models\PlatformBlogPost;
 use App\Models\PlatformContact;
+use App\Models\PlatformFaq;
+use App\Models\PlatformFeature;
 use App\Models\PlatformNewsletterSubscriber;
+use App\Models\PlatformPage;
 use App\Models\PlatformPlan;
 use App\Models\PlatformSetting;
+use App\Models\PlatformStep;
+use App\Models\PlatformStoreDemo;
+use App\Models\PlatformTestimonial;
+use App\Models\PlatformUseCase;
 use App\Models\Tenant;
 use App\Models\TenantDomain;
 use App\Models\TenantInvoice;
@@ -83,6 +91,19 @@ class DashboardController extends Controller
 
         $currency = optional(PlatformSetting::query()->first())->default_currency ?: 'USD';
 
+        $contentStats = [
+            ['label' => 'Features', 'icon' => 'fa-list-check', 'count' => PlatformFeature::count(), 'route' => 'admin.features.index', 'permission' => 'Manage Features'],
+            ['label' => 'Steps', 'icon' => 'fa-shoe-prints', 'count' => PlatformStep::count(), 'route' => 'admin.steps.index', 'permission' => 'Manage Steps'],
+            ['label' => 'Use Cases', 'icon' => 'fa-bullseye', 'count' => PlatformUseCase::count(), 'route' => 'admin.use-cases.index', 'permission' => 'Manage Use Cases'],
+            ['label' => 'Store Demos', 'icon' => 'fa-window-restore', 'count' => PlatformStoreDemo::count(), 'route' => 'admin.store-demos.index', 'permission' => 'Manage Store Demos'],
+            ['label' => 'Testimonials', 'icon' => 'fa-quote-right', 'count' => PlatformTestimonial::count(), 'route' => 'admin.testimonials.index', 'permission' => 'Manage Testimonials'],
+            ['label' => 'FAQs', 'icon' => 'fa-circle-question', 'count' => PlatformFaq::count(), 'route' => 'admin.faqs.index', 'permission' => 'Manage Faqs'],
+            ['label' => 'Pages', 'icon' => 'fa-file-lines', 'count' => PlatformPage::count(), 'route' => 'admin.pages.index', 'permission' => 'Manage Pages'],
+            ['label' => 'Blog Posts', 'icon' => 'fa-newspaper', 'count' => PlatformBlogPost::count(), 'route' => 'admin.blog.index', 'permission' => 'Manage Blog'],
+            ['label' => 'Categories', 'icon' => 'fa-tags', 'count' => PlatformBlogCategory::count(), 'route' => 'admin.blog-categories.index', 'permission' => 'Manage Blog Categories'],
+            ['label' => 'Plans', 'icon' => 'fa-layer-group', 'count' => PlatformPlan::count(), 'route' => 'admin.plans.index', 'permission' => 'Manage Plans'],
+        ];
+
         return view('platform_admin.pages.dashboard.dashboard', compact(
             'stats',
             'chartLabels',
@@ -94,6 +115,7 @@ class DashboardController extends Controller
             'recentContacts',
             'recentInvoices',
             'recentPosts',
+            'contentStats',
             'currency',
         ));
     }
