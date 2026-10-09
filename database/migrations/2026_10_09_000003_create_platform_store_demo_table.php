@@ -6,26 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('brands', function (Blueprint $table) {
+        Schema::create('platform_store_demo', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->string('brand_name');
+            $table->string('title');
             $table->text('image')->nullable();
-            $table->tinyInteger('status')->default(1)->comment('1=active,0=inactive');
+            $table->string('link')->nullable();
+            $table->tinyInteger('status')->default(1)->comment('1=active, 0=inactive');
+            $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('brands');
+        Schema::dropIfExists('platform_store_demo');
     }
 };
