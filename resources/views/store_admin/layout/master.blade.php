@@ -2,6 +2,18 @@
 
 <body class="pace-done sidebar-enable" data-sidebar-size="lg">
 
+<script>
+    (function () {
+        try {
+            if (localStorage.getItem('layout-mode') === 'dark') {
+                document.body.setAttribute('data-layout-mode', 'dark');
+                document.body.setAttribute('data-topbar', 'dark');
+                document.body.setAttribute('data-sidebar', 'dark');
+            }
+        } catch (e) {}
+    })();
+</script>
+
 <!-- <body data-layout="horizontal"> -->
 
 <!-- Begin page -->

@@ -1,186 +1,146 @@
 <?php
 
-namespace App\Http\Controllers\Platform\Admin;;
+namespace App\Http\Controllers\Platform\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Facades\DataTables;
 
 class AdminRoleController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Roles that must never be renamed or deleted.
      */
+    protected const PROTECTED = ['Platform SuperAdmin'];
+
     public function index()
     {
-        $roles = Role::get();
-
-
-        return view('backend.pages.admin_role.index', compact('roles'));
+        return view('platform_admin.pages.admin_role.index');
     }
 
     public function getData()
     {
-        $roles = Role::all();
+        $roles = Role::query();
 
-
-        return DataTables::of($roles)
-//            ->addColumn('status', function ($admin) {
-//                if ($admin->status == 1) {
-//                    return ' <a class="status" id="adminStatus" href="javascript:void(0)"
-//                                               data-id="'.$admin->id.'" data-status="'.$admin->status.'"> <i
-//                                                        class="fa-solid fa-toggle-on fa-2x"></i>
-//                                            </a>';
-//                } else {
-//                    return '<a class="status" id="adminStatus" href="javascript:void(0)"
-//                                               data-id="'.$admin->id.'" data-status="'.$admin->status.'"> <i
-//                                                        class="fa-solid fa-toggle-off fa-2x" style="color: grey"></i>
-//                                            </a>';
-//                }
-//            })
-
-            ->addColumn('permissions', function ($role) {
-                $perp_names = $role->permissions->pluck('name');
-                    $badge='';
-                foreach ($perp_names as $perm) {
-                    $badge  .=  '<span class="badge bg-success p-1 mx-1 my-1">'.$perm.'</span>';
-
+        return DataTables::eloquent($roles)
+            ->addIndexColumn()
+            ->addColumn('permissions', function (Role $role) {
+                if ($role->permissions->isEmpty()) {
+                    return '<span class="text-muted">No permissions</span>';
                 }
-                return $badge;
-            })
-            ->addColumn('action', function ($role) {
-                $addPermission = route('role.permission.edit', $role->id);
 
-                return '<div class="d-flex gap-3">  <a class="btn btn-sm btn-primary" href="'.$addPermission.'"><i class="fa-solid fa-user-plus"></i></a> <a class="editButton btn btn-sm btn-primary" href="javascript:void(0)" data-id="'.$role->id.'" data-bs-toggle="modal" data-bs-target="#editRoleModal"><i class="fas fa-edit"></i></a>
-                                                             <a class="btn btn-sm btn-danger" href="javascript:void(0)" data-id="'.$role->id.'" id="deleteRoleBtn""> <i class="fas fa-trash"></i></a>
-                                                           </div>';
+                $badges = $role->permissions
+                    ->sortBy('name')
+                    ->map(fn ($permission) => '<span class="badge bg-success me-1 mb-1" style="white-space: nowrap;">'.e($permission->name).'</span>')
+                    ->implode('');
+
+                return '<div class="d-flex flex-wrap" style="max-width: 430px;">'.$badges.'</div>';
+            })
+            ->addColumn('action', function (Role $role) {
+                $assignPermission = auth()->user()->can('Assign Permission')
+                    ? '<a class="btn btn-sm btn-info" href="'.route('admin.role.permission.edit', $role->id).'" title="Assign permissions"><i class="fa-solid fa-user-shield"></i></a>'
+                    : '';
+
+                $edit = auth()->user()->can('Edit Role')
+                    ? '<a class="editButton btn btn-sm btn-primary" href="javascript:void(0)" data-id="'.$role->id.'" data-bs-toggle="modal" data-bs-target="#editRoleModal"><i class="fas fa-edit"></i></a>'
+                    : '';
+
+                $delete = '';
+                if (auth()->user()->can('Delete Role') && ! in_array($role->name, self::PROTECTED, true)) {
+                    $delete = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" data-id="'.$role->id.'" id="deleteRoleBtn"><i class="fas fa-trash"></i></a>';
+                }
+
+                return '<div class="d-flex gap-2">'.$assignPermission.$edit.$delete.'</div>';
             })
             ->rawColumns(['action', 'permissions'])
             ->make(true);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $admin = new Role();
-        $admin->name = $request->name;
-        $admin->guard_name = "admin";
-        $admin->save();
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('roles', 'name')],
+        ]);
 
+        Role::create([
+            'name' => $validated['name'],
+            'guard_name' => 'web',
+        ]);
 
         return response()->json(['message' => 'success'], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $role = Role::findOrFail($id);
 
-        if ($role) {
-            return response()->json(['message' => 'success', 'data' => $role], 200);
-        }
-
-        return response()->json(['message' => 'failed'], 400);
+        return response()->json([
+            'message' => 'success',
+            'data' => [
+                'id' => $role->id,
+                'name' => $role->name,
+                'protected' => in_array($role->name, self::PROTECTED, true),
+            ],
+        ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $role = Role::findOrFail($id);
 
-        if ($role) {
-            $role->name = $request->name;
-
-
-            $role->save();
-
-            return response()->json(['message' => 'success'], 200);
+        if (in_array($role->name, self::PROTECTED, true)) {
+            return response()->json(['message' => 'This role is protected and cannot be renamed.'], 422);
         }
-        return response()->json(['message' => 'failed'], 404);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('roles', 'name')->ignore($role->id)],
+        ]);
+
+        $role->name = $validated['name'];
+        $role->save();
+
+        return response()->json(['message' => 'success'], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $role = Role::findOrFail($id);
 
-        if ($role) {
-            $role->delete();
-
-            return response()->json(['message' => 'success'], 200);
+        if (in_array($role->name, self::PROTECTED, true)) {
+            return response()->json(['message' => 'This role is protected and cannot be deleted.'], 422);
         }
-        return response()->json(['message' => 'error'], 402);
-    }
 
-//    public function changeRoleStatus(Request $request)
-//    {
-//        $id = $request->id;
-//        $status = $request->status;
-//
-//
-//        if ($status == 1) {
-//            $stat = 0;
-//        } else {
-//            $stat = 1;
-//        }
-//
-//        $page = Admin::findOrFail($id);
-//        $page->status = $stat;
-//        $page->save();
-//
-//        return response()->json(['message' => 'success', 'status' => $stat, 'id' => $id]);
-//    }
+        $role->delete();
 
-    public function create()
-    {
+        return response()->json(['message' => 'success'], 200);
     }
 
     public function assignPermissionsToRolePage(string $id)
     {
-        $permissions = Permission::get();
         $role = Role::findOrFail($id);
+        $permissionGroups = Permission::query()
+            ->orderBy('group_name')
+            ->orderBy('name')
+            ->get()
+            ->groupBy('group_name');
 
-        return view('backend.pages.admin_role.permissions_to_role', compact('permissions', 'role'));
+        return view('platform_admin.pages.admin_role.permissions_to_role', compact('role', 'permissionGroups'));
     }
 
     public function assignPermissionsToRole(Request $request, string $id)
     {
-//        dd(\request()->all());
-
-
         $role = Role::findOrFail($id);
 
+        $validated = $request->validate([
+            'permissions' => 'array',
+            'permissions.*' => ['string', Rule::exists('permissions', 'name')],
+        ]);
 
-        $assignePerm = $role->syncPermissions(\request()->permissions);
+        $role->syncPermissions($validated['permissions'] ?? []);
 
-
-        if ($assignePerm) {
-            return redirect()->back()->with('success_message', 'Permission Updated !');
-        }
-        return redirect()->back()->with('error_message', 'Error Occured !');
+        return redirect()->back()->with('success', 'Permissions updated for '.$role->name.'.');
     }
-
-
 }

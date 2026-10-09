@@ -4,143 +4,98 @@ namespace App\Http\Controllers\Platform\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
-use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Facades\DataTables;
 
 class AdminPermissionController extends Controller
 {
     public function index()
     {
-        $permissions = Permission::get();
+        $groups = Permission::query()
+            ->select('group_name')
+            ->distinct()
+            ->orderBy('group_name')
+            ->pluck('group_name');
 
-
-        return view('backend.pages.admin_permissions.index', compact('permissions'));
+        return view('platform_admin.pages.admin_permissions.index', compact('groups'));
     }
 
     public function getData()
     {
-        $permissions = Permission::all();
+        $permissions = Permission::query();
 
-
-        return DataTables::of($permissions)
-//            ->addColumn('status', function ($admin) {
-//                if ($admin->status == 1) {
-//                    return ' <a class="status" id="adminStatus" href="javascript:void(0)"
-//                                               data-id="'.$admin->id.'" data-status="'.$admin->status.'"> <i
-//                                                        class="fa-solid fa-toggle-on fa-2x"></i>
-//                                            </a>';
-//                } else {
-//                    return '<a class="status" id="adminStatus" href="javascript:void(0)"
-//                                               data-id="'.$admin->id.'" data-status="'.$admin->status.'"> <i
-//                                                        class="fa-solid fa-toggle-off fa-2x" style="color: grey"></i>
-//                                            </a>';
-//                }
-//            })
-            ->addColumn('action', function ($permission) {
-                return '<div class="d-flex gap-3"> <a class="editButton btn btn-sm btn-primary" href="javascript:void(0)" data-id="'.$permission->id.'" data-bs-toggle="modal" data-bs-target="#editPermissionModal"><i class="fas fa-edit"></i></a>
-                                                             <a class="btn btn-sm btn-danger" href="javascript:void(0)" data-id="'.$permission->id.'" id="deletePermissionBtn""> <i class="fas fa-trash"></i></a>
-                                                           </div>';
+        return DataTables::eloquent($permissions)
+            ->addIndexColumn()
+            ->addColumn('group', function (Permission $permission) {
+                return '<span class="badge bg-primary me-1">'.e($permission->group_name ?: 'General').'</span>';
             })
-            ->rawColumns(['action'])
+            ->addColumn('action', function (Permission $permission) {
+                $edit = auth()->user()->can('Edit Permission')
+                    ? '<a class="editButton btn btn-sm btn-primary" href="javascript:void(0)" data-id="'.$permission->id.'" data-bs-toggle="modal" data-bs-target="#editPermissionModal"><i class="fas fa-edit"></i></a>'
+                    : '';
 
+                $delete = auth()->user()->can('Delete Permission')
+                    ? '<a class="btn btn-sm btn-danger" href="javascript:void(0)" data-id="'.$permission->id.'" id="deletePermissionBtn"><i class="fas fa-trash"></i></a>'
+                    : '';
+
+                return '<div class="d-flex gap-2">'.$edit.$delete.'</div>';
+            })
+            ->rawColumns(['action', 'group'])
             ->make(true);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $permission = new Permission();
-        $permission->name = $request->name;
-        $permission->guard_name= 'admin';
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('permissions', 'name')],
+            'group_name' => 'required|string|max:255',
+        ]);
 
-
-        $permission->save();
-
+        Permission::create([
+            'name' => $validated['name'],
+            'group_name' => $validated['group_name'],
+            'guard_name' => 'web',
+        ]);
 
         return response()->json(['message' => 'success'], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $permission = Permission::findOrFail($id);
 
-        if ($permission) {
-            return response()->json(['message' => 'success', 'data' => $permission], 200);
-        }
-
-        return response()->json(['message' => 'failed'], 400);
+        return response()->json([
+            'message' => 'success',
+            'data' => [
+                'id' => $permission->id,
+                'name' => $permission->name,
+                'group_name' => $permission->group_name,
+            ],
+        ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $permission = Permission::findOrFail($id);
 
-        if ($permission) {
-            $permission->name = $request->name;
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('permissions', 'name')->ignore($permission->id)],
+            'group_name' => 'required|string|max:255',
+        ]);
 
+        $permission->name = $validated['name'];
+        $permission->group_name = $validated['group_name'];
+        $permission->save();
 
-            $permission->save();
-
-            return response()->json(['message' => 'success'], 200);
-        }
-        return response()->json(['message' => 'failed'], 404);
+        return response()->json(['message' => 'success'], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $permission = Permission::findOrFail($id);
+        $permission->delete();
 
-        if ($permission) {
-            $permission->delete();
-
-            return response()->json(['message' => 'success'], 200);
-        }
-        return response()->json(['message' => 'error'], 402);
+        return response()->json(['message' => 'success'], 200);
     }
-
-//    public function changeAdminStatus(Request $request)
-//    {
-//        $id = $request->id;
-//        $status = $request->status;
-//
-//
-//        if ($status == 1) {
-//            $stat = 0;
-//        } else {
-//            $stat = 1;
-//        }
-//
-//        $page = Admin::findOrFail($id);
-//        $page->status = $stat;
-//        $page->save();
-//
-//        return response()->json(['message' => 'success', 'status' => $stat, 'id' => $id]);
-//    }
 }

@@ -13,13 +13,34 @@ class RoleSeeder extends Seeder
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $roles = ['Platform SuperAdmin', 'Platform Coadmin', 'Platform Staff'];
+        $all = collect(PermissionSeeder::GROUPS)->flatten()->unique()->values()->all();
 
-        foreach ($roles as $role) {
-            Role::firstOrCreate([
-                'name' => $role,
-                'guard_name' => 'web'
+        $security = array_merge(
+            PermissionSeeder::GROUPS['Admin Management'],
+            PermissionSeeder::GROUPS['Role Management'],
+            PermissionSeeder::GROUPS['Permission Management'],
+        );
+
+        $coadmin = array_values(array_diff($all, $security));
+
+        $staff = array_values(array_unique(array_merge(
+            PermissionSeeder::GROUPS['Platform Admin Dashboard'],
+            PermissionSeeder::GROUPS['Content & Support'],
+        )));
+
+        $matrix = [
+            'Platform SuperAdmin' => $all,
+            'Platform Coadmin' => $coadmin,
+            'Platform Staff' => $staff,
+        ];
+
+        foreach ($matrix as $roleName => $permissions) {
+            $role = Role::firstOrCreate([
+                'name' => $roleName,
+                'guard_name' => 'web',
             ]);
+
+            $role->syncPermissions($permissions);
         }
     }
 }

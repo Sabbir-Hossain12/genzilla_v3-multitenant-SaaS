@@ -185,15 +185,21 @@
                 <button type="button" class="btn header-item bg-soft-light border-start border-end"
                         id="page-header-user-dropdown"
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img class="rounded-circle header-profile-user"
-                         src="{{ asset('backend') }}/assets/images/users/avatar-1.jpg"
-                         alt="Header Avatar">
+                    @if(Auth::user()?->img_url)
+                        <img class="rounded-circle header-profile-user"
+                             src="{{ Auth::user()->img_url }}" style="object-fit: cover;"
+                             alt="Header Avatar">
+                    @else
+                        <img class="rounded-circle header-profile-user"
+                             src="{{ asset('backend') }}/assets/images/users/avatar-1.jpg"
+                             alt="Header Avatar">
+                    @endif
                     <span class="d-none d-xl-inline-block ms-1 fw-medium">{{ Auth::user()->name ?? 'SuperAdmin' }}</span>
                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <!-- item-->
-                    <a class="dropdown-item" href="#"><i class="fa-solid fa-user  font-size-16 align-middle me-1"></i>
+                    <a class="dropdown-item" href="{{ route('admin.profile.edit') }}"><i class="fa-solid fa-user  font-size-16 align-middle me-1"></i>
                         Profile</a>
                     <div class="dropdown-divider"></div>
                     <form method="post" action="{{route('admin.logout')}}">
