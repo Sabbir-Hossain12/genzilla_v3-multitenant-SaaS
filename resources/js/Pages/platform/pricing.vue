@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import PlatformLayout from '@/Layouts/PlatformLayout.vue'
 import PlatformCheck from '@/Components/platform/PlatformCheck.vue'
@@ -7,14 +7,35 @@ import PlatformGlyph from '@/Components/platform/PlatformGlyph.vue'
 import PlatformToggle from '@/Components/platform/PlatformToggle.vue'
 import PlatformCtaBand from '@/Components/platform/PlatformCtaBand.vue'
 import {
-    pricingPlans,
-    pricingComparison,
-    pricingFaqs,
+    pricingPlans as fallbackPlans,
+    pricingComparison as fallbackComparison,
+    pricingFaqs as fallbackFaqs,
     feeCalloutShapes,
 } from '@/data/platform'
 
+const props = defineProps({
+    plans: { type: Array, default: () => [] },
+    comparison: { type: Array, default: () => [] },
+    faqs: { type: Array, default: () => [] },
+})
+
 /** false = monthly, true = yearly (20% off). */
 const yearly = ref(false)
+
+const plansView = computed(() => (props.plans.length ? props.plans : fallbackPlans))
+const faqsView = computed(() => (props.faqs.length ? props.faqs : fallbackFaqs))
+
+const comparisonView = computed(() => {
+    if (props.comparison.length) return props.comparison
+
+    // Adapt the static keyed rows into the aligned values shape the table renders.
+    return fallbackComparison.map((row) => ({
+        feature: row.feature,
+        striped: row.striped,
+        emphasize: row.emphasize,
+        values: [row.basic, row.pro, row.enterprise],
+    }))
+})
 </script>
 
 <template>
@@ -62,7 +83,7 @@ const yearly = ref(false)
             <div class="max-w-6xl mx-auto px-4 sm:px-6">
                 <div class="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
                     <div
-                        v-for="plan in pricingPlans"
+                        v-for="plan in plansView"
                         :key="plan.name"
                         class="rounded-2xl p-7 relative"
                         :class="
@@ -183,7 +204,7 @@ const yearly = ref(false)
                                     Feature
                                 </th>
                                 <th
-                                    v-for="plan in pricingPlans"
+                                    v-for="plan in plansView"
                                     :key="plan.name"
                                     class="text-[14px] font-bold px-5 py-4 text-center"
                                     :class="plan.featured ? 'text-primary' : 'text-ink'"
@@ -194,24 +215,24 @@ const yearly = ref(false)
                         </thead>
                         <tbody class="text-[13.5px] text-gray-600">
                             <tr
-                                v-for="row in pricingComparison"
+                                v-for="(row, rowIndex) in comparisonView"
                                 :key="row.feature"
                                 class="border-t border-gray-100"
                                 :class="row.striped ? 'bg-gray-50/50' : ''"
                             >
                                 <td class="px-5 py-3.5 font-medium text-gray-700">{{ row.feature }}</td>
                                 <td
-                                    v-for="key in ['basic', 'pro', 'enterprise']"
-                                    :key="key"
+                                    v-for="(value, columnIndex) in row.values"
+                                    :key="columnIndex"
                                     class="px-5 py-3.5 text-center"
                                 >
-                                    <span v-if="row[key] === true"><PlatformCheck /></span>
-                                    <span v-else-if="row[key] === false" class="text-gray-300">—</span>
+                                    <span v-if="value === true"><PlatformCheck /></span>
+                                    <span v-else-if="value === false" class="text-gray-300">—</span>
                                     <span
                                         v-else
-                                        :class="key === 'pro' && row.emphasize ? 'font-semibold text-primary' : ''"
+                                        :class="plansView[columnIndex]?.featured && row.emphasize ? 'font-semibold text-primary' : ''"
                                     >
-                                        {{ row[key] }}
+                                        {{ value }}
                                     </span>
                                 </td>
                             </tr>
@@ -233,7 +254,7 @@ const yearly = ref(false)
                 </h2>
                 <div class="space-y-2.5">
                     <details
-                        v-for="faq in pricingFaqs"
+                        v-for="faq in faqsView"
                         :key="faq.question"
                         class="acc-item bg-white border border-gray-200 rounded-xl px-5"
                     >

@@ -1,15 +1,73 @@
 <script setup>
+import { computed } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import PlatformLayout from '@/Layouts/PlatformLayout.vue'
 import {
-    features,
-    hero,
-    plans,
-    stats,
-    steps,
-    testimonials,
+    features as fallbackFeatures,
+    hero as fallbackHero,
+    plans as fallbackPlans,
+    stats as fallbackStats,
+    steps as fallbackSteps,
+    testimonials as fallbackTestimonials,
     trustLogos,
 } from '@/data/platform'
+
+/**
+ * CMS content arrives as Inertia props; the static module supplies the visual
+ * treatment (icon shapes, colours) and acts as the fallback whenever a section
+ * has not been populated in the admin yet.
+ */
+const props = defineProps({
+    hero: { type: Object, default: () => ({}) },
+    stats: { type: Array, default: () => [] },
+    features: { type: Array, default: () => [] },
+    steps: { type: Array, default: () => [] },
+    testimonials: { type: Array, default: () => [] },
+    plans: { type: Array, default: () => [] },
+})
+
+const heroView = computed(() => {
+    const hero = props.hero || {}
+    if (!hero.title) return fallbackHero
+
+    return {
+        badge: hero.badge || fallbackHero.badge,
+        titleLead: hero.title,
+        titleHighlight: '',
+        titleTail: '',
+        subtitle: hero.subtitle || fallbackHero.subtitle,
+        note: fallbackHero.note,
+        url: fallbackHero.url,
+        primaryLabel: hero.primaryLabel || 'Start Free 14-Day Trial',
+        primaryTo: hero.primaryTo || '/register',
+        secondaryLabel: hero.secondaryLabel || 'Watch Demo',
+        secondaryTo: hero.secondaryTo || '#demo',
+    }
+})
+
+const statsView = computed(() => (props.stats.length ? props.stats : fallbackStats))
+const stepsView = computed(() => (props.steps.length ? props.steps : fallbackSteps))
+const plansView = computed(() => (props.plans.length ? props.plans : fallbackPlans))
+
+const featuresView = computed(() => {
+    const source = props.features.length ? props.features : fallbackFeatures
+    return source.map((item, index) => ({
+        ...fallbackFeatures[index % fallbackFeatures.length],
+        title: item.title,
+        body: item.body,
+    }))
+})
+
+const testimonialsView = computed(() => {
+    const source = props.testimonials.length ? props.testimonials : fallbackTestimonials
+    return source.map((item, index) => ({
+        ...fallbackTestimonials[index % fallbackTestimonials.length],
+        quote: item.quote,
+        name: item.name,
+        role: item.role,
+        initials: item.initials,
+    }))
+})
 
 const chartBars = [
     { height: '40%', class: 'bg-primary/30' },
@@ -38,7 +96,7 @@ const chartBars = [
                     <span class="bg-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
                         NEW
                     </span>
-                    {{ hero.badge }}
+                    {{ heroView.badge }}
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                         <path
                             d="M9 18l6-6-6-6"
@@ -53,22 +111,22 @@ const chartBars = [
                 <h1
                     class="text-[34px] leading-[1.15] sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-ink max-w-4xl mx-auto"
                 >
-                    {{ hero.titleLead }}
-                    <span class="text-primary">{{ hero.titleHighlight }}</span>{{ hero.titleTail }}
+                    {{ heroView.titleLead }}
+                    <span class="text-primary">{{ heroView.titleHighlight }}</span>{{ heroView.titleTail }}
                 </h1>
                 <p class="text-[16px] sm:text-lg text-gray-500 max-w-2xl mx-auto mt-5">
-                    {{ hero.subtitle }}
+                    {{ heroView.subtitle }}
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
                     <Link
-                        :href="route('register')"
+                        :href="heroView.primaryTo"
                         class="w-full sm:w-auto bg-primary hover:bg-primarydark text-white font-bold text-[15px] px-7 py-3.5 rounded-xl transition-colors shadow-lg shadow-primary/20"
                     >
-                        Start Free 14-Day Trial
+                        {{ heroView.primaryLabel }}
                     </Link>
                     <a
-                        href="#demo"
+                        :href="heroView.secondaryTo"
                         class="w-full sm:w-auto flex items-center justify-center gap-2 border border-gray-200 bg-white text-ink font-semibold text-[15px] px-7 py-3.5 rounded-xl hover:border-gray-300 transition-colors"
                     >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -81,10 +139,10 @@ const chartBars = [
                 />
                 <path d="M10 8l6 4-6 4V8z" fill="currentColor" />
                         </svg>
-                        Watch Demo
+                        {{ heroView.secondaryLabel }}
                     </a>
                 </div>
-                <p class="text-[13px] text-gray-400 mt-4">{{ hero.note }}</p>
+                <p class="text-[13px] text-gray-400 mt-4">{{ heroView.note }}</p>
 
                 <!-- Hero product mockup -->
                 <div class="mt-14 max-w-4xl mx-auto">
@@ -100,7 +158,7 @@ const chartBars = [
                             <span
                                 class="ml-3 text-[12px] text-gray-400 bg-white border border-gray-200 rounded-md px-3 py-1"
                             >
-                                {{ hero.url }}
+                                {{ heroView.url }}
                             </span>
                         </div>
                         <div class="grid grid-cols-4 min-h-[280px] sm:min-h-[360px]">
@@ -179,7 +237,7 @@ const chartBars = [
             <div
                 class="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center"
             >
-                <div v-for="stat in stats" :key="stat.label">
+                <div v-for="stat in statsView" :key="stat.label">
                     <p class="text-white text-3xl sm:text-4xl font-extrabold">{{ stat.value }}</p>
                     <p class="text-gray-400 text-[13.5px] mt-1">{{ stat.label }}</p>
                 </div>
@@ -205,7 +263,7 @@ const chartBars = [
 
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div
-                        v-for="feature in features"
+                        v-for="feature in featuresView"
                         :key="feature.title"
                         class="border border-gray-100 rounded-2xl p-6 hover:shadow-lg hover:shadow-gray-100 transition-shadow"
                     >
@@ -248,7 +306,7 @@ const chartBars = [
                 </div>
                 <div class="grid sm:grid-cols-3 gap-6 relative">
                     <div class="hidden sm:block absolute top-7 left-[16%] right-[16%] h-0.5 bg-gray-200"></div>
-                    <div v-for="(step, i) in steps" :key="step.title" class="relative text-center">
+                    <div v-for="(step, i) in stepsView" :key="step.title" class="relative text-center">
                         <div
                             class="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center text-[18px] font-extrabold mx-auto mb-4 relative z-10"
                         >
@@ -276,7 +334,7 @@ const chartBars = [
                 </div>
                 <div class="grid sm:grid-cols-3 gap-5">
                     <div
-                        v-for="testimonial in testimonials"
+                        v-for="testimonial in testimonialsView"
                         :key="testimonial.name"
                         class="border border-gray-100 rounded-2xl p-6"
                     >
@@ -316,7 +374,7 @@ const chartBars = [
                 </div>
                 <div class="grid sm:grid-cols-3 gap-5 max-w-4xl mx-auto">
                     <div
-                        v-for="plan in plans"
+                        v-for="plan in plansView"
                         :key="plan.name"
                         class="rounded-2xl p-6 text-center relative"
                         :class="

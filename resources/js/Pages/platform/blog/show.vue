@@ -3,22 +3,18 @@ import { computed } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import PlatformLayout from '@/Layouts/PlatformLayout.vue'
 import PlatformCtaBand from '@/Components/platform/PlatformCtaBand.vue'
-import { findBlogPost, relatedBlogPosts } from '@/data/platform'
 
 /**
- * Single blog post.
- *
- * The catalogue lives in a JS module rather than the database, so the route is
- * a thin shell that hands over the slug and the lookup happens here. An unknown
- * slug renders the not-found panel below instead of throwing — if these posts
- * ever move into a table, move the lookup server-side and return a real 404.
+ * Single blog post, resolved server-side. An unknown slug returns a null post
+ * and renders the not-found panel below.
  */
 const props = defineProps({
-    slug: { type: String, required: true },
+    post: { type: Object, default: () => null },
+    related: { type: Array, default: () => [] },
 })
 
-const post = computed(() => findBlogPost(props.slug))
-const related = computed(() => relatedBlogPosts(post.value))
+const post = computed(() => props.post)
+const related = computed(() => props.related ?? [])
 </script>
 
 <template>
@@ -109,66 +105,10 @@ const related = computed(() => relatedBlogPosts(post.value))
                  BODY
             ════════════════════════════════════════ -->
             <article class="py-14 sm:py-16">
-                <div class="max-w-2xl mx-auto px-4 sm:px-6">
-                    <template v-for="(block, index) in post.body" :key="index">
-                        <p
-                            v-if="block.type === 'p'"
-                            class="text-[15.5px] text-gray-600 leading-[1.8] mb-5"
-                        >
-                            {{ block.text }}
-                        </p>
-
-                        <h2
-                            v-else-if="block.type === 'h2'"
-                            class="text-[21px] sm:text-[24px] font-extrabold tracking-tight text-ink mt-10 mb-4"
-                        >
-                            {{ block.text }}
-                        </h2>
-
-                        <ul
-                            v-else-if="block.type === 'ul'"
-                            class="space-y-3 mb-6 pl-1"
-                        >
-                            <li
-                                v-for="item in block.items"
-                                :key="item"
-                                class="flex items-start gap-3 text-[15px] text-gray-600 leading-relaxed"
-                            >
-                                <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    aria-hidden="true"
-                                    class="text-accent shrink-0 mt-0.5"
-                                >
-                                    <path
-                                        d="M20 6L9 17l-5-5"
-                                        stroke="currentColor"
-                                        stroke-width="2.5"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    />
-                                </svg>
-                                <span>{{ item }}</span>
-                            </li>
-                        </ul>
-
-                        <blockquote
-                            v-else-if="block.type === 'quote'"
-                            class="border-l-[3px] border-primary bg-primarylt/60 rounded-r-xl py-5 px-6 my-8"
-                        >
-                            <p class="text-[15.5px] text-ink leading-relaxed font-medium">
-                                {{ block.text }}
-                            </p>
-                            <cite
-                                class="not-italic text-[12.5px] text-gray-500 block mt-2.5"
-                            >
-                                — {{ block.cite }}
-                            </cite>
-                        </blockquote>
-                    </template>
-                </div>
+                <div
+                    class="max-w-2xl mx-auto px-4 sm:px-6 [&_p]:text-[15.5px] [&_p]:text-gray-600 [&_p]:leading-[1.8] [&_p]:mb-5 [&_h2]:text-[21px] [&_h2]:sm:text-[24px] [&_h2]:font-extrabold [&_h2]:tracking-tight [&_h2]:text-ink [&_h2]:mt-10 [&_h2]:mb-4 [&_ul]:space-y-3 [&_ul]:mb-6 [&_ul]:pl-1 [&_li]:relative [&_li]:pl-6 [&_li]:text-[15px] [&_li]:text-gray-600 [&_li]:leading-relaxed [&_li]:before:content-['•'] [&_li]:before:absolute [&_li]:before:left-0 [&_li]:before:text-accent [&_li]:before:font-bold [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary [&_blockquote]:bg-primarylt/60 [&_blockquote]:rounded-r-xl [&_blockquote]:py-5 [&_blockquote]:px-6 [&_blockquote]:my-8 [&_blockquote]:text-[15.5px] [&_blockquote]:text-ink [&_blockquote]:leading-relaxed [&_blockquote]:font-medium [&_blockquote_p]:mb-0 [&_cite]:not-italic [&_cite]:text-[12.5px] [&_cite]:text-gray-500 [&_cite]:block [&_cite]:mt-2.5 [&_cite]:before:content-['—'] [&_cite]:before:mr-1.5"
+                    v-html="post.html"
+                ></div>
             </article>
 
             <!-- ════════════════════════════════════════

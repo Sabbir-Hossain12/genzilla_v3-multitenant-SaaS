@@ -4,22 +4,38 @@ import { Head, Link } from '@inertiajs/vue3'
 import PlatformLayout from '@/Layouts/PlatformLayout.vue'
 import PlatformSectionHeading from '@/Components/platform/PlatformSectionHeading.vue'
 import PlatformCtaBand from '@/Components/platform/PlatformCtaBand.vue'
-import { blogCategories, blogFeatured, blogPosts } from '@/data/platform'
+import {
+    blogCategories as fallbackCategories,
+    blogFeatured as fallbackFeatured,
+    blogPosts as fallbackPosts,
+} from '@/data/platform'
 
 /**
- * Blog index. Post permalinks point at platform/blog/show, which resolves the
- * slug against this same data module.
+ * Blog index fed from the CMS. The static module is used as a fallback when
+ * nothing has been published yet.
  */
+const props = defineProps({
+    featured: { type: Object, default: () => null },
+    posts: { type: Array, default: () => [] },
+    categories: { type: Array, default: () => [] },
+})
+
 const activeCategory = ref('all')
+
+const categories = computed(() => (props.categories.length ? props.categories : fallbackCategories))
+const featured = computed(() => props.featured || fallbackFeatured)
+const posts = computed(() => (props.posts.length ? props.posts : fallbackPosts))
 
 const visiblePosts = computed(() =>
     activeCategory.value === 'all'
-        ? blogPosts
-        : blogPosts.filter((post) => categorySlug(post.category) === activeCategory.value),
+        ? posts.value
+        : posts.value.filter(
+              (post) => (post.categorySlug ?? categorySlug(post.category)) === activeCategory.value,
+          ),
 )
 
 function categorySlug(label) {
-    return blogCategories.find((category) => category.label === label)?.slug
+    return categories.value.find((category) => category.label === label)?.slug
 }
 </script>
 
@@ -48,42 +64,42 @@ function categorySlug(label) {
         <section class="pb-8">
             <div class="max-w-6xl mx-auto px-4 sm:px-6">
                 <Link
-                    :href="`/blog/${blogFeatured.slug}`"
+                    :href="`/blog/${featured.slug}`"
                     class="grid md:grid-cols-2 gap-7 items-center border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 transition-colors"
                 >
                     <div
                         class="h-52 sm:h-64 md:h-full flex items-center justify-center text-7xl"
-                        :class="blogFeatured.coverClass"
+                        :class="featured.coverClass"
                     >
-                        {{ blogFeatured.emoji }}
+                        {{ featured.emoji }}
                     </div>
                     <div class="p-7 sm:p-9">
                         <div class="flex items-center gap-2.5 mb-3.5">
                             <span
                                 class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-primarylt text-primary"
                             >
-                                {{ blogFeatured.category }}
+                                {{ featured.category }}
                             </span>
                             <span class="text-[12px] text-gray-400">Featured</span>
                         </div>
                         <h2
                             class="text-[22px] sm:text-[26px] font-extrabold tracking-tight text-ink leading-snug"
                         >
-                            {{ blogFeatured.title }}
+                            {{ featured.title }}
                         </h2>
                         <p class="text-[14px] text-gray-500 leading-relaxed mt-3">
-                            {{ blogFeatured.excerpt }}
+                            {{ featured.excerpt }}
                         </p>
                         <div class="flex items-center gap-3 mt-6">
                             <span
                                 class="w-9 h-9 rounded-full bg-primary text-white text-[12px] font-bold flex items-center justify-center shrink-0"
                             >
-                                {{ blogFeatured.initials }}
+                                {{ featured.initials }}
                             </span>
                             <div class="text-[12.5px] leading-tight">
-                                <p class="font-semibold text-ink">{{ blogFeatured.author }}</p>
+                                <p class="font-semibold text-ink">{{ featured.author }}</p>
                                 <p class="text-gray-400">
-                                    {{ blogFeatured.date }} · {{ blogFeatured.readTime }}
+                                    {{ featured.date }} · {{ featured.readTime }}
                                 </p>
                             </div>
                         </div>
@@ -110,7 +126,7 @@ function categorySlug(label) {
 
                 <div class="flex flex-wrap justify-center gap-2 mb-10">
                     <button
-                        v-for="category in blogCategories"
+                        v-for="category in categories"
                         :key="category.slug"
                         type="button"
                         class="text-[13.5px] font-semibold px-4 py-2 rounded-full transition-colors"

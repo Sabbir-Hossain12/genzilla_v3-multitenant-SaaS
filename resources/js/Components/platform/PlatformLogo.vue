@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { Link, usePage } from '@inertiajs/vue3'
 
 const props = defineProps({
     variant: { type: String, default: 'header' },
@@ -17,6 +17,8 @@ const wordClass = computed(() => {
     if (props.variant === 'drawer') return 'text-lg font-extrabold'
     return 'text-lg sm:text-xl font-extrabold tracking-tight'
 })
+
+const brandName = computed(() => usePage().props.brand?.name || 'Shopwave')
 </script>
 
 <template>
@@ -34,6 +36,6 @@ const wordClass = computed(() => {
                 />
             </svg>
         </div>
-        <span :class="wordClass">Shop<span class="text-accent">wave</span></span>
+        <span :class="wordClass">{{ brandName }}</span>
     </Link>
 </template>

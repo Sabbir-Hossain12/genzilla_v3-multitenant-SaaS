@@ -15,15 +15,18 @@ export const navLinks = [
 
 export const socials = [
     {
+        key: 'facebook',
         label: 'Facebook',
         path: 'M24 12.07C24 5.7 18.63.5 12 .5S0 5.7 0 12.07c0 5.75 4.39 10.52 10.13 11.43v-8.09H7.08v-3.34h3.05V9.41c0-3 1.8-4.67 4.55-4.67 1.32 0 2.7.24 2.7.24v2.94h-1.52c-1.5 0-1.97.92-1.97 1.87v2.24h3.35l-.54 3.34h-2.81v8.09C19.61 22.59 24 17.82 24 12.07z',
         solid: true,
     },
     {
+        key: 'x',
         label: 'X (Twitter)',
         path: 'M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z',
     },
     {
+        key: 'instagram',
         label: 'Instagram',
         shapes: [
             { tag: 'rect', attrs: { x: 2, y: 2, width: 20, height: 20, rx: 5 } },
@@ -32,6 +35,15 @@ export const socials = [
         ],
     },
     {
+        key: 'youtube',
+        label: 'YouTube',
+        shapes: [
+            { tag: 'rect', attrs: { x: 2, y: 5, width: 20, height: 14, rx: 4 } },
+            { tag: 'path', attrs: { d: 'M10 9l5 3-5 3z', fill: 'currentColor', stroke: 'none' } },
+        ],
+    },
+    {
+        key: 'linkedin',
         label: 'LinkedIn',
         shapes: [
             { tag: 'path', attrs: { d: 'M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6z' } },

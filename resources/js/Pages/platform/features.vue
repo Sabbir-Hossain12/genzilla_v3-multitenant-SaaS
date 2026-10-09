@@ -1,11 +1,64 @@
 <script setup>
+import { computed } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PlatformLayout from '@/Layouts/PlatformLayout.vue'
 import PlatformGlyph from '@/Components/platform/PlatformGlyph.vue'
 import PlatformCheck from '@/Components/platform/PlatformCheck.vue'
 import PlatformSectionHeading from '@/Components/platform/PlatformSectionHeading.vue'
 import PlatformCtaBand from '@/Components/platform/PlatformCtaBand.vue'
-import { useCases, featureGrid, businessTypes, integrationLogos } from '@/data/platform'
+import {
+    useCases as fallbackUseCases,
+    featureGrid as fallbackFeatureGrid,
+    businessTypes,
+    integrationLogos,
+} from '@/data/platform'
+
+/**
+ * CMS use cases / features replace the copy; the static module still supplies
+ * icon glyphs and colours, and everything falls back when the CMS is empty.
+ */
+const props = defineProps({
+    useCases: { type: Array, default: () => [] },
+    featureGrid: { type: Array, default: () => [] },
+})
+
+const useCasesView = computed(() => {
+    if (!props.useCases.length) return fallbackUseCases
+
+    return props.useCases.map((item, index) => {
+        const base = fallbackUseCases[index % fallbackUseCases.length]
+        return {
+            iconClass: base.iconClass,
+            shapes: base.shapes,
+            title: item.title,
+            body: item.body,
+            badge: item.badge,
+            badgeType: item.badgeType,
+            bgColor: item.bgColor,
+            points: [],
+        }
+    })
+})
+
+const featureGridView = computed(() => {
+    const source = props.featureGrid.length ? props.featureGrid : fallbackFeatureGrid
+    return source.map((item, index) => ({
+        ...fallbackFeatureGrid[index % fallbackFeatureGrid.length],
+        title: item.title,
+        body: item.body,
+    }))
+})
+
+function badgeClass(type) {
+    return (
+        {
+            success: 'bg-emerald-50 text-accentdark',
+            info: 'bg-blue-50 text-blue-600',
+            warning: 'bg-amber-50 text-amber-600',
+            danger: 'bg-rose-50 text-rose-600',
+        }[type] || 'bg-primarylt text-primary'
+    )
+}
 </script>
 
 <template>
@@ -39,9 +92,10 @@ import { useCases, featureGrid, businessTypes, integrationLogos } from '@/data/p
 
                 <div class="grid lg:grid-cols-2 gap-6">
                     <div
-                        v-for="useCase in useCases"
+                        v-for="useCase in useCasesView"
                         :key="useCase.title"
                         class="border border-gray-200 rounded-2xl p-7 sm:p-8"
+                        :style="useCase.bgColor ? { backgroundColor: useCase.bgColor } : null"
                     >
                         <div
                             class="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
@@ -49,11 +103,21 @@ import { useCases, featureGrid, businessTypes, integrationLogos } from '@/data/p
                         >
                             <PlatformGlyph :shapes="useCase.shapes" :size="22" />
                         </div>
+                        <span
+                            v-if="useCase.badge"
+                            class="inline-block text-[11px] font-bold px-2 py-0.5 rounded-full mb-2"
+                            :class="badgeClass(useCase.badgeType)"
+                        >
+                            {{ useCase.badge }}
+                        </span>
                         <h3 class="text-[20px] font-extrabold text-ink mb-2">{{ useCase.title }}</h3>
                         <p class="text-[14px] text-gray-500 leading-relaxed mb-6">
                             {{ useCase.body }}
                         </p>
-                        <ul class="space-y-3.5 text-[13.5px] text-gray-600">
+                        <ul
+                            v-if="useCase.points && useCase.points.length"
+                            class="space-y-3.5 text-[13.5px] text-gray-600"
+                        >
                             <li
                                 v-for="point in useCase.points"
                                 :key="point.strong"
@@ -85,7 +149,7 @@ import { useCases, featureGrid, businessTypes, integrationLogos } from '@/data/p
 
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div
-                        v-for="feature in featureGrid"
+                        v-for="feature in featureGridView"
                         :key="feature.title"
                         class="bg-white border border-gray-100 rounded-2xl p-6"
                     >

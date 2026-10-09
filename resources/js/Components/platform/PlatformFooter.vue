@@ -1,17 +1,33 @@
 <script setup>
-import { ref } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { computed } from 'vue'
+import { Link, useForm, usePage } from '@inertiajs/vue3'
 import PlatformLogo from '@/Components/platform/PlatformLogo.vue'
 import { footerColumns, legalLinks, socials } from '@/data/platform'
 
-const email = ref('')
-const subscribed = ref(false)
+const page = usePage()
+const brand = computed(() => page.props.brand ?? {})
+
+const form = useForm({ email: '' })
 
 function subscribe() {
-    if (!email.value) return
-    subscribed.value = true
-    email.value = ''
+    form.post('/newsletter', {
+        preserveScroll: true,
+        onSuccess: () => form.reset(),
+    })
 }
+
+/**
+ * Show only the socials that have a configured link; fall back to the full set
+ * (unlinked) when the platform settings carry no social profiles yet.
+ */
+const socialsView = computed(() => {
+    const links = brand.value.socials ?? {}
+    const hasAny = Object.values(links).some(Boolean)
+
+    return socials
+        .map((social) => ({ ...social, href: links[social.key] ?? null }))
+        .filter((social) => !hasAny || social.href)
+})
 </script>
 
 <template>
@@ -30,7 +46,7 @@ function subscribe() {
                 <div class="w-full max-w-md">
                     <form class="flex gap-2" @submit.prevent="subscribe">
                         <input
-                            v-model="email"
+                            v-model="form.email"
                             type="email"
                             required
                             placeholder="Enter your email"
@@ -39,13 +55,23 @@ function subscribe() {
                         />
                         <button
                             type="submit"
-                            class="bg-primary hover:bg-primarydark text-white font-semibold text-[14px] px-5 rounded-xl transition-colors shrink-0"
+                            class="bg-primary hover:bg-primarydark text-white font-semibold text-[14px] px-5 rounded-xl transition-colors shrink-0 disabled:opacity-60"
+                            :disabled="form.processing"
                         >
                             Subscribe
                         </button>
                     </form>
-                    <p v-if="subscribed" class="text-[13px] text-accent mt-2 lg:text-right">
+                    <p
+                        v-if="form.recentlySuccessful"
+                        class="text-[13px] text-accent mt-2 lg:text-right"
+                    >
                         Thanks — you're on the list.
+                    </p>
+                    <p
+                        v-else-if="form.errors.email"
+                        class="text-[13px] text-rose-400 mt-2 lg:text-right"
+                    >
+                        {{ form.errors.email }}
                     </p>
                 </div>
             </div>
@@ -54,40 +80,74 @@ function subscribe() {
                 <div class="col-span-2 sm:col-span-1 lg:col-span-2">
                     <PlatformLogo variant="footer" class="mb-3" />
                     <p class="text-[13.5px] leading-relaxed max-w-xs">
-                        The all-in-one commerce platform for selling physical and digital products
-                        online — trusted by 10,000+ merchants worldwide.
+                        {{
+                            brand.short_desc ||
+                            'The all-in-one commerce platform for selling physical and digital products online.'
+                        }}
                     </p>
                     <div class="flex items-center gap-2 mt-4">
-                        <button
-                            v-for="social in socials"
-                            :key="social.label"
-                            type="button"
-                            :aria-label="social.label"
-                            :title="social.label"
-                            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
-                        >
-                            <svg
-                                v-if="social.solid"
-                                width="15"
-                                height="15"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
+                        <template v-for="social in socialsView" :key="social.label">
+                            <a
+                                v-if="social.href"
+                                :href="social.href"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                :aria-label="social.label"
+                                :title="social.label"
+                                class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
                             >
-                                <path :d="social.path" />
-                            </svg>
-                            <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none">
-                                <component
-                                    :is="shape.tag"
-                                    v-for="(shape, i) in social.shapes"
-                                    :key="i"
-                                    v-bind="shape.attrs"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </button>
+                                <svg
+                                    v-if="social.solid"
+                                    width="15"
+                                    height="15"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                >
+                                    <path :d="social.path" />
+                                </svg>
+                                <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none">
+                                    <component
+                                        :is="shape.tag"
+                                        v-for="(shape, i) in social.shapes"
+                                        :key="i"
+                                        v-bind="shape.attrs"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </a>
+                            <button
+                                v-else
+                                type="button"
+                                :aria-label="social.label"
+                                :title="social.label"
+                                class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                            >
+                                <svg
+                                    v-if="social.solid"
+                                    width="15"
+                                    height="15"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                >
+                                    <path :d="social.path" />
+                                </svg>
+                                <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none">
+                                    <component
+                                        :is="shape.tag"
+                                        v-for="(shape, i) in social.shapes"
+                                        :key="i"
+                                        v-bind="shape.attrs"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </button>
+                        </template>
                     </div>
                 </div>
 
@@ -113,7 +173,7 @@ function subscribe() {
             <div
                 class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-10 pt-6 border-t border-white/10 text-[12.5px]"
             >
-                <p>© 2026 Shopwave, Inc. All rights reserved.</p>
+                <p>{{ brand.copyright || '© 2026 Shopwave, Inc. All rights reserved.' }}</p>
                 <div class="flex items-center gap-5">
                     <template v-for="link in legalLinks" :key="link.label">
                         <Link
