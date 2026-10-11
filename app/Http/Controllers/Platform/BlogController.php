@@ -86,6 +86,7 @@ class BlogController extends Controller
     {
         return [
             'slug' => $post->slug,
+
             'title' => $post->title,
             'excerpt' => $post->excerpt,
             'category' => $post->category?->name ?? 'General',
