@@ -15,8 +15,7 @@ class PlanUpdateReproTest extends TestCase
     {
         $this->seed();
 
-        $admin = User::factory()->create();
-        $admin->givePermissionTo('Manage Plans');
+        $admin = User::where('email', 'admin@admin.com')->firstOrFail();
 
         $plan = PlatformPlan::first();
         $newName = 'Renamed '.uniqid();
@@ -37,7 +36,7 @@ class PlanUpdateReproTest extends TestCase
         $response->assertSessionHasNoErrors();
 
         dump('STATUS='.$response->status());
-        dump('RECORD='.PlatformPlan::find($plan->id)->toArray());
+        dump('RECORD='.json_encode(PlatformPlan::find($plan->id)->toArray()));
 
         $this->assertDatabaseHas('platform_plans', [
             'id' => $plan->id,

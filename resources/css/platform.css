@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    Shopwave — platform marketing site
    ───────────────────────────────────────────────────────────
-   Deliberately has no `@import "tailwindcss"`. app.css is the
+   Deliberately has no `@import "tailwindcss"`. store.css is the
    single Tailwind build and already emits every utility both
    sites need. This file only carries the platform palette and
    the handful of components that have no Tailwind equivalent.
@@ -85,7 +85,7 @@
 }
 
 /* ── billing period toggle ──
-   Namespaced because app.css already owns a global teal
+   Namespaced because store.css already owns a global teal
    .toggle-track for the storefront checkout modal. */
 .pl-toggle-track {
     width: 3rem;

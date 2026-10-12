@@ -1,51 +1,68 @@
-<!doctype html>
-<html lang="en">
-
-
-<!-- Mirrored from themesbrand.com/minia/layouts/pages-starter.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 27 Feb 2022 18:01:10 GMT -->
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
 <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Log In — Shopwave</title>
+    @vite(['resources/css/platform_admin.css'])
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
+    <!-- Toaster CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
-    <meta charset="utf-8"/>
-    <title>{{config('app.name')}}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description"/>
-    <meta content="Themesbrand" name="author"/>
-    <!-- App favicon -->
-    <link rel="shortcut icon" href="{{asset('backend')}}/assets/images/favicon.ico">
-
-    <!-- preloader css -->
-    <link rel="stylesheet" href="{{asset('backend')}}/assets/css/preloader.min.css" type="text/css"/>
-
-    <!-- Bootstrap Css -->
-    <link href="{{asset('backend')}}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet"
-          type="text/css"/>
-    <!-- Icons Css -->
-    <link href="{{asset('backend')}}/assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
-    <!-- App Css-->
-    <link href="{{asset('backend')}}/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css"/>
-
-    @stack('backendCss')
+    @stack('css')
 </head>
+<body class="bg-white text-ink font-sans antialiased">
+<div class="min-h-screen grid lg:grid-cols-2">
+    @yield('contents')
+</div>
 
-<body>
+<script>
+    function togglePw(id, btn) {
+        const input = document.getElementById(id);
+        const isPw = input.type === 'password';
+        input.type = isPw ? 'text' : 'password';
+        btn.classList.toggle('text-primary', isPw);
+    }
+</script>
 
+<!-- Toaster JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-@yield('contents')
+<script>
+    @if (Session::has('success'))
+        toastr.options = {
+        "closeButton": true,
+        "progressBar": true
+    }
+    toastr.success("{{ session('success') }}");
+    @endif
 
+        @if (Session::has('error'))
+        toastr.options = {
+        "closeButton": true,
+        "progressBar": true
+    }
+    toastr.error("{{ session('error') }}");
+    @endif
 
+        @if (Session::has('info'))
+        toastr.options = {
+        "closeButton": true,
+        "progressBar": true
+    }
+    toastr.info("{{ session('info') }}");
+    @endif
 
-<script src=" {{asset('backend')}}/assets/libs/jquery/jquery.min.js"></script>
-<script src=" {{asset('backend')}}/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src=" {{asset('backend')}}/assets/libs/metismenu/metisMenu.min.js"></script>
-<script src=" {{asset('backend')}}/assets/libs/simplebar/simplebar.min.js"></script>
-<script src=" {{asset('backend')}}/assets/libs/node-waves/waves.min.js"></script>
-<script src=" {{asset('backend')}}/assets/libs/feather-icons/feather.min.js"></script>
-<!-- pace js -->
-<script src=" {{asset('backend')}}/assets/libs/pace-js/pace.min.js"></script>
-@stack('backendJs')
-<script src=" {{asset('backend')}}/assets/js/app.js"></script>
-
-
+        @if (Session::has('warning'))
+        toastr.options = {
+        "closeButton": true,
+        "progressBar": true
+    }
+    toastr.warning("{{ session('warning') }}");
+    @endif
+</script>
+@stack('js')
 </body>
-
 </html>

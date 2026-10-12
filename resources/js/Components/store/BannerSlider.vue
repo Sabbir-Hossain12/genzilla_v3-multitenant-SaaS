@@ -11,7 +11,7 @@ const modules = [Autoplay, Navigation, Pagination, A11y, EffectFade]
 
 // Let Swiper render + own its arrows: passing prevEl/nextEl selectors makes the
 // Vue wrapper skip its own buttons and inject swiper-button-* classes onto
-// ours, which fights the custom sizing. See the #hero-banner nav rules in app.css.
+// ours, which fights the custom sizing. See the #hero-banner nav rules in store.css.
 const navigation = { enabled: true, hideOnClick: false }
 const pagination = { clickable: true }
 const autoplay = { delay: 4500, disableOnInteraction: false }

@@ -42,7 +42,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // 4. Redirect user to intended route
-            return redirect()->intended(route('admin.dashboard.index', absolute: false));
+            return redirect()->intended(route('admin.dashboard.index', absolute: false))->with('success', 'You are now logged in.');
 
         } catch (ValidationException $e) {
             // Re-throw validation exception so Laravel automatically attaches $errors to the view
@@ -70,7 +70,7 @@ class AuthController extends Controller
             $request->session()->regenerateToken();
 
             // 4. Redirect to the appropriate login or marketing page
-            return redirect()->route('admin.login');
+            return redirect()->route('admin.login')->with('success', 'You are now logged out.');
 
         } catch (Throwable $e) {
             // Log the exception for debugging
