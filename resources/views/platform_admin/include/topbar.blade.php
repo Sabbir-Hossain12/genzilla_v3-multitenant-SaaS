@@ -1,214 +1,81 @@
-<header id="page-topbar">
-    <div class="navbar-header">
-        <div class="d-flex align-items-center">
-            <!-- LOGO -->
-            <div class="navbar-brand-box">
-                <a href="{{ route('admin.dashboard.index') }}" class="logo logo-dark">
-                    <span class="logo-sm">
-                        @if(!empty($basic_info?->black_logo))
-                            <img src="{{ asset('storage/' . ltrim($basic_info->black_logo, '/')) }}" alt="Logo" style="max-height: 26px; max-width: 100%; object-fit: contain;">
-                        @else
-                            <img src="{{ asset('backend/assets/images/logo-sm.svg') }}" alt="Logo" style="max-height: 24px; width: auto;">
-                        @endif
-                    </span>
-                    <span class="logo-lg">
-                        @if(!empty($basic_info?->black_logo))
-                            <img src="{{ asset('storage/' . ltrim($basic_info->black_logo, '/')) }}" alt="Logo" style="max-height: 38px; max-width: 160px; object-fit: contain;">
-                        @else
-                            <img src="{{ asset('backend/assets/images/logo-sm.svg') }}" alt="Logo" style="max-height: 24px; width: auto;">
-                            <span class="logo-txt fw-bold ms-1 font-size-18 text-dark">{{ $basic_info?->platform_name ?? 'Genzilla' }}</span>
-                        @endif
-                    </span>
-                </a>
 
-                <a href="{{ route('admin.dashboard.index') }}" class="logo logo-light">
-                    <span class="logo-sm">
-                        @if(!empty($basic_info?->light_logo))
-                            <img src="{{ asset('storage/' . ltrim($basic_info->light_logo, '/')) }}" alt="Logo" style="max-height: 26px; max-width: 100%; object-fit: contain;">
-                        @else
-                            <img src="{{ asset('backend/assets/images/logo-sm.svg') }}" alt="Logo" style="max-height: 24px; width: auto;">
-                        @endif
-                    </span>
+<!-- TOP BAR -->
+<header class="sticky top-0 z-10 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md
+                 border-b border-slate-200 dark:border-slate-800
+                 flex items-center px-4 md:px-6 gap-3">
 
-                    <span class="logo-lg">
-                        @if(!empty($basic_info?->light_logo))
-                            <img src="{{ asset('storage/' . ltrim($basic_info->light_logo, '/')) }}" alt="Logo" style="max-height: 38px; max-width: 160px; object-fit: contain;">
-                        @else
-                            <img src="{{ asset('backend/assets/images/logo-sm.svg') }}" alt="Logo" style="max-height: 24px; width: auto;">
-                            <span class="logo-txt fw-bold ms-1 font-size-18 text-white">{{ $basic_info?->platform_name ?? 'Genzilla' }}</span>
-                        @endif
-                    </span>
-                </a>
-            </div>
+    <!-- Hamburger -->
+    <button onclick="openSidebar()"
+            class="lg:hidden w-9 h-9 grid place-items-center rounded-xl
+             hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
+        <svg class="w-5 h-5 text-slate-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+    </button>
 
-            <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn">
-                <i class="fa fa-fw fa-bars"></i>
-            </button>
+    <!-- Title -->
+    <div class="hidden md:block">
+        <p class="text-base font-bold text-ink dark:text-white leading-none">Dashboard</p>
+        <p class="text-xs text-slate-400 mt-0.5">Monday, 12 Oct 2026</p>
+    </div>
 
-            <!-- App Search-->
-            <form class="app-search d-none d-lg-block">
-                <div class="position-relative">
-                    <input type="text" class="form-control" placeholder="Search...">
-                    <button class="btn btn-primary" type="button"><i class="bx bx-search-alt align-middle"></i></button>
-                </div>
-            </form>
+    <!-- Search -->
+    <div class="flex-1 max-w-xs mx-auto md:mx-0 md:ml-6">
+        <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" placeholder="Search anything…"
+                   class="w-full pl-9 pr-4 py-2 text-sm rounded-xl
+                 bg-slate-100 dark:bg-slate-800
+                 border border-transparent focus:border-primary dark:focus:border-primary
+                 text-ink dark:text-slate-100 placeholder:text-slate-400
+                 focus:outline-none transition-colors"/>
         </div>
+    </div>
 
-        <div class="d-flex">
+    <!-- Right actions -->
+    <div class="flex items-center gap-1 ml-auto">
 
-            <div class="dropdown d-inline-block d-lg-none ms-2">
-                <button type="button" class="btn header-item" id="page-header-search-dropdown"
-                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i data-feather="search" class="icon-lg"></i>
-                </button>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                     aria-labelledby="page-header-search-dropdown">
+        <!-- Dark toggle -->
+        <button onclick="toggleDark()" title="Toggle dark mode"
+                class="w-9 h-9 grid place-items-center rounded-xl
+               hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors
+               text-slate-500 dark:text-slate-400">
+            <svg id="icon-moon" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <svg id="icon-sun" class="w-[18px] h-[18px] hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+        </button>
 
-                    <form class="p-3">
-                        <div class="form-group m-0">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Search ..."
-                                       aria-label="Search Result">
+        <!-- Notifications -->
+        <button class="relative w-9 h-9 grid place-items-center rounded-xl
+                     hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors
+                     text-slate-500 dark:text-slate-400">
+            <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-white dark:border-slate-900"></span>
+        </button>
 
-                                <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <!-- Divider -->
+        <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
 
-
-            <div class="dropdown d-none d-sm-inline-block">
-                <button type="button" class="btn header-item" id="mode-setting-btn">
-                    <i data-feather="moon" class="icon-lg layout-mode-dark"></i>
-                    <i data-feather="sun" class="icon-lg layout-mode-light"></i>
-                </button>
-            </div>
-
-
-            <div class="dropdown d-inline-block">
-                <button type="button" class="btn header-item noti-icon position-relative"
-                        id="page-header-notifications-dropdown"
-                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i data-feather="bell" class="icon-lg"></i>
-                    <span class="badge bg-danger rounded-pill">5</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                     aria-labelledby="page-header-notifications-dropdown">
-                    <div class="p-3">
-                        <div class="row align-items-center">
-                            <div class="col">
-                                <h6 class="m-0"> Notifications </h6>
-                            </div>
-                            <div class="col-auto">
-                                <a href="#!" class="small text-reset text-decoration-underline"> Unread (3)</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div data-simplebar style="max-height: 230px;">
-                        <a href="#!" class="text-reset notification-item">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 me-3">
-                                    <img src="{{asset('backend')}}/assets/images/users/avatar-3.jpg"
-                                         class="rounded-circle avatar-sm" alt="user-pic">
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">James Lemire</h6>
-                                    <div class="font-size-13 text-muted">
-                                        <p class="mb-1">It will seem like simplified English.</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span>1 hour ago</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                        <a href="#!" class="text-reset notification-item">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 avatar-sm me-3">
-                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                    <i class="bx bx-cart"></i>
-                                                </span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Your order is placed</h6>
-                                    <div class="font-size-13 text-muted">
-                                        <p class="mb-1">If several languages coalesce the grammar</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span>3 min ago</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                        <a href="#!" class="text-reset notification-item">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 avatar-sm me-3">
-                                                <span class="avatar-title bg-success rounded-circle font-size-16">
-                                                    <i class="bx bx-badge-check"></i>
-                                                </span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Your item is shipped</h6>
-                                    <div class="font-size-13 text-muted">
-                                        <p class="mb-1">If several languages coalesce the grammar</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span>3 min ago</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-
-                        <a href="#!" class="text-reset notification-item">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 me-3">
-                                    <img src="{{asset('backend')}}/assets/images/users/avatar-6.jpg"
-                                         class="rounded-circle avatar-sm" alt="user-pic">
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Salena Layfield</h6>
-                                    <div class="font-size-13 text-muted">
-                                        <p class="mb-1">As a skeptical Cambridge friend of mine occidental.</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span>1 hour ago</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="p-2 border-top d-grid">
-                        <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
-                            <i class="mdi mdi-arrow-right-circle me-1"></i> <span>View More..</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="dropdown d-inline-block">
-                <button type="button" class="btn header-item bg-soft-light border-start border-end"
-                        id="page-header-user-dropdown"
-                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    @if(Auth::user()?->img_url)
-                        <img class="rounded-circle header-profile-user"
-                             src="{{ Auth::user()->img_url }}" style="object-fit: cover;"
-                             alt="Header Avatar">
-                    @else
-                        <img class="rounded-circle header-profile-user"
-                             src="{{ asset('backend') }}/assets/images/users/avatar-1.jpg"
-                             alt="Header Avatar">
-                    @endif
-                    <span class="d-none d-xl-inline-block ms-1 fw-medium">{{ Auth::user()->name ?? 'SuperAdmin' }}</span>
-                    <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
-                </button>
-                <div class="dropdown-menu dropdown-menu-end">
-                    <!-- item-->
-                    <a class="dropdown-item" href="{{ route('admin.profile.edit') }}"><i class="fa-solid fa-user  font-size-16 align-middle me-1"></i>
-                        Profile</a>
-                    <div class="dropdown-divider"></div>
-                    <form method="post" action="{{route('admin.logout')}}">
-                        @csrf
-                        <button type="submit" class="dropdown-item"><i
-                                class="mdi mdi-logout font-size-16 align-middle me-1"></i> Logout
-                        </button>
-                    </form>
-                </div>
+        <!-- Avatar -->
+        <div class="flex items-center gap-2 cursor-pointer group">
+            <img src="https://i.pravatar.cc/40?img=68"
+                 class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" alt="Alex"/>
+            <div class="hidden sm:block">
+                <p class="text-xs font-semibold text-ink dark:text-white leading-none">Alex J.</p>
+                <p class="text-[10px] text-slate-400">Super Admin</p>
             </div>
         </div>
     </div>

@@ -1,72 +1,67 @@
- @include('platform_admin.include.meta-titles')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <title>@yield('title','Admin')</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap"
+          rel="stylesheet"/>
+    @vite(['resources/css/platform_admin.css'])
+    @stack('css')
+</head>
 
-<body class="pace-done sidebar-enable" data-sidebar-size="lg">
+<body class="bg-slate-50 dark:bg-slate-950 text-ink dark:text-slate-100 antialiased">
 
-<script>
-    (function () {
-        try {
-            if (localStorage.getItem('layout-mode') === 'dark') {
-                document.body.setAttribute('data-layout-mode', 'dark');
-                document.body.setAttribute('data-topbar', 'dark');
-                document.body.setAttribute('data-sidebar', 'dark');
-            }
-        } catch (e) {}
-    })();
-</script>
+@include('platform_admin.include.sidebar')
 
-<!-- Begin page -->
-<div id="layout-wrapper">
+<!-- ══════════════════════════════════════════════
+     MAIN WRAPPER
+══════════════════════════════════════════════ -->
+<div class="lg:pl-64 flex flex-col min-h-screen">
     @include('platform_admin.include.topbar')
 
-    @include('platform_admin.include.sidebar')
-    <!-- ============================================================== -->
-    <!-- Start right Content here -->
-    <!-- ============================================================== -->
-    <div class="main-content">
-        <div class="page-content">
-            <div class="container-fluid">
-                @yield('contents')
-            </div>
-        </div>
+    <!-- ══════ PAGE CONTENT ══════ -->
+    <main class="flex-1 p-4 md:p-6 xl:p-8 space-y-6">
+        @yield('contents')
+    </main>
 
-        @include('platform_admin.include.footer')
-    </div>
-</div>
-    <!-- JAVASCRIPT -->
-    @include('platform_admin.include.scripts')
+    @include('platform_admin.include.footer')
+
+</div><!-- /main wrapper -->
 
 <script>
-    @if (Session::has('success'))
-        toastr.options = {
-        "closeButton": true,
-        "progressBar": true
+    /* ── Dark mode ── */
+    function toggleDark() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('nexus-theme', isDark ? 'dark' : 'light');
+        document.getElementById('icon-moon').classList.toggle('hidden', isDark);
+        document.getElementById('icon-sun').classList.toggle('hidden', !isDark);
     }
-    toastr.success("{{ session('success') }}");
-    @endif
 
-            @if (Session::has('error'))
-        toastr.options = {
-        "closeButton": true,
-        "progressBar": true
-    }
-    toastr.error("{{ session('error') }}");
-    @endif
+    (function initTheme() {
+        const saved = localStorage.getItem('nexus-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('icon-moon').classList.add('hidden');
+            document.getElementById('icon-sun').classList.remove('hidden');
+        }
+    })();
 
-            @if (Session::has('info'))
-        toastr.options = {
-        "closeButton": true,
-        "progressBar": true
+    /* ── Sidebar (mobile) ── */
+    function openSidebar() {
+        document.getElementById('sidebar').classList.remove('-translate-x-full');
+        document.getElementById('overlay').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
-    toastr.info("{{ session('info') }}");
-    @endif
 
-            @if (Session::has('warning'))
-        toastr.options = {
-        "closeButton": true,
-        "progressBar": true
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('overlay').classList.add('hidden');
+        document.body.style.overflow = '';
     }
-    toastr.warning("{{ session('warning') }}");
-    @endif
 </script>
+@stack('js')
 </body>
 </html>

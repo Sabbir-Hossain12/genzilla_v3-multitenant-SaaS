@@ -1,14 +1,10 @@
-<footer class="footer">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-6">
-                <script>document.write(new Date().getFullYear())</script> © {{ $basic_info->platform_name ?? 'Genzilla' }}.
-            </div>
-            <div class="col-sm-6">
-                <div class="text-sm-end d-none d-sm-block">
-                    Design & Develop by <a href="#" class="text-decoration-underline">{{ $basic_info->platform_name ?? 'Genzilla' }}</a>
-                </div>
-            </div>
-        </div>
-    </div>
+
+<!-- Footer -->
+<footer class="px-6 py-4 border-t border-slate-200 dark:border-slate-800
+                 text-xs text-slate-400 flex items-center justify-between gap-4 flex-wrap">
+    <span>© 2026 Nexus Inc. All rights reserved.</span>
+    <span class="flex items-center gap-1.5">
+      <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+      All systems operational
+    </span>
 </footer>
