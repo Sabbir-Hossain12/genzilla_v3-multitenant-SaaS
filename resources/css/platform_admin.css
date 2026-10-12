@@ -124,6 +124,7 @@ body {
 }
 
 /*Platform Admin Dashboard*/
+
 .nav-link {
     @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
     text-slate-500 dark:text-slate-400
@@ -134,6 +135,70 @@ body {
 
 .nav-link.active {
     @apply bg-primarylt dark:bg-primary/15 text-primary font-semibold;
+}
+
+/* ── Slim sidebar scrollbar ── */
+#sidebar nav {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color .2s;
+}
+
+#sidebar nav:hover {
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.dark #sidebar nav:hover {
+    scrollbar-color: #475569 transparent;
+}
+
+.dark {
+    color-scheme: dark;
+}
+
+/* ── Multi-level menu ── */
+.nav-toggle.has-active {
+    @apply text-primary font-semibold;
+}
+
+.nav-toggle[aria-expanded="true"] > .chev {
+    transform: rotate(90deg);
+}
+
+.submenu {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .25s ease;
+}
+
+.submenu.open {
+    grid-template-rows: 1fr;
+    margin: 2px 0 4px;
+}
+
+.submenu > .submenu-inner {
+    overflow: hidden;
+    min-height: 0;
+}
+
+.submenu > .submenu-inner {
+    @apply ml-[1.4rem] pl-3 border-l border-slate-200 dark:border-slate-700;
+}
+
+.sub-link {
+    @apply flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium
+    text-slate-500 dark:text-slate-400
+    hover:bg-primarylt dark:hover:bg-slate-800
+    hover:text-primary dark:hover:text-primary
+    transition-colors duration-150 cursor-pointer;
+}
+
+.sub-link.active {
+    @apply bg-primarylt dark:bg-primary/15 text-primary font-semibold;
+}
+
+.sub-link.nav-toggle.has-active {
+    @apply text-primary font-semibold;
 }
 
 .card {

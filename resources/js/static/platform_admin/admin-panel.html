@@ -1,52 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <title>Nexus — Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <style type="text/tailwindcss">
-    @import "tailwindcss";
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <title>Nexus — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @import "tailwindcss";
 
-    @custom-variant dark (&:where(.dark, .dark *));
+        @custom-variant dark (&:where(.dark, .dark *));
 
-    @theme {
-      --color-primary:     #4f46e5;
-      --color-primarydark: #4338ca;
-      --color-primarylt:   #eef2ff;
-      --color-accent:      #10b981;
-      --color-accentdark:  #059669;
-      --color-ink:         #0f172a;
-      --font-sans: "Inter", sans-serif;
-    }
+        @theme {
+            --color-primary:     #4f46e5;
+            --color-primarydark: #4338ca;
+            --color-primarylt:   #eef2ff;
+            --color-accent:      #10b981;
+            --color-accentdark:  #059669;
+            --color-ink:         #0f172a;
+            --font-sans: "Inter", sans-serif;
+        }
 
-    body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; }
 
-    .nav-link {
-      @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-             text-slate-500 dark:text-slate-400
-             hover:bg-primarylt dark:hover:bg-slate-800
-             hover:text-primary dark:hover:text-primary
-             transition-colors duration-150 cursor-pointer;
-    }
-    .nav-link.active {
-      @apply bg-primarylt dark:bg-primary/15 text-primary font-semibold;
-    }
-    .card {
-      @apply bg-white dark:bg-slate-900 rounded-2xl
-             border border-slate-100 dark:border-slate-800 shadow-sm;
-    }
-    .badge-green  { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accentdark dark:text-accent; }
-    .badge-amber  { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400; }
-    .badge-red    { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-500 dark:bg-red-500/10 dark:text-red-400; }
-    .badge-slate  { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400; }
-    .trow {
-      @apply border-b border-slate-100 dark:border-slate-800
-             hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors;
-    }
-  </style>
+        .nav-link {
+            @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+            text-slate-500 dark:text-slate-400
+            hover:bg-primarylt dark:hover:bg-slate-800
+            hover:text-primary dark:hover:text-primary
+            transition-colors duration-150 cursor-pointer;
+        }
+        .nav-link.active {
+            @apply bg-primarylt dark:bg-primary/15 text-primary font-semibold;
+        }
+
+        /* ── Multi-level menu ── */
+        .nav-toggle.has-active { @apply text-primary font-semibold; }
+        .nav-toggle[aria-expanded="true"] > .chev { transform: rotate(90deg); }
+        .submenu { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
+        .submenu.open { grid-template-rows: 1fr; }
+        .submenu > .submenu-inner { overflow: hidden; min-height: 0; }
+        .submenu > .submenu-inner {
+            @apply ml-[1.4rem] pl-3 border-l border-slate-200 dark:border-slate-700;
+        }
+        .sub-link {
+            @apply flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium
+            text-slate-500 dark:text-slate-400
+            hover:bg-primarylt dark:hover:bg-slate-800
+            hover:text-primary dark:hover:text-primary
+            transition-colors duration-150 cursor-pointer;
+        }
+        .sub-link.active { @apply bg-primarylt dark:bg-primary/15 text-primary font-semibold; }
+        .sub-link.nav-toggle.has-active { @apply text-primary font-semibold; }
+        .card {
+            @apply bg-white dark:bg-slate-900 rounded-2xl
+            border border-slate-100 dark:border-slate-800 shadow-sm;
+        }
+        .badge-green  { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accentdark dark:text-accent; }
+        .badge-amber  { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400; }
+        .badge-red    { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-500 dark:bg-red-500/10 dark:text-red-400; }
+        .badge-slate  { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400; }
+        .trow {
+            @apply border-b border-slate-100 dark:border-slate-800
+            hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors;
+        }
+    </style>
 </head>
 
 <body class="bg-slate-50 dark:bg-slate-950 text-ink dark:text-slate-100 antialiased">
@@ -59,85 +78,163 @@
      SIDEBAR
 ══════════════════════════════════════════════ -->
 <aside id="sidebar"
-  class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900
+       class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900
          border-r border-slate-200 dark:border-slate-800
          z-30 flex flex-col
          -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
 
-  <!-- Logo -->
-  <div class="h-16 flex items-center px-5 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
-    <div class="flex items-center gap-2.5">
-      <div class="w-8 h-8 bg-primary rounded-lg grid place-items-center shadow-sm shadow-primary/30">
-        <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-        </svg>
-      </div>
-      <span class="font-extrabold text-lg text-ink dark:text-white tracking-tight">Nexus</span>
-      <span class="text-[9px] font-bold px-1.5 py-0.5 bg-primarylt dark:bg-primary/15 text-primary rounded-full">ADMIN</span>
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-5 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 bg-primary rounded-lg grid place-items-center shadow-sm shadow-primary/30">
+                <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                </svg>
+            </div>
+            <span class="font-extrabold text-lg text-ink dark:text-white tracking-tight">Nexus</span>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 bg-primarylt dark:bg-primary/15 text-primary rounded-full">ADMIN</span>
+        </div>
     </div>
-  </div>
 
-  <!-- Nav -->
-  <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-    <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-3 pb-2">Overview</p>
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-3 pb-2">Overview</p>
 
-    <a class="nav-link active">
-      <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-      Dashboard
-    </a>
+        <a class="nav-link active">
+            <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            Dashboard
+        </a>
 
-    <a class="nav-link">
-      <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Users
-      <span class="ml-auto text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">2.4k</span>
-    </a>
+        <div class="nav-group">
+            <button type="button" class="nav-link nav-toggle w-full text-left" aria-expanded="false" onclick="toggleGroup(this)">
+                <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Users</span>
+                <span class="ml-auto text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">2.4k</span>
+                <svg class="chev w-3.5 h-3.5 ml-2 shrink-0 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="submenu"><div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                <a class="sub-link">All Users</a>
+                <div class="nav-group">
+                    <button type="button" class="sub-link nav-toggle w-full text-left" aria-expanded="false" onclick="toggleGroup(this)">
+                        <span>Roles &amp; Permissions</span>
+                        <svg class="chev w-3.5 h-3.5 ml-2 shrink-0 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                    <div class="submenu"><div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                        <a class="sub-link">Admins</a>
+                        <a class="sub-link">Editors</a>
+                        <a class="sub-link">Viewers</a>
+                    </div></div>
+                </div>
+                <a class="sub-link">Invitations</a>
+            </div></div>
+        </div>
 
-    <a class="nav-link">
-      <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-      Orders
-      <span class="ml-auto w-2 h-2 rounded-full bg-accent animate-pulse"></span>
-    </a>
+        <div class="nav-group">
+            <button type="button" class="nav-link nav-toggle w-full text-left" aria-expanded="false" onclick="toggleGroup(this)">
+                <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span>Orders</span>
+                <span class="ml-auto w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+                <svg class="chev w-3.5 h-3.5 ml-2 shrink-0 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="submenu"><div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                <a class="sub-link">All Orders</a>
+                <a class="sub-link">Pending</a>
+                <a class="sub-link">Refunds</a>
+            </div></div>
+        </div>
 
-    <a class="nav-link">
-      <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Analytics
-    </a>
+        <div class="nav-group">
+            <button type="button" class="nav-link nav-toggle w-full text-left" aria-expanded="false" onclick="toggleGroup(this)">
+                <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span>Analytics</span>
+                <svg class="chev w-3.5 h-3.5 ml-auto shrink-0 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="submenu"><div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                <a class="sub-link">Traffic</a>
+                <a class="sub-link">Sales</a>
+                <div class="nav-group">
+                    <button type="button" class="sub-link nav-toggle w-full text-left" aria-expanded="false" onclick="toggleGroup(this)">
+                        <span>Audience</span>
+                        <svg class="chev w-3.5 h-3.5 ml-auto shrink-0 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                    <div class="submenu"><div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                        <a class="sub-link">Demographics</a>
+                        <a class="sub-link">Behavior</a>
+                    </div></div>
+                </div>
+            </div></div>
+        </div>
 
-    <a class="nav-link">
-      <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-      Payments
-    </a>
+        <div class="nav-group">
+            <button type="button" class="nav-link nav-toggle w-full text-left" aria-expanded="false" onclick="toggleGroup(this)">
+                <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                <span>Payments</span>
+                <svg class="chev w-3.5 h-3.5 ml-auto shrink-0 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="submenu"><div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                <a class="sub-link">Transactions</a>
+                <a class="sub-link">Invoices</a>
+                <a class="sub-link">Payouts</a>
+            </div></div>
+        </div>
 
-    <a class="nav-link">
-      <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      Reports
-    </a>
+        <a class="nav-link">
+            <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Reports
+        </a>
 
-    <div class="!my-4 border-t border-slate-100 dark:border-slate-800"></div>
-    <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-3 pb-2">System</p>
+        <div class="!my-4 border-t border-slate-100 dark:border-slate-800"></div>
 
-    <a class="nav-link">
-      <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      Settings
-    </a>
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-3 pb-2">System</p>
 
-    <a class="nav-link">
-      <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
-      Integrations
-    </a>
-  </nav>
+        <div class="nav-group">
+            <button type="button" class="nav-link nav-toggle w-full text-left" aria-expanded="false" onclick="toggleGroup(this)">
+                <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Settings</span>
+                <svg class="chev w-3.5 h-3.5 ml-auto shrink-0 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="submenu"><div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                <a class="sub-link">General</a>
+                <a class="sub-link">Security</a>
+                <div class="nav-group">
+                    <button type="button" class="sub-link nav-toggle w-full text-left" aria-expanded="false" onclick="toggleGroup(this)">
+                        <span>Notifications</span>
+                        <svg class="chev w-3.5 h-3.5 ml-auto shrink-0 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                    <div class="submenu"><div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                        <a class="sub-link">Email</a>
+                        <a class="sub-link">Push</a>
+                        <a class="sub-link">SMS</a>
+                    </div></div>
+                </div>
+            </div></div>
+        </div>
 
-  <!-- User -->
-  <div class="p-3 border-t border-slate-100 dark:border-slate-800">
-    <div class="flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors">
-      <img src="https://i.pravatar.cc/40?img=68" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30 shrink-0" alt="Alex"/>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-ink dark:text-white truncate">Alex Johnson</p>
-        <p class="text-xs text-slate-400 truncate">Super Admin</p>
-      </div>
-      <svg class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        <div class="nav-group">
+            <button type="button" class="nav-link nav-toggle w-full text-left" aria-expanded="false" onclick="toggleGroup(this)">
+                <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+                <span>Integrations</span>
+                <svg class="chev w-3.5 h-3.5 ml-auto shrink-0 text-slate-400 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="submenu"><div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                <a class="sub-link">API Keys</a>
+                <a class="sub-link">Webhooks</a>
+                <a class="sub-link">Connected Apps</a>
+            </div></div>
+        </div>
+    </nav>
+
+    <!-- User -->
+    <div class="p-3 border-t border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors">
+            <img src="https://i.pravatar.cc/40?img=68" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30 shrink-0" alt="Alex"/>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-ink dark:text-white truncate">Alex Johnson</p>
+                <p class="text-xs text-slate-400 truncate">Super Admin</p>
+            </div>
+            <svg class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        </div>
     </div>
-  </div>
 </aside>
 
 <!-- ══════════════════════════════════════════════
@@ -145,503 +242,538 @@
 ══════════════════════════════════════════════ -->
 <div class="lg:pl-64 flex flex-col min-h-screen">
 
-  <!-- TOP BAR -->
-  <header class="sticky top-0 z-10 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md
+    <!-- TOP BAR -->
+    <header class="sticky top-0 z-10 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md
                  border-b border-slate-200 dark:border-slate-800
                  flex items-center px-4 md:px-6 gap-3">
 
-    <!-- Hamburger -->
-    <button onclick="openSidebar()"
-      class="lg:hidden w-9 h-9 grid place-items-center rounded-xl
+        <!-- Hamburger -->
+        <button onclick="openSidebar()"
+                class="lg:hidden w-9 h-9 grid place-items-center rounded-xl
              hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
-      <svg class="w-5 h-5 text-slate-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-      </svg>
-    </button>
+            <svg class="w-5 h-5 text-slate-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
 
-    <!-- Title -->
-    <div class="hidden md:block">
-      <p class="text-base font-bold text-ink dark:text-white leading-none">Dashboard</p>
-      <p class="text-xs text-slate-400 mt-0.5">Monday, 12 Oct 2026</p>
-    </div>
+        <!-- Title -->
+        <div class="hidden md:block">
+            <p class="text-base font-bold text-ink dark:text-white leading-none">Dashboard</p>
+            <p class="text-xs text-slate-400 mt-0.5">Monday, 12 Oct 2026</p>
+        </div>
 
-    <!-- Search -->
-    <div class="flex-1 max-w-xs mx-auto md:mx-0 md:ml-6">
-      <div class="relative">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
-             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="text" placeholder="Search anything…"
-          class="w-full pl-9 pr-4 py-2 text-sm rounded-xl
+        <!-- Search -->
+        <div class="flex-1 max-w-xs mx-auto md:mx-0 md:ml-6">
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" placeholder="Search anything…"
+                       class="w-full pl-9 pr-4 py-2 text-sm rounded-xl
                  bg-slate-100 dark:bg-slate-800
                  border border-transparent focus:border-primary dark:focus:border-primary
                  text-ink dark:text-slate-100 placeholder:text-slate-400
                  focus:outline-none transition-colors"/>
-      </div>
-    </div>
+            </div>
+        </div>
 
-    <!-- Right actions -->
-    <div class="flex items-center gap-1 ml-auto">
+        <!-- Right actions -->
+        <div class="flex items-center gap-1 ml-auto">
 
-      <!-- Dark toggle -->
-      <button onclick="toggleDark()" title="Toggle dark mode"
-        class="w-9 h-9 grid place-items-center rounded-xl
+            <!-- Dark toggle -->
+            <button onclick="toggleDark()" title="Toggle dark mode"
+                    class="w-9 h-9 grid place-items-center rounded-xl
                hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors
                text-slate-500 dark:text-slate-400">
-        <svg id="icon-moon" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-        <svg id="icon-sun" class="w-[18px] h-[18px] hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="5"/>
-          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        </svg>
-      </button>
+                <svg id="icon-moon" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+                <svg id="icon-sun" class="w-[18px] h-[18px] hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
 
-      <!-- Notifications -->
-      <button class="relative w-9 h-9 grid place-items-center rounded-xl
+            <!-- Notifications -->
+            <button class="relative w-9 h-9 grid place-items-center rounded-xl
                      hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors
                      text-slate-500 dark:text-slate-400">
-        <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-white dark:border-slate-900"></span>
-      </button>
+                <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-white dark:border-slate-900"></span>
+            </button>
 
-      <!-- Divider -->
-      <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+            <!-- Divider -->
+            <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
 
-      <!-- Avatar -->
-      <div class="flex items-center gap-2 cursor-pointer group">
-        <img src="https://i.pravatar.cc/40?img=68"
-             class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" alt="Alex"/>
-        <div class="hidden sm:block">
-          <p class="text-xs font-semibold text-ink dark:text-white leading-none">Alex J.</p>
-          <p class="text-[10px] text-slate-400">Super Admin</p>
+            <!-- Avatar -->
+            <div class="flex items-center gap-2 cursor-pointer group">
+                <img src="https://i.pravatar.cc/40?img=68"
+                     class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" alt="Alex"/>
+                <div class="hidden sm:block">
+                    <p class="text-xs font-semibold text-ink dark:text-white leading-none">Alex J.</p>
+                    <p class="text-[10px] text-slate-400">Super Admin</p>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- ══════ PAGE CONTENT ══════ -->
-  <main class="flex-1 p-4 md:p-6 xl:p-8 space-y-6">
+    <!-- ══════ PAGE CONTENT ══════ -->
+    <main class="flex-1 p-4 md:p-6 xl:p-8 space-y-6">
 
-    <!-- Heading row -->
-    <div class="flex items-start justify-between gap-4">
-      <div>
-        <h1 class="text-xl md:text-2xl font-extrabold text-ink dark:text-white">Good morning, Alex 👋</h1>
-        <p class="text-sm text-slate-400 mt-1">Here's what's happening across your platform today.</p>
-      </div>
-      <button class="shrink-0 hidden sm:flex items-center gap-2 px-4 py-2.5
+        <!-- Heading row -->
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <h1 class="text-xl md:text-2xl font-extrabold text-ink dark:text-white">Good morning, Alex 👋</h1>
+                <p class="text-sm text-slate-400 mt-1">Here's what's happening across your platform today.</p>
+            </div>
+            <button class="shrink-0 hidden sm:flex items-center gap-2 px-4 py-2.5
                      bg-primary hover:bg-primarydark text-white text-sm font-semibold
                      rounded-xl transition-colors shadow-sm shadow-primary/30">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        New Report
-      </button>
-    </div>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                New Report
+            </button>
+        </div>
 
-    <!-- ── STAT CARDS ── -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <!-- ── STAT CARDS ── -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
-      <!-- Revenue -->
-      <div class="card p-5">
-        <div class="flex items-start justify-between mb-4">
-          <div class="w-10 h-10 bg-primarylt dark:bg-primary/15 rounded-xl grid place-items-center">
-            <svg class="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-          </div>
-          <span class="flex items-center gap-1 text-xs font-semibold text-accent">
+            <!-- Revenue -->
+            <div class="card p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-10 h-10 bg-primarylt dark:bg-primary/15 rounded-xl grid place-items-center">
+                        <svg class="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </div>
+                    <span class="flex items-center gap-1 text-xs font-semibold text-accent">
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
             +12.4%
           </span>
-        </div>
-        <p class="text-2xl font-extrabold text-ink dark:text-white tabular-nums">$84,254</p>
-        <p class="text-xs text-slate-400 mt-1 font-medium">Total Revenue</p>
-        <div class="mt-3.5 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-          <div class="h-full bg-primary rounded-full transition-all duration-700" style="width:74%"></div>
-        </div>
-        <p class="text-[11px] text-slate-400 mt-1.5">74% of $114k monthly goal</p>
-      </div>
+                </div>
+                <p class="text-2xl font-extrabold text-ink dark:text-white tabular-nums">$84,254</p>
+                <p class="text-xs text-slate-400 mt-1 font-medium">Total Revenue</p>
+                <div class="mt-3.5 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-primary rounded-full transition-all duration-700" style="width:74%"></div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1.5">74% of $114k monthly goal</p>
+            </div>
 
-      <!-- Active Users -->
-      <div class="card p-5">
-        <div class="flex items-start justify-between mb-4">
-          <div class="w-10 h-10 bg-accent/10 rounded-xl grid place-items-center">
-            <svg class="w-5 h-5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          </div>
-          <span class="flex items-center gap-1 text-xs font-semibold text-accent">
+            <!-- Active Users -->
+            <div class="card p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-10 h-10 bg-accent/10 rounded-xl grid place-items-center">
+                        <svg class="w-5 h-5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <span class="flex items-center gap-1 text-xs font-semibold text-accent">
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
             +8.1%
           </span>
-        </div>
-        <p class="text-2xl font-extrabold text-ink dark:text-white tabular-nums">24,731</p>
-        <p class="text-xs text-slate-400 mt-1 font-medium">Active Users</p>
-        <div class="mt-3.5 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-          <div class="h-full bg-accent rounded-full transition-all duration-700" style="width:62%"></div>
-        </div>
-        <p class="text-[11px] text-slate-400 mt-1.5">+1,847 new this week</p>
-      </div>
+                </div>
+                <p class="text-2xl font-extrabold text-ink dark:text-white tabular-nums">24,731</p>
+                <p class="text-xs text-slate-400 mt-1 font-medium">Active Users</p>
+                <div class="mt-3.5 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-accent rounded-full transition-all duration-700" style="width:62%"></div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1.5">+1,847 new this week</p>
+            </div>
 
-      <!-- Orders -->
-      <div class="card p-5">
-        <div class="flex items-start justify-between mb-4">
-          <div class="w-10 h-10 bg-violet-100 dark:bg-violet-500/10 rounded-xl grid place-items-center">
-            <svg class="w-5 h-5 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-              <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-            </svg>
-          </div>
-          <span class="flex items-center gap-1 text-xs font-semibold text-red-500">
+            <!-- Orders -->
+            <div class="card p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-10 h-10 bg-violet-100 dark:bg-violet-500/10 rounded-xl grid place-items-center">
+                        <svg class="w-5 h-5 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                    </div>
+                    <span class="flex items-center gap-1 text-xs font-semibold text-red-500">
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/></svg>
             -2.3%
           </span>
-        </div>
-        <p class="text-2xl font-extrabold text-ink dark:text-white tabular-nums">1,284</p>
-        <p class="text-xs text-slate-400 mt-1 font-medium">New Orders</p>
-        <div class="mt-3.5 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-          <div class="h-full bg-violet-500 rounded-full transition-all duration-700" style="width:53%"></div>
-        </div>
-        <p class="text-[11px] text-slate-400 mt-1.5">53% fulfilled today</p>
-      </div>
+                </div>
+                <p class="text-2xl font-extrabold text-ink dark:text-white tabular-nums">1,284</p>
+                <p class="text-xs text-slate-400 mt-1 font-medium">New Orders</p>
+                <div class="mt-3.5 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-violet-500 rounded-full transition-all duration-700" style="width:53%"></div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1.5">53% fulfilled today</p>
+            </div>
 
-      <!-- Conversion -->
-      <div class="card p-5">
-        <div class="flex items-start justify-between mb-4">
-          <div class="w-10 h-10 bg-amber-100 dark:bg-amber-500/10 rounded-xl grid place-items-center">
-            <svg class="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-              <polyline points="17 6 23 6 23 12"/>
-            </svg>
-          </div>
-          <span class="flex items-center gap-1 text-xs font-semibold text-accent">
+            <!-- Conversion -->
+            <div class="card p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-10 h-10 bg-amber-100 dark:bg-amber-500/10 rounded-xl grid place-items-center">
+                        <svg class="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            <polyline points="17 6 23 6 23 12"/>
+                        </svg>
+                    </div>
+                    <span class="flex items-center gap-1 text-xs font-semibold text-accent">
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
             +5.7%
           </span>
+                </div>
+                <p class="text-2xl font-extrabold text-ink dark:text-white tabular-nums">3.61%</p>
+                <p class="text-xs text-slate-400 mt-1 font-medium">Conversion Rate</p>
+                <div class="mt-3.5 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-amber-500 rounded-full transition-all duration-700" style="width:36%"></div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1.5">Industry avg: 2.8%</p>
+            </div>
         </div>
-        <p class="text-2xl font-extrabold text-ink dark:text-white tabular-nums">3.61%</p>
-        <p class="text-xs text-slate-400 mt-1 font-medium">Conversion Rate</p>
-        <div class="mt-3.5 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-          <div class="h-full bg-amber-500 rounded-full transition-all duration-700" style="width:36%"></div>
-        </div>
-        <p class="text-[11px] text-slate-400 mt-1.5">Industry avg: 2.8%</p>
-      </div>
-    </div>
 
-    <!-- ── CHART + ACTIVITY ── -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- ── CHART + ACTIVITY ── -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-      <!-- Revenue Chart -->
-      <div class="card lg:col-span-2 p-5">
-        <div class="flex items-center justify-between mb-5 gap-4">
-          <div>
-            <h2 class="font-bold text-ink dark:text-white">Revenue Overview</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Monthly performance vs target — 2026</p>
-          </div>
-          <div class="flex items-center gap-3 shrink-0">
+            <!-- Revenue Chart -->
+            <div class="card lg:col-span-2 p-5">
+                <div class="flex items-center justify-between mb-5 gap-4">
+                    <div>
+                        <h2 class="font-bold text-ink dark:text-white">Revenue Overview</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Monthly performance vs target — 2026</p>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
             <span class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span class="w-3 h-1.5 rounded-full bg-primary inline-block"></span>Revenue
             </span>
-            <span class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        <span class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
               <span class="w-3 h-0.5 rounded-full bg-accent inline-block border-t-2 border-dashed border-accent"></span>Target
             </span>
-          </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto -mx-1">
+                    <svg viewBox="0 0 600 210" class="w-full min-w-[320px]" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="gp" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.2"/>
+                                <stop offset="100%" stop-color="#4f46e5" stop-opacity="0"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Grid -->
+                        <line x1="44" y1="15"  x2="588" y2="15"  stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="4 3"/>
+                        <line x1="44" y1="52"  x2="588" y2="52"  stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="4 3"/>
+                        <line x1="44" y1="90"  x2="588" y2="90"  stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="4 3"/>
+                        <line x1="44" y1="127" x2="588" y2="127" stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="4 3"/>
+                        <line x1="44" y1="165" x2="588" y2="165" stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80"/>
+                        <!-- Y labels -->
+                        <text x="38" y="19"  text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">100k</text>
+                        <text x="38" y="56"  text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500"> 75k</text>
+                        <text x="38" y="94"  text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500"> 50k</text>
+                        <text x="38" y="131" text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500"> 25k</text>
+                        <text x="38" y="169" text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">  0k</text>
+                        <!-- Area fill -->
+                        <path d="M68,155 L144,118 L220,138 L296,88 L372,103 L448,58 L524,33 L524,165 L68,165 Z"
+                              fill="url(#gp)"/>
+                        <!-- Revenue line -->
+                        <polyline points="68,155 144,118 220,138 296,88 372,103 448,58 524,33"
+                                  fill="none" stroke="#4f46e5" stroke-width="2.5"
+                                  stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- Target line -->
+                        <polyline points="68,148 144,136 220,124 296,113 372,100 448,88 524,74"
+                                  fill="none" stroke="#10b981" stroke-width="1.8"
+                                  stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- Dots -->
+                        <circle cx="68"  cy="155" r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
+                        <circle cx="144" cy="118" r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
+                        <circle cx="220" cy="138" r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
+                        <circle cx="296" cy="88"  r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
+                        <circle cx="372" cy="103" r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
+                        <circle cx="448" cy="58"  r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
+                        <circle cx="524" cy="33"  r="5"   fill="#4f46e5" stroke="white" stroke-width="2.5"/>
+                        <!-- Highlight tooltip -->
+                        <rect x="498" y="8" width="52" height="18" rx="5" fill="#4f46e5"/>
+                        <text x="524" y="20.5" text-anchor="middle" font-size="9" font-weight="700" fill="white">$90.1k ↑</text>
+                        <!-- X labels -->
+                        <text x="68"  y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Jan</text>
+                        <text x="144" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Feb</text>
+                        <text x="220" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Mar</text>
+                        <text x="296" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Apr</text>
+                        <text x="372" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">May</text>
+                        <text x="448" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Jun</text>
+                        <text x="524" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Jul</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Activity -->
+            <div class="card p-5 flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-bold text-ink dark:text-white">Activity</h2>
+                    <button class="text-xs font-semibold text-primary hover:text-primarydark transition-colors">View all</button>
+                </div>
+                <div class="space-y-4 flex-1">
+
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 shrink-0 bg-primarylt dark:bg-primary/15 rounded-full grid place-items-center">
+                            <svg class="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm text-ink dark:text-slate-200 leading-snug"><span class="font-semibold">Sarah Chen</span> joined as a new user</p>
+                            <p class="text-xs text-slate-400 mt-0.5">2 min ago</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 shrink-0 bg-accent/10 rounded-full grid place-items-center">
+                            <svg class="w-3.5 h-3.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm text-ink dark:text-slate-200 leading-snug">Order <span class="font-semibold">#ORD-4821</span> fulfilled</p>
+                            <p class="text-xs text-slate-400 mt-0.5">14 min ago</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 shrink-0 bg-amber-100 dark:bg-amber-500/10 rounded-full grid place-items-center">
+                            <svg class="w-3.5 h-3.5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm text-ink dark:text-slate-200 leading-snug">Payment of <span class="font-semibold">$3,200</span> received</p>
+                            <p class="text-xs text-slate-400 mt-0.5">1 hr ago</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 shrink-0 bg-red-100 dark:bg-red-500/10 rounded-full grid place-items-center">
+                            <svg class="w-3.5 h-3.5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm text-ink dark:text-slate-200 leading-snug">Server spike on <span class="font-semibold">us-east-1</span></p>
+                            <p class="text-xs text-slate-400 mt-0.5">2 hr ago</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 shrink-0 bg-violet-100 dark:bg-violet-500/10 rounded-full grid place-items-center">
+                            <svg class="w-3.5 h-3.5 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm text-ink dark:text-slate-200 leading-snug">Conversion hit <span class="font-semibold">4.2%</span> — new record</p>
+                            <p class="text-xs text-slate-400 mt-0.5">3 hr ago</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 shrink-0 bg-primarylt dark:bg-primary/10 rounded-full grid place-items-center">
+                            <svg class="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm text-ink dark:text-slate-200 leading-snug">Q3 report exported by <span class="font-semibold">Mike R.</span></p>
+                            <p class="text-xs text-slate-400 mt-0.5">5 hr ago</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
-        <div class="overflow-x-auto -mx-1">
-          <svg viewBox="0 0 600 210" class="w-full min-w-[320px]" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="gp" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.2"/>
-                <stop offset="100%" stop-color="#4f46e5" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <!-- Grid -->
-            <line x1="44" y1="15"  x2="588" y2="15"  stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="4 3"/>
-            <line x1="44" y1="52"  x2="588" y2="52"  stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="4 3"/>
-            <line x1="44" y1="90"  x2="588" y2="90"  stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="4 3"/>
-            <line x1="44" y1="127" x2="588" y2="127" stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80" stroke-dasharray="4 3"/>
-            <line x1="44" y1="165" x2="588" y2="165" stroke="currentColor" stroke-width="0.5" class="text-slate-200 dark:text-slate-700/80"/>
-            <!-- Y labels -->
-            <text x="38" y="19"  text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">100k</text>
-            <text x="38" y="56"  text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500"> 75k</text>
-            <text x="38" y="94"  text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500"> 50k</text>
-            <text x="38" y="131" text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500"> 25k</text>
-            <text x="38" y="169" text-anchor="end" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">  0k</text>
-            <!-- Area fill -->
-            <path d="M68,155 L144,118 L220,138 L296,88 L372,103 L448,58 L524,33 L524,165 L68,165 Z"
-                  fill="url(#gp)"/>
-            <!-- Revenue line -->
-            <polyline points="68,155 144,118 220,138 296,88 372,103 448,58 524,33"
-                      fill="none" stroke="#4f46e5" stroke-width="2.5"
-                      stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Target line -->
-            <polyline points="68,148 144,136 220,124 296,113 372,100 448,88 524,74"
-                      fill="none" stroke="#10b981" stroke-width="1.8"
-                      stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Dots -->
-            <circle cx="68"  cy="155" r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
-            <circle cx="144" cy="118" r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
-            <circle cx="220" cy="138" r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
-            <circle cx="296" cy="88"  r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
-            <circle cx="372" cy="103" r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
-            <circle cx="448" cy="58"  r="3.5" fill="#4f46e5" stroke="white" stroke-width="2"/>
-            <circle cx="524" cy="33"  r="5"   fill="#4f46e5" stroke="white" stroke-width="2.5"/>
-            <!-- Highlight tooltip -->
-            <rect x="498" y="8" width="52" height="18" rx="5" fill="#4f46e5"/>
-            <text x="524" y="20.5" text-anchor="middle" font-size="9" font-weight="700" fill="white">$90.1k ↑</text>
-            <!-- X labels -->
-            <text x="68"  y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Jan</text>
-            <text x="144" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Feb</text>
-            <text x="220" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Mar</text>
-            <text x="296" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Apr</text>
-            <text x="372" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">May</text>
-            <text x="448" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Jun</text>
-            <text x="524" y="182" text-anchor="middle" font-size="9.5" fill="currentColor" class="text-slate-400 dark:text-slate-500">Jul</text>
-          </svg>
-        </div>
-      </div>
 
-      <!-- Activity -->
-      <div class="card p-5 flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-ink dark:text-white">Activity</h2>
-          <button class="text-xs font-semibold text-primary hover:text-primarydark transition-colors">View all</button>
-        </div>
-        <div class="space-y-4 flex-1">
-
-          <div class="flex gap-3">
-            <div class="w-8 h-8 shrink-0 bg-primarylt dark:bg-primary/15 rounded-full grid place-items-center">
-              <svg class="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class="text-sm text-ink dark:text-slate-200 leading-snug"><span class="font-semibold">Sarah Chen</span> joined as a new user</p>
-              <p class="text-xs text-slate-400 mt-0.5">2 min ago</p>
-            </div>
-          </div>
-
-          <div class="flex gap-3">
-            <div class="w-8 h-8 shrink-0 bg-accent/10 rounded-full grid place-items-center">
-              <svg class="w-3.5 h-3.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class="text-sm text-ink dark:text-slate-200 leading-snug">Order <span class="font-semibold">#ORD-4821</span> fulfilled</p>
-              <p class="text-xs text-slate-400 mt-0.5">14 min ago</p>
-            </div>
-          </div>
-
-          <div class="flex gap-3">
-            <div class="w-8 h-8 shrink-0 bg-amber-100 dark:bg-amber-500/10 rounded-full grid place-items-center">
-              <svg class="w-3.5 h-3.5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class="text-sm text-ink dark:text-slate-200 leading-snug">Payment of <span class="font-semibold">$3,200</span> received</p>
-              <p class="text-xs text-slate-400 mt-0.5">1 hr ago</p>
-            </div>
-          </div>
-
-          <div class="flex gap-3">
-            <div class="w-8 h-8 shrink-0 bg-red-100 dark:bg-red-500/10 rounded-full grid place-items-center">
-              <svg class="w-3.5 h-3.5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class="text-sm text-ink dark:text-slate-200 leading-snug">Server spike on <span class="font-semibold">us-east-1</span></p>
-              <p class="text-xs text-slate-400 mt-0.5">2 hr ago</p>
-            </div>
-          </div>
-
-          <div class="flex gap-3">
-            <div class="w-8 h-8 shrink-0 bg-violet-100 dark:bg-violet-500/10 rounded-full grid place-items-center">
-              <svg class="w-3.5 h-3.5 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class="text-sm text-ink dark:text-slate-200 leading-snug">Conversion hit <span class="font-semibold">4.2%</span> — new record</p>
-              <p class="text-xs text-slate-400 mt-0.5">3 hr ago</p>
-            </div>
-          </div>
-
-          <div class="flex gap-3">
-            <div class="w-8 h-8 shrink-0 bg-primarylt dark:bg-primary/10 rounded-full grid place-items-center">
-              <svg class="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class="text-sm text-ink dark:text-slate-200 leading-snug">Q3 report exported by <span class="font-semibold">Mike R.</span></p>
-              <p class="text-xs text-slate-400 mt-0.5">5 hr ago</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- ── ORDERS TABLE ── -->
-    <div class="card overflow-hidden">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 gap-4 flex-wrap">
-        <div>
-          <h2 class="font-bold text-ink dark:text-white">Recent Orders</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Last 6 transactions</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <select class="text-xs border border-slate-200 dark:border-slate-700
+        <!-- ── ORDERS TABLE ── -->
+        <div class="card overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 gap-4 flex-wrap">
+                <div>
+                    <h2 class="font-bold text-ink dark:text-white">Recent Orders</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Last 6 transactions</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <select class="text-xs border border-slate-200 dark:border-slate-700
                          bg-white dark:bg-slate-800
                          text-slate-600 dark:text-slate-300
                          rounded-lg px-3 py-1.5 focus:outline-none focus:border-primary transition-colors">
-            <option>All Status</option>
-            <option>Completed</option>
-            <option>Pending</option>
-            <option>Refunded</option>
-          </select>
-          <button class="flex items-center gap-1.5 text-xs border border-slate-200 dark:border-slate-700
+                        <option>All Status</option>
+                        <option>Completed</option>
+                        <option>Pending</option>
+                        <option>Refunded</option>
+                    </select>
+                    <button class="flex items-center gap-1.5 text-xs border border-slate-200 dark:border-slate-700
                          bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300
                          rounded-lg px-3 py-1.5
                          hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
-            Export
-          </button>
-        </div>
-      </div>
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+                        Export
+                    </button>
+                </div>
+            </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40">
-              <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Order ID</th>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Customer</th>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">Product</th>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden lg:table-cell">Date</th>
-              <th class="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Amount</th>
-              <th class="text-center px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="trow">
-              <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4821</td>
-              <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=5"  class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Mariana T.</span></div></td>
-              <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Pro Plan — Annual</td>
-              <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 12, 2026</td>
-              <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$299.00</td>
-              <td class="px-5 py-3.5 text-center"><span class="badge-green">● Completed</span></td>
-            </tr>
-            <tr class="trow">
-              <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4820</td>
-              <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=11" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Diego R.</span></div></td>
-              <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Starter — Monthly</td>
-              <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 12, 2026</td>
-              <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$49.00</td>
-              <td class="px-5 py-3.5 text-center"><span class="badge-amber">● Pending</span></td>
-            </tr>
-            <tr class="trow">
-              <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4819</td>
-              <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=22" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Yuki N.</span></div></td>
-              <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Enterprise — Annual</td>
-              <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 11, 2026</td>
-              <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$1,199.00</td>
-              <td class="px-5 py-3.5 text-center"><span class="badge-green">● Completed</span></td>
-            </tr>
-            <tr class="trow">
-              <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4818</td>
-              <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=33" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Kevin P.</span></div></td>
-              <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Pro Plan — Monthly</td>
-              <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 11, 2026</td>
-              <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$79.00</td>
-              <td class="px-5 py-3.5 text-center"><span class="badge-red">● Refunded</span></td>
-            </tr>
-            <tr class="trow">
-              <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4817</td>
-              <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=44" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Aisha M.</span></div></td>
-              <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Starter — Annual</td>
-              <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 10, 2026</td>
-              <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$399.00</td>
-              <td class="px-5 py-3.5 text-center"><span class="badge-green">● Completed</span></td>
-            </tr>
-            <tr class="trow !border-b-0">
-              <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4816</td>
-              <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=51" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Tom W.</span></div></td>
-              <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Enterprise — Monthly</td>
-              <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 10, 2026</td>
-              <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$249.00</td>
-              <td class="px-5 py-3.5 text-center"><span class="badge-slate">● Processing</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40">
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Order ID</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Customer</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">Product</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden lg:table-cell">Date</th>
+                        <th class="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Amount</th>
+                        <th class="text-center px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="trow">
+                        <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4821</td>
+                        <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=5"  class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Mariana T.</span></div></td>
+                        <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Pro Plan — Annual</td>
+                        <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 12, 2026</td>
+                        <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$299.00</td>
+                        <td class="px-5 py-3.5 text-center"><span class="badge-green">● Completed</span></td>
+                    </tr>
+                    <tr class="trow">
+                        <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4820</td>
+                        <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=11" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Diego R.</span></div></td>
+                        <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Starter — Monthly</td>
+                        <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 12, 2026</td>
+                        <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$49.00</td>
+                        <td class="px-5 py-3.5 text-center"><span class="badge-amber">● Pending</span></td>
+                    </tr>
+                    <tr class="trow">
+                        <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4819</td>
+                        <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=22" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Yuki N.</span></div></td>
+                        <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Enterprise — Annual</td>
+                        <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 11, 2026</td>
+                        <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$1,199.00</td>
+                        <td class="px-5 py-3.5 text-center"><span class="badge-green">● Completed</span></td>
+                    </tr>
+                    <tr class="trow">
+                        <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4818</td>
+                        <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=33" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Kevin P.</span></div></td>
+                        <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Pro Plan — Monthly</td>
+                        <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 11, 2026</td>
+                        <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$79.00</td>
+                        <td class="px-5 py-3.5 text-center"><span class="badge-red">● Refunded</span></td>
+                    </tr>
+                    <tr class="trow">
+                        <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4817</td>
+                        <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=44" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Aisha M.</span></div></td>
+                        <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Starter — Annual</td>
+                        <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 10, 2026</td>
+                        <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$399.00</td>
+                        <td class="px-5 py-3.5 text-center"><span class="badge-green">● Completed</span></td>
+                    </tr>
+                    <tr class="trow !border-b-0">
+                        <td class="px-5 py-3.5 text-xs font-bold text-primary">#ORD-4816</td>
+                        <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><img src="https://i.pravatar.cc/32?img=51" class="w-7 h-7 rounded-full object-cover hidden sm:block" alt=""/><span class="font-semibold text-ink dark:text-slate-200">Tom W.</span></div></td>
+                        <td class="px-4 py-3.5 text-slate-500 dark:text-slate-400 hidden md:table-cell">Enterprise — Monthly</td>
+                        <td class="px-4 py-3.5 text-slate-400 text-xs hidden lg:table-cell">Oct 10, 2026</td>
+                        <td class="px-4 py-3.5 text-right font-bold text-ink dark:text-slate-200 tabular-nums">$249.00</td>
+                        <td class="px-5 py-3.5 text-center"><span class="badge-slate">● Processing</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
-      <!-- Pagination -->
-      <div class="px-5 py-3.5 border-t border-slate-100 dark:border-slate-800
+            <!-- Pagination -->
+            <div class="px-5 py-3.5 border-t border-slate-100 dark:border-slate-800
                   flex items-center justify-between text-xs text-slate-400 gap-4">
-        <span>Showing <strong class="text-ink dark:text-slate-300">6</strong> of <strong class="text-ink dark:text-slate-300">1,284</strong> orders</span>
-        <div class="flex items-center gap-1">
-          <button class="w-7 h-7 grid place-items-center rounded-lg
+                <span>Showing <strong class="text-ink dark:text-slate-300">6</strong> of <strong class="text-ink dark:text-slate-300">1,284</strong> orders</span>
+                <div class="flex items-center gap-1">
+                    <button class="w-7 h-7 grid place-items-center rounded-lg
                          border border-slate-200 dark:border-slate-700
                          hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors opacity-40 cursor-not-allowed">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <button class="w-7 h-7 grid place-items-center rounded-lg bg-primary border border-primary text-white text-xs font-bold">1</button>
-          <button class="w-7 h-7 grid place-items-center rounded-lg border border-slate-200 dark:border-slate-700
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <button class="w-7 h-7 grid place-items-center rounded-lg bg-primary border border-primary text-white text-xs font-bold">1</button>
+                    <button class="w-7 h-7 grid place-items-center rounded-lg border border-slate-200 dark:border-slate-700
                          text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs font-medium">2</button>
-          <button class="w-7 h-7 grid place-items-center rounded-lg border border-slate-200 dark:border-slate-700
+                    <button class="w-7 h-7 grid place-items-center rounded-lg border border-slate-200 dark:border-slate-700
                          text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs font-medium">3</button>
-          <button class="w-7 h-7 grid place-items-center rounded-lg
+                    <button class="w-7 h-7 grid place-items-center rounded-lg
                          border border-slate-200 dark:border-slate-700
                          hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-  </main>
+    </main>
 
-  <!-- Footer -->
-  <footer class="px-6 py-4 border-t border-slate-200 dark:border-slate-800
+    <!-- Footer -->
+    <footer class="px-6 py-4 border-t border-slate-200 dark:border-slate-800
                  text-xs text-slate-400 flex items-center justify-between gap-4 flex-wrap">
-    <span>© 2026 Nexus Inc. All rights reserved.</span>
-    <span class="flex items-center gap-1.5">
+        <span>© 2026 Nexus Inc. All rights reserved.</span>
+        <span class="flex items-center gap-1.5">
       <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
       All systems operational
     </span>
-  </footer>
+    </footer>
 
 </div><!-- /main wrapper -->
 
 <script>
-  /* ── Dark mode ── */
-  function toggleDark() {
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('nexus-theme', isDark ? 'dark' : 'light');
-    document.getElementById('icon-moon').classList.toggle('hidden',  isDark);
-    document.getElementById('icon-sun').classList.toggle('hidden', !isDark);
-  }
-
-  (function initTheme() {
-    const saved = localStorage.getItem('nexus-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (saved === 'dark' || (!saved && prefersDark)) {
-      document.documentElement.classList.add('dark');
-      document.getElementById('icon-moon').classList.add('hidden');
-      document.getElementById('icon-sun').classList.remove('hidden');
+    /* ── Dark mode ── */
+    function toggleDark() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('nexus-theme', isDark ? 'dark' : 'light');
+        document.getElementById('icon-moon').classList.toggle('hidden',  isDark);
+        document.getElementById('icon-sun').classList.toggle('hidden', !isDark);
     }
-  })();
 
-  /* ── Sidebar (mobile) ── */
-  function openSidebar() {
-    document.getElementById('sidebar').classList.remove('-translate-x-full');
-    document.getElementById('overlay').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.add('-translate-x-full');
-    document.getElementById('overlay').classList.add('hidden');
-    document.body.style.overflow = '';
-  }
+    (function initTheme() {
+        const saved = localStorage.getItem('nexus-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('icon-moon').classList.add('hidden');
+            document.getElementById('icon-sun').classList.remove('hidden');
+        }
+    })();
+
+
+    /* ── Multi-level menu ── */
+    function setOpen(btn, open) {
+        btn.setAttribute('aria-expanded', open);
+        btn.nextElementSibling.classList.toggle('open', open);
+    }
+    function toggleGroup(btn) {
+        const open = btn.getAttribute('aria-expanded') !== 'true';
+        // accordion: close sibling groups at the same level
+        if (open) {
+            btn.closest('.nav-group').parentElement.querySelectorAll(':scope > .nav-group > .nav-toggle')
+                .forEach(b => { if (b !== btn) setOpen(b, false); });
+        }
+        setOpen(btn, open);
+    }
+    function activate(el) {
+        const nav = document.querySelector('#sidebar nav');
+        nav.querySelectorAll('.active').forEach(a => a.classList.remove('active'));
+        nav.querySelectorAll('.has-active').forEach(a => a.classList.remove('has-active'));
+        el.classList.add('active');
+        let g = el.closest('.nav-group');
+        while (g) {
+            const t = g.querySelector(':scope > .nav-toggle');
+            t.classList.add('has-active');
+            setOpen(t, true);
+            g = g.parentElement.closest('.nav-group');
+        }
+    }
+    document.querySelectorAll('#sidebar nav a').forEach(a =>
+        a.addEventListener('click', () => {
+            activate(a);
+            if (window.innerWidth < 1024 && a.classList.contains('sub-link')) closeSidebar();
+        })
+    );
+
+    /* ── Sidebar (mobile) ── */
+    function openSidebar() {
+        document.getElementById('sidebar').classList.remove('-translate-x-full');
+        document.getElementById('overlay').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('overlay').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
 </script>
 
 </body>
