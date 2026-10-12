@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
             $basicInfo = Cache::remember('platform_basic_info', now()->addDay(), function () {
                 return PlatformSetting::first();
             });
-//dd($basicInfo);
+
             $view->with('basic_info', $basicInfo);
         });
 
