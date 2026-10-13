@@ -1,52 +1,74 @@
 @extends('platform_admin.layout.master')
 
 @section('contents')
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Create Custom Page</h4>
-            <a href="{{ route('admin.pages.index') }}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left me-1"></i> Back to Pages</a>
+    <div class="space-y-6">
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight dark:text-white">Create Custom Page</h1>
+                <p class="text-sm text-slate-500 mt-0.5">Add a new dynamic platform page with custom content.</p>
+            </div>
+            <a href="{{ route('admin.pages.index') }}"
+               class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg shadow-sm transition-all gap-2">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+                <span>Back to Pages</span>
+            </a>
         </div>
-    </div>
-</div>
 
-<form method="POST" action="{{ route('admin.pages.store') }}">
-    @csrf
-    <div class="card">
-        <div class="card-body p-4">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label font-weight-bold">Page Title</label>
-                    <input type="text" name="title" class="form-control" required placeholder="Terms of Service">
+        <form method="POST" action="{{ route('admin.pages.store') }}">
+            @csrf
+            <div class="card overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm">
+                <div class="p-6 md:p-8 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Page Title</label>
+                            <input type="text" name="title" required placeholder="Terms of Service"
+                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Page Slug</label>
+                            <input type="text" name="slug" placeholder="terms-of-service"
+                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Meta Title</label>
+                            <input type="text" name="meta_title" placeholder="Terms & Conditions | Genzilla"
+                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Status</label>
+                            <select name="status"
+                                    class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                <option value="1" selected>Active</option>
+                                <option value="0">Draft</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Meta Description</label>
+                        <textarea name="meta_description" rows="2" placeholder="Read our terms and conditions..."
+                                  class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Page Content (HTML / Text)</label>
+                        <textarea name="content" rows="12" required placeholder="Write or paste your HTML content here..."
+                                  class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all font-mono"></textarea>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label font-weight-bold">Page Slug</label>
-                    <input type="text" name="slug" class="form-control" placeholder="terms-of-service">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label font-weight-bold">Meta Title</label>
-                    <input type="text" name="meta_title" class="form-control">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label font-weight-bold">Status</label>
-                    <select name="status" class="form-select">
-                        <option value="1" selected>Active</option>
-                        <option value="0">Draft</option>
-                    </select>
-                </div>
-                <div class="col-12 mb-3">
-                    <label class="form-label font-weight-bold">Meta Description</label>
-                    <textarea name="meta_description" class="form-control" rows="2"></textarea>
-                </div>
-                <div class="col-12 mb-3">
-                    <label class="form-label font-weight-bold">Page Content (HTML / Text)</label>
-                    <textarea name="content" class="form-control" rows="12" required></textarea>
+
+                <div class="flex items-center justify-end px-6 py-4 bg-slate-50 border-t border-slate-100">
+                    <button type="submit"
+                            class="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm transition-colors cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk text-xs"></i>
+                        <span>Save Page</span>
+                    </button>
                 </div>
             </div>
-        </div>
-        <div class="card-footer bg-light text-end p-3">
-            <button type="submit" class="btn btn-primary px-4"><i class="fa-solid fa-floppy-disk me-1"></i> Save Page</button>
-        </div>
+        </form>
     </div>
-</form>
 @endsection

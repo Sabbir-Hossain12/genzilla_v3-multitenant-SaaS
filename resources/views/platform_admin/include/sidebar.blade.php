@@ -1,4 +1,7 @@
 <!-- Mobile overlay -->
+@php
+    $currentRoute = request()->route()->getName();
+@endphp
 <div id="overlay" onclick="closeSidebar()"
      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 hidden lg:hidden"></div>
 
@@ -32,7 +35,7 @@
         <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-3 pb-2">
             Platform Core</p>
 
-        <a href="{{ route('admin.dashboard.index') }}" class="nav-link active">
+        <a href="{{ route('admin.dashboard.index') }}" class="nav-link {{ $currentRoute == 'admin.dashboard.index' ? 'active' : ''}}">
             <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="1.8">
                 <rect x="3" y="3" width="7" height="7" rx="1.5"/>
