@@ -19,6 +19,8 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "swiper": "^14.3.0"
+        "jquery": "^4.0.0",
+        "swiper": "^14.3.0",
+        "toastr": "^2.1.4"
     }
 }

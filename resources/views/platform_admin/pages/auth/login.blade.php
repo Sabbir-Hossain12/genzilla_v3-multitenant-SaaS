@@ -69,7 +69,7 @@
                         <input id="li-password" type="password" name="password" value="password" placeholder="Enter your password"
                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 pr-10 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
                         <button type="button" onclick="togglePw('li-password', this)"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                class="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
                                 <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor"
                                       stroke-width="2"/>
@@ -77,14 +77,21 @@
                             </svg>
                         </button>
                     </div>
+                    <div>
+                        @if ($errors->any())
+                            @foreach ($errors->all() as $error)
+                                <span class="text-xs text-red-800 fw-bold py-1">{{ $error }}</span>
+                            @endforeach
+                        @endif
+                    </div>
                 </div>
                 <label class="flex items-center gap-2.5 cursor-pointer">
-                    <input type="checkbox" checked class="w-4 h-4 rounded accent-primary"/>
+                    <input type="checkbox" checked class="w-4 h-4 rounded accent-primary cursor-pointer"/>
                     <span class="text-[13px] text-gray-600">Remember me for 30 days</span>
                 </label>
                 <p id="li-error" class="hidden text-[12.5px] text-red-500">Please enter a valid email and password.</p>
                 <button type="submit"
-                        class="w-full bg-primary hover:bg-primarydark text-white font-bold text-[14.5px] py-3 rounded-xl transition-colors">
+                        class="cursor-pointer w-full bg-primary hover:bg-primarydark text-white font-bold text-[14.5px] py-3 rounded-xl transition-colors">
                     Log In
                 </button>
             </form>

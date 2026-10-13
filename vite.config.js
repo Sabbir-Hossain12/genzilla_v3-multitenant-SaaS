@@ -18,7 +18,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/platform.css',
                 'resources/css/platform_admin.css',
-
+                'resources/js/platform_admin.js',
             ],
             refresh: true,
         }),

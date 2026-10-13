@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap"
           rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" />
-    @vite(['resources/css/platform_admin.css'])
+    @vite(['resources/css/platform_admin.css','resources/js/platform_admin.js'])
     @stack('css')
 </head>
 
@@ -127,6 +127,31 @@
         document.getElementById('overlay').classList.add('hidden');
         document.body.style.overflow = '';
     }
+</script>
+
+{{-- Toastr--}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if (Session::has('success'))
+        toastr.options = {"closeButton": true, "progressBar": true};
+        toastr.success("{{ session('success') }}");
+        @endif
+
+        @if (Session::has('error'))
+        toastr.options = {"closeButton": true, "progressBar": true};
+        toastr.error("{{ session('error') }}");
+        @endif
+
+        @if (Session::has('info'))
+        toastr.options = {"closeButton": true, "progressBar": true};
+        toastr.info("{{ session('info') }}");
+        @endif
+
+        @if (Session::has('warning'))
+        toastr.options = {"closeButton": true, "progressBar": true};
+        toastr.warning("{{ session('warning') }}");
+        @endif
+    });
 </script>
 @stack('js')
 </body>

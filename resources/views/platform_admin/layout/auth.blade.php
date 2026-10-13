@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Log In — Shopwave</title>
+    <title>Log In — {{ $basic_info->platform_name ?? '' }}</title>
     @vite(['resources/css/platform_admin.css'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
           rel="stylesheet">
-    <!-- Toaster CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    @vite(['resources/css/platform_admin.css','resources/js/platform_admin.js'])
 
     @stack('css')
 </head>
+
 <body class="bg-white text-ink font-sans antialiased">
 <div class="min-h-screen grid lg:grid-cols-2">
     @yield('contents')
@@ -27,42 +27,31 @@
     }
 </script>
 
-<!-- Toaster JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+{{-- Toastr--}}
 <script>
-    @if (Session::has('success'))
-        toastr.options = {
-        "closeButton": true,
-        "progressBar": true
-    }
-    toastr.success("{{ session('success') }}");
-    @endif
+    document.addEventListener('DOMContentLoaded', function () {
+        @if (Session::has('success'))
+            toastr.options = {"closeButton": true, "progressBar": true};
+        toastr.success("{{ session('success') }}");
+        @endif
 
-        @if (Session::has('error'))
-        toastr.options = {
-        "closeButton": true,
-        "progressBar": true
-    }
-    toastr.error("{{ session('error') }}");
-    @endif
+            @if (Session::has('error'))
+            toastr.options = {"closeButton": true, "progressBar": true};
+        toastr.error("{{ session('error') }}");
+        @endif
 
-        @if (Session::has('info'))
-        toastr.options = {
-        "closeButton": true,
-        "progressBar": true
-    }
-    toastr.info("{{ session('info') }}");
-    @endif
+            @if (Session::has('info'))
+            toastr.options = {"closeButton": true, "progressBar": true};
+        toastr.info("{{ session('info') }}");
+        @endif
 
-        @if (Session::has('warning'))
-        toastr.options = {
-        "closeButton": true,
-        "progressBar": true
-    }
-    toastr.warning("{{ session('warning') }}");
-    @endif
+            @if (Session::has('warning'))
+            toastr.options = {"closeButton": true, "progressBar": true};
+        toastr.warning("{{ session('warning') }}");
+        @endif
+    });
 </script>
+
 @stack('js')
 </body>
 </html>

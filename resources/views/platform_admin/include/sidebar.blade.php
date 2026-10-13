@@ -238,7 +238,7 @@
         <!-- Dropdown (opens upward) -->
         <div id="side-profile-dropdown" role="menu"
              class="hidden absolute left-3 right-3 bottom-full mb-2 card shadow-lg p-1.5 z-40">
-            <a role="menuitem"
+            <a href="{{ route('admin.profile.edit') }}" role="menuitem"
                class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primarylt dark:hover:bg-slate-800 hover:text-primary cursor-pointer transition-colors">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -246,15 +246,18 @@
                 </svg>
                 Profile
             </a>
-            <a role="menuitem"
-               class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer transition-colors">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                    <polyline points="16 17 21 12 16 7"/>
-                    <line x1="21" y1="12" x2="9" y2="12"/>
-                </svg>
-                Logout
-            </a>
+            <form method="post" action="{{ route('admin.logout') }}">
+                @csrf
+                <button type="submit" role="menuitem"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer transition-colors">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </form>
         </div>
 
         <button type="button" id="side-profile-btn" onclick="toggleSideProfile(event)"
@@ -263,8 +266,8 @@
             <img src="https://i.pravatar.cc/40?img=68"
                  class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30 shrink-0" alt="Alex"/>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-ink dark:text-white truncate">Alex Johnson</p>
-                <p class="text-xs text-slate-400 truncate">Super Admin</p>
+                <p class="text-sm font-semibold text-ink dark:text-white truncate">{{ auth()->user()->name ?? 'Admin' }}</p>
+                <p class="text-xs text-slate-400 truncate">{{ auth()->user()->getRoleNames()->implode('') }}</p>
             </div>
             <svg class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2">
