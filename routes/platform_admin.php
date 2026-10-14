@@ -49,13 +49,10 @@ Route::domain(config('app.base_domain'))->prefix('admin')->group(function () {
         Route::put('/admins/{admin}', [PlatformAdminController::class, 'update'])->name('admin.admins.update')->middleware('permission:Edit Admin');
         Route::delete('/admins/{admin}', [PlatformAdminController::class, 'destroy'])->name('admin.admins.destroy')->middleware('permission:Delete Admin');
         Route::post('/change-admin-status', [PlatformAdminController::class, 'changeAdminStatus'])->name('admin.status')->middleware('permission:Status Admin');
-        Route::get('/data', [PlatformAdminController::class, 'getData'])->name('admin.data')->middleware('permission:Admin List');
 
         // Roles
         Route::get('/roles', [AdminRoleController::class, 'index'])->name('admin.role.index')->middleware('permission:Role List');
-        Route::get('/roles/data', [AdminRoleController::class, 'getData'])->name('admin.role.data')->middleware('permission:Role List');
         Route::post('/roles', [AdminRoleController::class, 'store'])->name('admin.role.store')->middleware('permission:Role Create');
-        Route::get('/roles/{role}/edit', [AdminRoleController::class, 'edit'])->name('admin.role.edit')->middleware('permission:Edit Role');
         Route::put('/roles/{role}', [AdminRoleController::class, 'update'])->name('admin.role.update')->middleware('permission:Edit Role');
         Route::delete('/roles/{role}', [AdminRoleController::class, 'destroy'])->name('admin.role.destroy')->middleware('permission:Delete Role');
         Route::get('/roles/{role}/permissions', [AdminRoleController::class, 'assignPermissionsToRolePage'])->name('admin.role.permission.edit')->middleware('permission:Assign Permission');
@@ -63,9 +60,8 @@ Route::domain(config('app.base_domain'))->prefix('admin')->group(function () {
 
         // Permissions
         Route::get('/permissions', [AdminPermissionController::class, 'index'])->name('admin.permission.index')->middleware('permission:Permission List');
-        Route::get('/permissions/data', [AdminPermissionController::class, 'getData'])->name('admin.permission.data')->middleware('permission:Permission List');
         Route::post('/permissions', [AdminPermissionController::class, 'store'])->name('admin.permission.store')->middleware('permission:Create Permission');
-        Route::get('/permissions/{permission}/edit', [AdminPermissionController::class, 'edit'])->name('admin.permission.edit')->middleware('permission:Edit Permission');
+        Route::delete('/permissions/bulk', [AdminPermissionController::class, 'bulkDestroy'])->name('admin.permission.bulk-destroy')->middleware('permission:Delete Permission');
         Route::put('/permissions/{permission}', [AdminPermissionController::class, 'update'])->name('admin.permission.update')->middleware('permission:Edit Permission');
         Route::delete('/permissions/{permission}', [AdminPermissionController::class, 'destroy'])->name('admin.permission.destroy')->middleware('permission:Delete Permission');
 

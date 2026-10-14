@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use Yajra\DataTables\Facades\DataTables;
 
 class AdminRoleController extends Controller
 {
@@ -18,45 +17,14 @@ class AdminRoleController extends Controller
 
     public function index()
     {
-        return view('platform_admin.pages.admin_role.index');
-    }
+        $roles = Role::withCount('permissions')
+            ->with('permissions:id,name')
+            ->orderBy('name')
+            ->get();
 
-    public function getData()
-    {
-        $roles = Role::query();
+        $protected = self::PROTECTED;
 
-        return DataTables::eloquent($roles)
-            ->addIndexColumn()
-            ->addColumn('permissions', function (Role $role) {
-                if ($role->permissions->isEmpty()) {
-                    return '<span class="text-muted">No permissions</span>';
-                }
-
-                $badges = $role->permissions
-                    ->sortBy('name')
-                    ->map(fn ($permission) => '<span class="badge bg-success me-1 mb-1" style="white-space: nowrap;">'.e($permission->name).'</span>')
-                    ->implode('');
-
-                return '<div class="d-flex flex-wrap" style="max-width: 430px;">'.$badges.'</div>';
-            })
-            ->addColumn('action', function (Role $role) {
-                $assignPermission = auth()->user()->can('Assign Permission')
-                    ? '<a class="btn btn-sm btn-info" href="'.route('admin.role.permission.edit', $role->id).'" title="Assign permissions"><i class="fa-solid fa-user-shield"></i></a>'
-                    : '';
-
-                $edit = auth()->user()->can('Edit Role')
-                    ? '<a class="editButton btn btn-sm btn-primary" href="javascript:void(0)" data-id="'.$role->id.'" data-bs-toggle="modal" data-bs-target="#editRoleModal"><i class="fas fa-edit"></i></a>'
-                    : '';
-
-                $delete = '';
-                if (auth()->user()->can('Delete Role') && ! in_array($role->name, self::PROTECTED, true)) {
-                    $delete = '<a class="btn btn-sm btn-danger" href="javascript:void(0)" data-id="'.$role->id.'" id="deleteRoleBtn"><i class="fas fa-trash"></i></a>';
-                }
-
-                return '<div class="d-flex gap-2">'.$assignPermission.$edit.$delete.'</div>';
-            })
-            ->rawColumns(['action', 'permissions'])
-            ->make(true);
+        return view('platform_admin.pages.admin_role.index', compact('roles', 'protected'));
     }
 
     public function store(Request $request)
@@ -70,21 +38,7 @@ class AdminRoleController extends Controller
             'guard_name' => 'web',
         ]);
 
-        return response()->json(['message' => 'success'], 201);
-    }
-
-    public function edit(string $id)
-    {
-        $role = Role::findOrFail($id);
-
-        return response()->json([
-            'message' => 'success',
-            'data' => [
-                'id' => $role->id,
-                'name' => $role->name,
-                'protected' => in_array($role->name, self::PROTECTED, true),
-            ],
-        ], 200);
+        return back()->with('success', 'Role created successfully.');
     }
 
     public function update(Request $request, string $id)
@@ -92,7 +46,7 @@ class AdminRoleController extends Controller
         $role = Role::findOrFail($id);
 
         if (in_array($role->name, self::PROTECTED, true)) {
-            return response()->json(['message' => 'This role is protected and cannot be renamed.'], 422);
+            return back()->with('error', 'This role is protected and cannot be renamed.');
         }
 
         $validated = $request->validate([
@@ -102,7 +56,7 @@ class AdminRoleController extends Controller
         $role->name = $validated['name'];
         $role->save();
 
-        return response()->json(['message' => 'success'], 200);
+        return back()->with('success', 'Role updated successfully.');
     }
 
     public function destroy(string $id)
@@ -110,12 +64,12 @@ class AdminRoleController extends Controller
         $role = Role::findOrFail($id);
 
         if (in_array($role->name, self::PROTECTED, true)) {
-            return response()->json(['message' => 'This role is protected and cannot be deleted.'], 422);
+            return back()->with('error', 'This role is protected and cannot be deleted.');
         }
 
         $role->delete();
 
-        return response()->json(['message' => 'success'], 200);
+        return back()->with('success', 'Role deleted successfully.');
     }
 
     public function assignPermissionsToRolePage(string $id)

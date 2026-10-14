@@ -6,43 +6,53 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
-use Yajra\DataTables\Facades\DataTables;
 
 class AdminPermissionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->string('search')->toString();
+        $group = $request->string('group')->toString();
+
+        $sortable = ['name', 'group_name', 'guard_name'];
+        $sort = $request->string('sort')->toString();
+        if (! in_array($sort, $sortable, true)) {
+            $sort = 'group_name';
+        }
+        $direction = $request->string('direction')->toString() === 'desc' ? 'desc' : 'asc';
+
+        $perPage = (int) $request->input('per_page', 20);
+        if (! in_array($perPage, [10, 20, 50, 100], true)) {
+            $perPage = 20;
+        }
+
+        $permissions = Permission::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('group_name', 'like', "%{$search}%");
+                });
+            })
+            ->when($group !== '', fn ($query) => $query->where('group_name', $group))
+            ->orderBy($sort, $direction)
+            ->paginate($perPage)
+            ->withQueryString();
+
         $groups = Permission::query()
             ->select('group_name')
             ->distinct()
             ->orderBy('group_name')
             ->pluck('group_name');
 
-        return view('platform_admin.pages.admin_permissions.index', compact('groups'));
-    }
+        $filters = [
+            'search' => $search,
+            'group' => $group,
+            'sort' => $sort,
+            'direction' => $direction,
+            'per_page' => $perPage,
+        ];
 
-    public function getData()
-    {
-        $permissions = Permission::query();
-
-        return DataTables::eloquent($permissions)
-            ->addIndexColumn()
-            ->addColumn('group', function (Permission $permission) {
-                return '<span class="badge bg-primary me-1">'.e($permission->group_name ?: 'General').'</span>';
-            })
-            ->addColumn('action', function (Permission $permission) {
-                $edit = auth()->user()->can('Edit Permission')
-                    ? '<a class="editButton btn btn-sm btn-primary" href="javascript:void(0)" data-id="'.$permission->id.'" data-bs-toggle="modal" data-bs-target="#editPermissionModal"><i class="fas fa-edit"></i></a>'
-                    : '';
-
-                $delete = auth()->user()->can('Delete Permission')
-                    ? '<a class="btn btn-sm btn-danger" href="javascript:void(0)" data-id="'.$permission->id.'" id="deletePermissionBtn"><i class="fas fa-trash"></i></a>'
-                    : '';
-
-                return '<div class="d-flex gap-2">'.$edit.$delete.'</div>';
-            })
-            ->rawColumns(['action', 'group'])
-            ->make(true);
+        return view('platform_admin.pages.admin_permissions.index', compact('permissions', 'groups', 'filters'));
     }
 
     public function store(Request $request)
@@ -58,21 +68,7 @@ class AdminPermissionController extends Controller
             'guard_name' => 'web',
         ]);
 
-        return response()->json(['message' => 'success'], 201);
-    }
-
-    public function edit(string $id)
-    {
-        $permission = Permission::findOrFail($id);
-
-        return response()->json([
-            'message' => 'success',
-            'data' => [
-                'id' => $permission->id,
-                'name' => $permission->name,
-                'group_name' => $permission->group_name,
-            ],
-        ], 200);
+        return back()->with('success', 'Permission created successfully.');
     }
 
     public function update(Request $request, string $id)
@@ -88,14 +84,27 @@ class AdminPermissionController extends Controller
         $permission->group_name = $validated['group_name'];
         $permission->save();
 
-        return response()->json(['message' => 'success'], 200);
+        return back()->with('success', 'Permission updated successfully.');
     }
 
     public function destroy(string $id)
     {
         $permission = Permission::findOrFail($id);
+
         $permission->delete();
 
-        return response()->json(['message' => 'success'], 200);
+        return back()->with('success', 'Permission deleted successfully.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer', Rule::exists('permissions', 'id')],
+        ]);
+
+        $deleted = Permission::whereIn('id', $validated['ids'])->delete();
+
+        return back()->with('success', "{$deleted} permission(s) deleted successfully.");
     }
 }

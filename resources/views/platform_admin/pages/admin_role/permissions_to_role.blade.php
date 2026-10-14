@@ -1,109 +1,91 @@
 @extends('platform_admin.layout.master')
 
 @section('contents')
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Assign Permissions</h4>
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.role.index') }}">Roles</a></li>
-                        <li class="breadcrumb-item active">Permissions</li>
-                    </ol>
-                </div>
+    <div class="space-y-6">
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight dark:text-white">Assign Permissions</h1>
+                <p class="text-sm text-slate-500 mt-0.5">Permissions for <span class="font-semibold text-indigo-600">{{ $role->name }}</span></p>
             </div>
+            <a href="{{ route('admin.role.index') }}"
+               class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors gap-2 cursor-pointer">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+                <span>Back to Roles</span>
+            </a>
         </div>
-    </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+        <!-- Main Card Container -->
+        <form action="{{ route('admin.role.permission.update', $role->id) }}" method="POST" class="space-y-6">
+            @csrf
+            @method('PUT')
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="card-title mb-0">
-                            Permissions for <span class="fw-bolder text-primary">{{ $role->name }}</span>
-                        </h4>
-                        <a href="{{ route('admin.role.index') }}" class="btn btn-sm btn-light">
-                            <i class="fa-solid fa-arrow-left me-1"></i> Back
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('admin.role.permission.update', $role->id) }}" method="post">
-                        @csrf
-                        @method('PUT')
-
-                        <div class="row">
-                            @foreach($permissionGroups as $groupName => $permissions)
-                                <div class="col-md-6 mb-4">
-                                    <div class="border rounded p-3 h-100">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 class="mb-0 text-uppercase text-muted">{{ $groupName ?: 'General' }}</h6>
-                                            <div class="form-check">
-                                                <input class="form-check-input group-toggle" type="checkbox"
-                                                       data-group="group-{{ $loop->index }}" id="all-{{ $loop->index }}">
-                                                <label class="form-check-label small" for="all-{{ $loop->index }}">Select all</label>
-                                            </div>
-                                        </div>
-                                        <hr class="mt-0">
-                                        @foreach($permissions as $permission)
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input group-{{ $loop->parent->index }}"
-                                                       @checked($role->hasPermissionTo($permission->name))
-                                                       name="permissions[]" type="checkbox"
-                                                       id="perm-{{ $permission->id }}" value="{{ $permission->name }}">
-                                                <label class="form-check-label" for="perm-{{ $permission->id }}">
-                                                    {{ $permission->name }}
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @forelse($permissionGroups as $groupName => $permissions)
+                    @php($groupKey = 'group-'.$loop->index)
+                    <div class="card p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <h6 class="text-xs font-bold uppercase tracking-wider text-slate-600">{{ $groupName ?: 'General' }}</h6>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-500">
+                                <input type="checkbox" class="group-toggle rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                       data-group="{{ $groupKey }}">
+                                <span>Select all</span>
+                            </label>
+                        </div>
+                        <hr class="border-slate-100 mb-3">
+                        <div class="space-y-2.5">
+                            @foreach($permissions as $permission)
+                                <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
+                                           data-group-member="{{ $groupKey }}"
+                                           @checked($role->hasPermissionTo($permission->name))
+                                           class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                    <span>{{ $permission->name }}</span>
+                                </label>
                             @endforeach
                         </div>
-
-                        <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fa-solid fa-floppy-disk me-1"></i> Update Permissions
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                @empty
+                    <div class="md:col-span-2 card p-12 text-center text-slate-400 text-sm">No permissions defined yet.</div>
+                @endforelse
             </div>
-        </div>
+
+            <div class="flex items-center justify-end">
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm transition-colors cursor-pointer">
+                    <i class="fa-solid fa-floppy-disk text-xs"></i>
+                    <span>Update Permissions</span>
+                </button>
+            </div>
+        </form>
     </div>
-@endsection
 
-@push('backendJs')
     <script>
-        $(document).ready(function () {
-            function syncGroup(group) {
-                var boxes = $('.' + group);
-                var checked = boxes.filter(':checked').length;
-                $('[data-group="' + group + '"]').prop('checked', boxes.length > 0 && checked === boxes.length);
+        function syncGroupToggle(group) {
+            const members = Array.from(document.querySelectorAll('input[data-group-member="' + group + '"]'));
+            const toggle = document.querySelector('.group-toggle[data-group="' + group + '"]');
+            if (toggle) {
+                toggle.checked = members.length > 0 && members.every(m => m.checked);
             }
+        }
 
-            $('.group-toggle').on('change', function () {
-                var group = $(this).data('group');
-                $('.' + group).prop('checked', $(this).is(':checked'));
-            });
-
-            $('.group-0, .group-1, .group-2, .group-3, .group-4, .group-5, .group-6, .group-7, .group-8').on('change', function () {
-                syncGroup($(this).prop('class').split(' ').find(function (c) {
-                    return c.indexOf('group-') === 0 && c !== 'group-toggle';
-                }));
-            });
-
-            $('.group-toggle').each(function () {
-                syncGroup($(this).data('group'));
+        document.querySelectorAll('.group-toggle').forEach(function (toggle) {
+            toggle.addEventListener('change', function () {
+                const group = this.dataset.group;
+                document.querySelectorAll('input[data-group-member="' + group + '"]').forEach(function (cb) {
+                    cb.checked = toggle.checked;
+                });
             });
         });
+
+        document.querySelectorAll('input[data-group-member]').forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                syncGroupToggle(this.dataset.groupMember);
+            });
+        });
+
+        document.querySelectorAll('.group-toggle').forEach(function (toggle) {
+            syncGroupToggle(toggle.dataset.group);
+        });
     </script>
-@endpush
+@endsection
