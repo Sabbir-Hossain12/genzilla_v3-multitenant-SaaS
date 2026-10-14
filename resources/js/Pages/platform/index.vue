@@ -1,11 +1,13 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import PlatformLayout from '@/Layouts/PlatformLayout.vue'
+import PlatformPricingCards from '@/Components/platform/PlatformPricingCards.vue'
+import PlatformToggle from '@/Components/platform/PlatformToggle.vue'
 import {
     features as fallbackFeatures,
     hero as fallbackHero,
-    plans as fallbackPlans,
+    pricingPlans as fallbackPlans,
     stats as fallbackStats,
     steps as fallbackSteps,
     testimonials as fallbackTestimonials,
@@ -48,6 +50,9 @@ const heroView = computed(() => {
 const statsView = computed(() => (props.stats.length ? props.stats : fallbackStats))
 const stepsView = computed(() => (props.steps.length ? props.steps : fallbackSteps))
 const plansView = computed(() => (props.plans.length ? props.plans : fallbackPlans))
+
+/** false = monthly, true = yearly (20% off). Mirrors the pricing page toggle. */
+const yearly = ref(false)
 
 const featuresView = computed(() => {
     const source = props.features.length ? props.features : fallbackFeatures
@@ -371,40 +376,45 @@ const chartBars = [
                     <h2 class="text-2xl sm:text-[34px] font-extrabold tracking-tight text-ink">
                         Plans that grow with you
                     </h2>
-                </div>
-                <div class="grid sm:grid-cols-3 gap-5 max-w-4xl mx-auto">
-                    <div
-                        v-for="plan in plansView"
-                        :key="plan.name"
-                        class="rounded-2xl p-6 text-center relative"
-                        :class="
-                            plan.highlighted
-                                ? 'bg-ink border border-ink scale-105 shadow-xl'
-                                : 'bg-white border border-gray-200'
-                        "
-                    >
+
+                    <div class="flex items-center justify-center gap-3 mt-6">
                         <span
-                            v-if="plan.highlighted"
-                            class="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-[11px] font-bold px-3 py-1 rounded-full"
+                            class="text-[14px] font-semibold"
+                            :class="yearly ? 'text-gray-400' : 'text-ink'"
                         >
-                            MOST POPULAR
+                            Monthly
                         </span>
-                        <p
-                            class="text-[14px] font-bold"
-                            :class="plan.highlighted ? 'text-gray-300' : 'text-gray-500'"
+                        <PlatformToggle v-model="yearly" />
+                        <span
+                            class="text-[14px] font-medium"
+                            :class="yearly ? 'text-ink' : 'text-gray-400'"
                         >
-                            {{ plan.name }}
-                        </p>
-                        <p
-                            class="text-3xl font-extrabold mt-2"
-                            :class="plan.highlighted ? 'text-white' : 'text-ink'"
-                        >
-                            {{ plan.price }}<span
-                                class="text-[14px] font-medium text-gray-400"
-                            >{{ plan.suffix }}</span>
-                        </p>
-                        <p class="text-[12.5px] text-gray-400 mt-1">{{ plan.note }}</p>
+                            Yearly
+                        </span>
+                        <span class="bg-emerald-50 text-accentdark text-[11.5px] font-bold px-2.5 py-1 rounded-full">
+                            Save 20%
+                        </span>
                     </div>
+                </div>
+
+                <PlatformPricingCards :plans="plansView" :yearly="yearly" />
+
+                <div class="text-center mt-10">
+                    <Link
+                        href="/pricing"
+                        class="inline-flex items-center gap-2 text-[14px] font-semibold text-primary hover:text-primarydark transition-colors"
+                    >
+                        Compare all plans & features
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M9 18l6-6-6-6"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                    </Link>
                 </div>
             </div>
         </section>

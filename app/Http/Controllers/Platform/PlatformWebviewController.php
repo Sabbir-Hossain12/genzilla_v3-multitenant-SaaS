@@ -145,23 +145,16 @@ class PlatformWebviewController extends Controller
     }
 
     /**
-     * Condensed plan cards for the landing page pricing teaser.
+     * Plan cards for the landing page pricing teaser.
+     *
+     * Deliberately identical to the dedicated pricing page so the teaser and the
+     * full page never drift apart; only the surrounding section copy differs.
      *
      * @return array<int, array<string, mixed>>
      */
     private function planTeaser(): array
     {
-        $plans = $this->activePlans();
-
-        return $plans->values()
-            ->map(fn (PlatformPlan $plan, int $index) => [
-                'name' => $plan->name,
-                'price' => $this->money($plan->monthly_price),
-                'suffix' => '/mo',
-                'note' => 'Up to '.number_format($plan->max_products).' products',
-                'highlighted' => $this->isFeatured($index, $plans->count()),
-            ])
-            ->all();
+        return $this->pricingPlanList();
     }
 
     /**

@@ -10,7 +10,7 @@
                 'page' => 1,
             ]);
         };
-        $hasFilters = $filters['search'] !== '' || $filters['group'] !== '';
+        $hasFilters = $filters['search'] !== '';
     @endphp
 
     <div class="space-y-6">
@@ -45,34 +45,19 @@
                         <input type="hidden" name="direction" value="{{ $filters['direction'] }}">
 
                         <div class="relative">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
                             <input type="text" name="search" value="{{ $filters['search'] }}" placeholder="Search name or group..."
-                                   class="w-full sm:w-56 pl-8 pr-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                   class="w-full sm:w-56 pl-7 pr-3 py-1.5 text-xs dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
                         </div>
 
-                        <select name="group" onchange="this.form.submit()"
-                                class="px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all cursor-pointer">
-                            <option value="">All groups</option>
-                            @foreach($groups as $groupOption)
-                                <option value="{{ $groupOption }}" {{ $filters['group'] === $groupOption ? 'selected' : '' }}>{{ $groupOption ?: 'General' }}</option>
-                            @endforeach
-                        </select>
-
-                        <select name="per_page" onchange="this.form.submit()"
-                                class="px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all cursor-pointer">
-                            @foreach([10, 20, 50, 100] as $size)
-                                <option value="{{ $size }}" {{ $filters['per_page'] === $size ? 'selected' : '' }}>{{ $size }} / page</option>
-                            @endforeach
-                        </select>
-
                         <button type="submit"
-                                class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                                class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
                             Search
                         </button>
 
                         @if($hasFilters)
                             <a href="{{ route('admin.permission.index') }}"
-                               class="px-4 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer">
+                               class="px-3 py-1.5 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer">
                                 Reset
                             </a>
                         @endif
