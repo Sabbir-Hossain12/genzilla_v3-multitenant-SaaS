@@ -100,10 +100,31 @@ class PlatformSeeder extends Seeder
         // 6. Platform Plans
         $plans = [
             [
+                'name' => 'Trial',
+                'slug' => 'trial',
+                'monthly_price' => 0.00,
+                'yearly_price' => 0.00,
+                'stripe_monthly_price_id' => null,
+                'stripe_yearly_price_id' => null,
+                'max_products' => 10,
+                'max_staff_accounts' => 1,
+                'max_storage_mb' => 50,
+                'max_digital_file_size_mb' => 5,
+                'allow_custom_domain' => false,
+                'has_multi_currency' => false,
+                'max_currencies_supported' => 1,
+                'has_advanced_reporting' => false,
+                'has_custom_rbac' => false,
+                'has_audit_logs' => false,
+                'status' => 1,
+            ],
+            [
                 'name' => 'Starter',
                 'slug' => 'starter',
                 'monthly_price' => 29.00,
                 'yearly_price' => 290.00,
+                'stripe_monthly_price_id' => null, // Replace with your Stripe Price ID
+                'stripe_yearly_price_id' => null,  // Replace with your Stripe Price ID
                 'max_products' => 50,
                 'max_staff_accounts' => 1,
                 'max_storage_mb' => 100,
@@ -121,6 +142,8 @@ class PlatformSeeder extends Seeder
                 'slug' => 'growth',
                 'monthly_price' => 79.00,
                 'yearly_price' => 790.00,
+                'stripe_monthly_price_id' => null, // Replace with your Stripe Price ID
+                'stripe_yearly_price_id' => null,  // Replace with your Stripe Price ID
                 'max_products' => 200,
                 'max_staff_accounts' => 5,
                 'max_storage_mb' => 500,
@@ -138,6 +161,8 @@ class PlatformSeeder extends Seeder
                 'slug' => 'enterprise',
                 'monthly_price' => 199.00,
                 'yearly_price' => 1990.00,
+                'stripe_monthly_price_id' => null, // Replace with your Stripe Price ID
+                'stripe_yearly_price_id' => null,  // Replace with your Stripe Price ID
                 'max_products' => 1000,
                 'max_staff_accounts' => 20,
                 'max_storage_mb' => 2000,
@@ -151,6 +176,7 @@ class PlatformSeeder extends Seeder
                 'status' => 1,
             ],
         ];
+
         foreach ($plans as $plan) {
             PlatformPlan::updateOrCreate(['slug' => $plan['slug']], $plan);
         }
