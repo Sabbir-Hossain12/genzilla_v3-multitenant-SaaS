@@ -30,12 +30,12 @@ import { openMobileNav } from '@/composables/platform/usePlatformUi'
             </nav>
 
             <div class="hidden lg:flex items-center gap-3">
-                <Link
-                    :href="route('login')"
+                <a
+                    :href="route('store.admin.login')"
                     class="text-[14.5px] font-semibold text-gray-700 hover:text-ink transition-colors px-2"
                 >
                     Log in
-                </Link>
+                </a>
                 <Link
                     :href="route('register')"
                     class="bg-primary hover:bg-primarydark text-white text-[14.5px] font-semibold px-5 py-2.5 rounded-xl transition-colors"

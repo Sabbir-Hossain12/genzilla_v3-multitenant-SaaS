@@ -1,104 +1,91 @@
-@extends('backend.layout.master')
-
-@push('backendCss')
-    {{--    <meta name="csrf_token" content="{{ csrf_token() }}" />--}}
-
-    <link href="{{asset('backend')}}/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css"
-          rel="stylesheet" type="text/css">
-    <link href="{{asset('backend')}}/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css"
-          rel="stylesheet" type="text/css">
-
-@endpush
+@extends('platform_admin.layout.master')
 
 @section('contents')
-
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                {{--                <h4 class="mb-sm-0 font-size-18">Assign Permissions to Role</h4>--}}
-
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Pages</a></li>
-                        <li class="breadcrumb-item active">Roles</li>
-                    </ol>
-                </div>
-
+    <div class="space-y-6">
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight dark:text-white">Assign Permissions</h1>
+                <p class="text-sm text-slate-500 mt-0.5">Permissions for <span class="font-semibold text-indigo-600">{{ $role->name }}</span></p>
             </div>
+            <a href="{{ route('admin.role.index') }}"
+               class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors gap-2 cursor-pointer">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+                <span>Back to Roles</span>
+            </a>
         </div>
-    </div>
 
-    {{-- Table Starts--}}
+        <!-- Main Card Container -->
+        <form action="{{ route('admin.role.permission.update', $role->id) }}" method="POST" class="space-y-6">
+            @csrf
+            @method('PUT')
 
-    <div class="row">
-        <div class="col-lg-12">
-            @if(Session::has('error_message'))
-                <div class="alert alert-danger alert-dismissible" role="alert">
-                    {{Session::get('error_message')}}
-                </div>
-            @endif
-            @if(Session::has('success_message'))
-                <div class="alert alert-success alert-dismissible" role="alert">
-                    {{Session::get('success_message')}}
-                </div>
-            @endif
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">Add Permissions to Role: <span
-                                    class="fw-bolder text-primary">{{$role->name}}</span></h4>
-
-                    </div>
-
-                </div>
-                <div class="card-body">
-                    @foreach($permissions as $permission)
-                    <form action="{{route('role.permission.update',$role->id)}}" method="post">
-                        @csrf
-                        @method('PUT')
-
-                            <div class="col-md-6">
-
-                                <div>
-
-
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" @checked($role->hasPermissionTo($permission->name)) name="permissions[]" type="checkbox"
-                                               id="formCheck1_{{ $permission->id }}" value="{{$permission->name}}">
-                                        <label class="form-check-label" for="formCheck1_{{ $permission->id }}">
-                                            {{$permission->name}}
-                                        </label>
-                                    </div>
-
-
-                                </div>
-                            </div>
-
-                        @endforeach
-
-                        <div class="mt-4 d-flex justify-content-end">
-                            <button class="btn btn-lg btn-primary" type="submit">Update</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @forelse($permissionGroups as $groupName => $permissions)
+                    @php($groupKey = 'group-'.$loop->index)
+                    <div class="card p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <h6 class="text-xs font-bold uppercase tracking-wider text-slate-600">{{ $groupName ?: 'General' }}</h6>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-500">
+                                <input type="checkbox" class="group-toggle rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                       data-group="{{ $groupKey }}">
+                                <span>Select all</span>
+                            </label>
                         </div>
-                    </form>
-
-
-                </div>
-                <!-- end card body -->
+                        <hr class="border-slate-100 mb-3">
+                        <div class="space-y-2.5">
+                            @foreach($permissions as $permission)
+                                <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
+                                           data-group-member="{{ $groupKey }}"
+                                           @checked($role->hasPermissionTo($permission->name))
+                                           class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                    <span>{{ $permission->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                @empty
+                    <div class="md:col-span-2 card p-12 text-center text-slate-400 text-sm">No permissions defined yet.</div>
+                @endforelse
             </div>
-            <!-- end card -->
-        </div>
-        <!-- end col -->
+
+            <div class="flex items-center justify-end">
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm transition-colors cursor-pointer">
+                    <i class="fa-solid fa-floppy-disk text-xs"></i>
+                    <span>Update Permissions</span>
+                </button>
+            </div>
+        </form>
     </div>
 
+    <script>
+        function syncGroupToggle(group) {
+            const members = Array.from(document.querySelectorAll('input[data-group-member="' + group + '"]'));
+            const toggle = document.querySelector('.group-toggle[data-group="' + group + '"]');
+            if (toggle) {
+                toggle.checked = members.length > 0 && members.every(m => m.checked);
+            }
+        }
+
+        document.querySelectorAll('.group-toggle').forEach(function (toggle) {
+            toggle.addEventListener('change', function () {
+                const group = this.dataset.group;
+                document.querySelectorAll('input[data-group-member="' + group + '"]').forEach(function (cb) {
+                    cb.checked = toggle.checked;
+                });
+            });
+        });
+
+        document.querySelectorAll('input[data-group-member]').forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                syncGroupToggle(this.dataset.groupMember);
+            });
+        });
+
+        document.querySelectorAll('.group-toggle').forEach(function (toggle) {
+            syncGroupToggle(toggle.dataset.group);
+        });
+    </script>
 @endsection
-
-@push('backendJs')
-
-
-@endpush

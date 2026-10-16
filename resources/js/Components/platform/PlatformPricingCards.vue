@@ -13,6 +13,7 @@ defineProps({
     plans: { type: Array, default: () => [] },
     yearly: { type: Boolean, default: false },
 })
+
 </script>
 
 <template>
@@ -50,9 +51,9 @@ defineProps({
             </p>
             <p class="text-[12.5px] text-gray-400 mt-1 mb-6">{{ plan.fee }}</p>
 
-            <Link
+            <a
                 v-if="plan.ctaTo"
-                :href="plan.ctaTo"
+                :href="route('store.admin.register', { plan: plan.slug, interval: yearly ? 'yearly' : 'monthly' })"
                 class="block text-center font-semibold text-[14px] py-3 rounded-xl transition-colors mb-6"
                 :class="
                     plan.featured
@@ -61,7 +62,7 @@ defineProps({
                 "
             >
                 {{ plan.ctaLabel }}
-            </Link>
+            </a>
             <span
                 v-else
                 class="block text-center border border-gray-300 text-gray-400 font-semibold text-[14px] py-3 rounded-xl mb-6 cursor-default"

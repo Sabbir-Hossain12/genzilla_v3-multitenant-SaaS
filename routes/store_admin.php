@@ -1,187 +1,77 @@
 <?php
-//
-//use App\Http\Controllers\Backend\PlatformAdminController;
-//use App\Http\Controllers\Backend\AdminPermissionController;
-//use App\Http\Controllers\Backend\AdminRoleController;
-//use App\Http\Controllers\Backend\AttributeController;
-//use App\Http\Controllers\Backend\AttrvalueController;
-//use App\Http\Controllers\Backend\Auth\LoginController;
-//use App\Http\Controllers\Backend\Auth\RegisterController;
-//use App\Http\Controllers\Backend\BannerController;
-//use App\Http\Controllers\Backend\BasicinfoController;
-//use App\Http\Controllers\Backend\BrandsController;
-//use App\Http\Controllers\Backend\CategoryController;
-//use App\Http\Controllers\Backend\CouponController;
-//use App\Http\Controllers\Backend\DashboardController;
-//use App\Http\Controllers\Backend\DeliveryChargeController;
-//use App\Http\Controllers\Backend\OrderController;
-//use App\Http\Controllers\Backend\PagesController;
-//use App\Http\Controllers\Backend\ProductsController;
-//use App\Http\Controllers\Backend\ProfileController;
-//use App\Http\Controllers\Backend\ReportController;
-//use App\Http\Controllers\Backend\ReviewController;
-//use App\Http\Controllers\Backend\SliderController;
-//use App\Http\Controllers\Backend\SubcategoryController;
-//use App\Http\Controllers\Backend\ThemeColorController;
-//use App\Http\Controllers\Backend\UserController;
-//use Illuminate\Support\Facades\Route;
-//
-////Admin Auth Routes
-//Route::prefix('admin')->group(function () {
-//    Route::get('register', [RegisterController::class, 'create'])
-//        ->name('admin.register');
-//
-//    Route::post('register', [RegisterController::class, 'store'])->name('admin.register.store');
-//
-//    Route::get('login', [LoginController::class, 'create'])
-//        ->name('admin.login');
-//
-//    Route::post('login', [LoginController::class, 'store'])->name('admin.login.store');
-//
-//});
-//
-//Route::prefix('admin')->middleware('admin')->group(function () {
-//
-//
-//    Route::post('logout', [LoginController::class, 'destroy'])
-//        ->name('admin.logout');
-//});
-//
-//
-////______ Admin Panel Starts _____//
-//
-//Route::prefix('admin')->middleware('admin')->group(function () {
-//
-//    //______ Dashboard _____//
-//    Route::resource('/dashboard', DashboardController::class)->names('admin.dashboard');
-//
-//    //______ Admins _____//
-//    Route::resource('/admins', PlatformAdminController::class)->names('admin.admins');
-//    Route::post('/change-admin-status', [PlatformAdminController::class, 'changeAdminStatus'])->name('admin.status');
-//    Route::get('/data', [PlatformAdminController::class, 'getData'])->name('admin.data');
-//
-//    //______ Role and Permission _____//
-//    Route::resource('/roles', AdminRoleController::class)->names('admin.role');
-//    Route::resource('/permissions', AdminPermissionController::class)->names('admin.permission');
-//    Route::get('/roles-data', [AdminRoleController::class, 'getData'])->name('admin.role.data');
-//    Route::get('/permissions-data', [AdminPermissionController::class, 'getData'])->name('admin.permission.data');
-//
-//    Route::get('/assign-permission-page/{id}', [AdminRoleController::class, 'assignPermissionsToRolePage'])->name('role.permission.edit');
-//    Route::put('role/{id}/permission/update', [AdminRoleController::class, 'assignPermissionsToRole'])->name('role.permission.update');
-//
-//
-//    //______ Users _____//
-//    Route::resource('/users', UserController::class)->names('admin.user');
-//    Route::get('/users-data', [UserController::class, 'getData'])->name('user.data');
-//
-//
-//    //______ Sliders _____//
-//    Route::resource('/sliders', SliderController::class)->names('admin.slider');
-//
-//
-//    //______ Banners _____//
-//    Route::resource('/banners', BannerController::class)->names('admin.banner');
-//
-//
-//    //______ Category _____//
-//    Route::resource('/categories', CategoryController::class)->names('admin.category');
-//    Route::get('/category-data', [CategoryController::class, 'getData'])->name('admin.category-data');
-//    Route::post('/categories/front-status', [CategoryController::class, 'changeCategoryFrontStatus'])->name('admin.category.frontStatus');
-//    Route::post('/categories/topCategory-status', [CategoryController::class, 'changeTopCategoryStatus'])->name('admin.category.topCategoryStatus');
-//    Route::post('/categories/status', [CategoryController::class, 'changeCategoryStatus'])->name('admin.category.status');
-//    Route::get('/categories/edit/{id}', [CategoryController::class, 'categoryEdit'])->name('category.edit');
-//    Route::get('/get-subcategory/{category}', [CategoryController::class, 'getSubCategories'])->name('admin.get.subcategory');
-//
-//    //______ Subcategory _____//
-//    Route::resource('/subcategories', SubcategoryController::class)->names('admin.subcategory');
-//    Route::get('/subcategory-data', [SubcategoryController::class, 'getData'])->name('admin.subcategory-data');
-//    Route::post('/subcategory/status', [SubcategoryController::class, 'changeSubCategoryStatus'])->name('admin.subcategory.status');
-//    Route::get('/subcategory/edit/{id}', [SubcategoryController::class, 'subCategoryEdit'])->name('subcategory.edit');
-//
-//
-//    //______ Brand _____//
-//    Route::resource('/brands', BrandsController::class)->names('admin.brand');
-//    Route::get('/brand-data', [BrandsController::class, 'getData'])->name('admin.brand-data');
-//    Route::post('/change-brand-status', [BrandsController::class, 'changeBrandStatus'])->name('admin.brand.status');
-//
-//    //______ Product _____//
-//    Route::resource('/products', ProductsController::class)->names('admin.product');
-//    Route::get('/product-data', [ProductsController::class, 'getData'])->name('admin.product-data');
-//    Route::get('/weight-variant-info', [ProductsController::class, 'weightVariantInfo'])->name('admin.weight-variant-info');
-//    Route::get('/color-variant-info', [ProductsController::class, 'colorVariantInfo'])->name('admin.weight-variant-info');
-//    Route::get('/size-variant-info', [ProductsController::class, 'sizeVariantInfo'])->name('admin.weight-variant-info');
-//
-//    Route::post('/change-product-status', [ProductsController::class, 'statusUpdate'])->name('admin.product.status');
-//    Route::post('/change-product-featured-status', [ProductsController::class, 'featuredStatusUpdate'])->name('admin.product.featuredStatus');
-//    Route::post('/change-product-hot-status', [ProductsController::class, 'hotStatusUpdate'])->name('admin.product.hotStatus');
-//    Route::post('/change-product-popular-status', [ProductsController::class, 'popularStatusUpdate'])->name('admin.product.popularStatus');
-//
-//    Route::post('/upload-ckeditor-image', [ProductsController::class, 'uploadCkeditorImage'])->name('admin.ckeditor.upload');
-//
-//    //______ Orders _____//
-//    Route::resource('/orders', OrderController::class)->names('admin.order');
-//
-//    Route::get('/order-all-data', [OrderController::class, 'orderAllData'])->name('admin.order.all.data');
-//    Route::get('/order/{status}', [OrderController::class, 'orderStatusData'])->name('admin.order.status.data');
-//    Route::post('/order-status-change', [OrderController::class, 'orderStatusChange'])->name('admin.order.status.change');
-//    Route::post('/order-payment-status-change', [OrderController::class, 'orderPaymentStatusChange'])->name('admin.payment.status.change');
-//
-//    //____Invoice and Print Invoice___//
-//    Route::get('/order-invoice/{id}', [OrderController::class, 'orderInvoice'])->name('admin.order.invoice');
-//
-//    Route::post('/change-order-status', [OrderController::class, 'changeOrderStatus'])->name('admin.order.status');
-//
-//    //______ Sliders _____//
-//    Route::resource('/sliders', SliderController::class)->names('admin.slider');
-//    Route::get('/slider-data', [SliderController::class, 'getData'])->name('admin.slider-data');
-//    Route::post('/change-slider-status', [SliderController::class, 'changeSliderStatus'])->name('admin.slider.status');
-//
-//    //______ Banners _____//
-//    Route::resource('/banners', BannerController::class)->names('admin.banner');
-//    Route::get('/banners-data', [BannerController::class, 'getData'])->name('admin.banner-data');
-//    Route::post('/change-banners-status', [BannerController::class, 'changeBannerStatus'])->name('admin.banner.status');
-//
-//
-//    //______ Attribute _____//
-//    Route::resource('/attributes', AttributeController::class)->names('admin.attribute');
-//    Route::get('/attribute-data', [AttributeController::class, 'getData'])->name('admin.attribute-data');
-//
-//    //______ Attribute Value _____//
-//    Route::resource('/attribute-values', AttrvalueController::class)->names('admin.attribute-value');
-//    Route::get('/attribute-values-data', [AttrvalueController::class, 'getData'])->name('admin.attrvalue-data');
-//
-//
-//    //______ Profile _____//
-//    Route::get('/profiles', [ProfileController::class, 'create'])->name('admin.profile');
-//    Route::post('/check-current-pass', [ProfileController::class, 'check_curr_pass']);
-//    Route::post('/update-password', [ProfileController::class, 'update_password']);
-//    Route::post('/update-admin-details', [ProfileController::class, 'update_admin_info']);
-//
-//
-//    //______ Pages _____//
-//    Route::resource('/pages', PagesController::class)->names('admin.pages');
-//    Route::post('/change-pages-status', [PagesController::class, 'changePagesStatus']);
-//
-//    //______ Coupon _____//
-//    Route::resource('/coupons', CouponController::class)->names('admin.coupons');
-//    Route::get('/coupon-data', [CouponController::class, 'getData'])->name('admin.coupon-data');
-//    Route::post('/change-coupon-status', [CouponController::class, 'changeCouponStatus'])->name('admin.coupon.status');
-//
-//    //______ Settings _____//
-//    Route::resource('/basic-info', BasicinfoController::class)->names('admin.basic');
-//    Route::resource('/delivery-charges', DeliveryChargeController::class)->names('admin.delivery');
-//    Route::post('/change-delivery-status', [DeliveryChargeController::class, 'changeDeliveryStatus'])->name('admin.delivery.status');
-//
-//    //______ Review _____//
-//    Route::resource('/reviews', ReviewController::class)->names('admin.reviews');
-//    Route::get('/review-data', [ReviewController::class, 'getData'])->name('admin.review-data');
-//    Route::post('/change-review-status', [ReviewController::class, 'changeReviewStatus'])->name('admin.review.status');
-//
-//    //______ Theme Color _____//
-//    Route::resource('/theme-colors', ThemeColorController::class)->names('admin.theme');
-//
-//    //______Report_________//
-//    Route::get('/sales-report', [ReportController::class, 'salesReport'])->name('admin.sales.report');
-//    Route::get('/category-sales-report', [ReportController::class, 'categorySalesReport'])->name('admin.category-sales.report');
-//
-//});
+
+use App\Http\Controllers\Platform\Admin\AdminPermissionController;
+use App\Http\Controllers\Platform\Admin\AdminRoleController;
+use App\Http\Controllers\Platform\Admin\AuthController;
+use App\Http\Controllers\Platform\Admin\DashboardController;
+use App\Http\Controllers\Platform\Admin\PlatformAdminController;
+use App\Http\Controllers\Platform\Admin\PlatformBlogCategoryController;
+use App\Http\Controllers\Platform\Admin\PlatformBlogPostController;
+use App\Http\Controllers\Platform\Admin\PlatformContactController;
+use App\Http\Controllers\Platform\Admin\PlatformFaqController;
+use App\Http\Controllers\Platform\Admin\PlatformFeatureController;
+use App\Http\Controllers\Platform\Admin\PlatformHeroController;
+use App\Http\Controllers\Platform\Admin\PlatformMatrixController;
+use App\Http\Controllers\Platform\Admin\PlatformNewsletterSubscriberController;
+use App\Http\Controllers\Platform\Admin\PlatformPageController;
+use App\Http\Controllers\Platform\Admin\PlatformPlanController;
+use App\Http\Controllers\Platform\Admin\PlatformProfileController;
+use App\Http\Controllers\Platform\Admin\PlatformSettingController;
+use App\Http\Controllers\Platform\Admin\PlatformStepController;
+use App\Http\Controllers\Platform\Admin\PlatformStoreDemoController;
+use App\Http\Controllers\Platform\Admin\PlatformTestimonialController;
+use App\Http\Controllers\Platform\Admin\PlatformUseCaseController;
+use App\Http\Controllers\Platform\Admin\TenantDomainController;
+use App\Http\Controllers\Platform\Admin\TenantInvoiceController;
+use App\Http\Controllers\Platform\Admin\TenantSubscriptionController;
+use App\Http\Controllers\Platform\Admin\TenantUsageController;
+use App\Http\Controllers\Store\Admin\StoreAdminAuthController;
+
+Route::domain(config('app.base_domain'))->prefix('store')->name('store.')->group(function () {
+    Route::get('login', [StoreAdminAuthController::class, 'loginPage'])->name('admin.login');
+    Route::post('login', [StoreAdminAuthController::class, 'login'])->name('admin.login.store');
+
+    Route::get('/register', [StoreAdminAuthController::class, 'registerPage'])->name('admin.register');
+    Route::post('/register', [StoreAdminAuthController::class, 'register'])->name('admin.register.store');
+
+    // Admin Panel Protected Routes
+    Route::middleware(['auth', 'permission:Platform Admin Dashboard'])->group(function () {
+        Route::post('logout', [StoreAdminAuthController::class, 'logout'])->name('admin.logout');
+
+        // Dashboard
+        Route::resource('/dashboard', DashboardController::class)->names('admin.dashboard');
+
+        // Profile
+        Route::get('/profile', [PlatformProfileController::class, 'edit'])->name('admin.profile.edit');
+        Route::put('/profile', [PlatformProfileController::class, 'update'])->name('admin.profile.update');
+        Route::put('/profile/password', [PlatformProfileController::class, 'updatePassword'])->name('admin.profile.password');
+
+        // Admins
+        Route::get('/admins', [PlatformAdminController::class, 'index'])->name('admin.admins.index')->middleware('permission:Admin List');
+        Route::post('/admins', [PlatformAdminController::class, 'store'])->name('admin.admins.store')->middleware('permission:Create Admin');
+        Route::get('/admins/{admin}/edit', [PlatformAdminController::class, 'edit'])->name('admin.admins.edit')->middleware('permission:Edit Admin');
+        Route::put('/admins/{admin}', [PlatformAdminController::class, 'update'])->name('admin.admins.update')->middleware('permission:Edit Admin');
+        Route::delete('/admins/{admin}', [PlatformAdminController::class, 'destroy'])->name('admin.admins.destroy')->middleware('permission:Delete Admin');
+        Route::post('/change-admin-status', [PlatformAdminController::class, 'changeAdminStatus'])->name('admin.status')->middleware('permission:Status Admin');
+
+        // Roles
+        Route::get('/roles', [AdminRoleController::class, 'index'])->name('admin.role.index')->middleware('permission:Role List');
+        Route::post('/roles', [AdminRoleController::class, 'store'])->name('admin.role.store')->middleware('permission:Role Create');
+        Route::put('/roles/{role}', [AdminRoleController::class, 'update'])->name('admin.role.update')->middleware('permission:Edit Role');
+        Route::delete('/roles/{role}', [AdminRoleController::class, 'destroy'])->name('admin.role.destroy')->middleware('permission:Delete Role');
+        Route::get('/roles/{role}/permissions', [AdminRoleController::class, 'assignPermissionsToRolePage'])->name('admin.role.permission.edit')->middleware('permission:Assign Permission');
+        Route::put('/roles/{role}/permissions', [AdminRoleController::class, 'assignPermissionsToRole'])->name('admin.role.permission.update')->middleware('permission:Assign Permission');
+
+        // Permissions
+        Route::get('/permissions', [AdminPermissionController::class, 'index'])->name('admin.permission.index')->middleware('permission:Permission List');
+        Route::post('/permissions', [AdminPermissionController::class, 'store'])->name('admin.permission.store')->middleware('permission:Create Permission');
+        Route::delete('/permissions/bulk', [AdminPermissionController::class, 'bulkDestroy'])->name('admin.permission.bulk-destroy')->middleware('permission:Delete Permission');
+        Route::put('/permissions/{permission}', [AdminPermissionController::class, 'update'])->name('admin.permission.update')->middleware('permission:Edit Permission');
+        Route::delete('/permissions/{permission}', [AdminPermissionController::class, 'destroy'])->name('admin.permission.destroy')->middleware('permission:Delete Permission');
+
+        // Platform Settings
+        Route::get('/settings', [PlatformSettingController::class, 'index'])->name('admin.settings.index')->middleware('permission:General Setting');
+        Route::put('/settings', [PlatformSettingController::class, 'update'])->name('admin.settings.update')->middleware('permission:Edit Setting');
+
+    });
+});

@@ -1,455 +1,271 @@
-@extends('backend.layout.master')
-
-@push('backendCss')
-    {{--    <meta name="csrf_token" content="{{ csrf_token() }}" />--}}
-
-    <link href="{{asset('backend')}}/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css"
-          rel="stylesheet" type="text/css">
-    <link href="{{asset('backend')}}/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css"
-          rel="stylesheet" type="text/css">
-
-@endpush
+@extends('platform_admin.layout.master')
 
 @section('contents')
-
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Admins</h4>
-
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Pages</a></li>
-                        <li class="breadcrumb-item active">Admins</li>
-                    </ol>
-                </div>
-
+    <div class="space-y-6">
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight dark:text-white">Admin Users</h1>
+                <p class="text-sm text-slate-500 mt-0.5">Manage platform administrators, their roles, and account access.</p>
             </div>
+            @can('Create Admin')
+                <button type="button" onclick="openModal('createAdminModal')"
+                        class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg shadow-sm transition-all gap-2 cursor-pointer">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Create Admin</span>
+                </button>
+            @endcan
+        </div>
+
+        <!-- Main Card Container -->
+        <div class="card overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 gap-4 flex-wrap">
+                <div>
+                    <h2 class="font-bold text-ink dark:text-white">Admins</h2>
+                </div>
+                <form action="{{ route('admin.admins.index') }}" method="GET" class="flex items-center gap-2">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search name or email..."
+                           class="w-56 px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                        Search
+                    </button>
+                </form>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm table-auto">
+                    <thead>
+                    <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40">
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-40">#</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-50">Name</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 W-70">Email</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-60">Role</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-40">Status</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-40">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($admins as $key => $admin)
+                        <tr class="trow border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 transition-colors">
+                            <td class="px-4 py-3.5 w-16 text-slate-500 dark:text-slate-400">{{ $admins->firstItem() + $key }}</td>
+                            <td class="px-4 py-3.5 w-48 truncate font-semibold text-slate-900 dark:text-white">{{ $admin->name }}</td>
+                            <td class="px-4 py-3.5 truncate">
+                                <a href="mailto:{{ $admin->email }}" class="text-indigo-600 hover:underline font-medium">{{ $admin->email }}</a>
+                            </td>
+                            <td class="px-4 py-3.5 w-44">
+                                <div class="flex items-center gap-1 flex-wrap">
+                                    @forelse($admin->getRoleNames() as $role)
+                                        <span class="px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200/60">{{ $role }}</span>
+                                    @empty
+                                        <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">No role</span>
+                                    @endforelse
+                                </div>
+                            </td>
+                            <td class="px-4 py-3.5 text-center w-28">
+                                @can('Status Admin')
+                                    <form action="{{ route('admin.status', $admin->id) }}" method="POST" class="inline-flex justify-center">
+                                        @csrf
+                                        <label class="relative inline-flex items-center cursor-pointer" title="Toggle status">
+                                            <input type="checkbox" class="sr-only peer" onchange="this.form.submit()" {{ $admin->status == 1 ? 'checked' : '' }}>
+                                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                                        </label>
+                                    </form>
+                                @else
+                                    @if($admin->status)
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            Active
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/60">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                            Inactive
+                                        </span>
+                                    @endif
+                                @endcan
+                            </td>
+                            <td class="px-4 py-3.5 text-center w-28">
+                                <div class="inline-flex items-center gap-1.5">
+                                    @can('Edit Admin')
+                                        <button type="button" onclick="openModal('editAdminModal{{ $admin->id }}')"
+                                                class="p-2 text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer"
+                                                title="Edit Admin">
+                                            <i class="fa-solid fa-pen text-xs"></i>
+                                        </button>
+                                    @endcan
+
+                                    @can('Delete Admin')
+                                        <form action="{{ route('admin.admins.destroy', $admin->id) }}" method="POST"
+                                              class="inline" onsubmit="return confirm('Delete this admin user?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="p-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                                    title="Delete Admin">
+                                                <i class="fa-solid fa-trash text-xs"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Edit Modal -->
+                        @can('Edit Admin')
+                            <div id="editAdminModal{{ $admin->id }}"
+                                 class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+                                <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100 transform transition-all max-h-[90vh] flex flex-col">
+                                    <form method="POST" action="{{ route('admin.admins.update', $admin->id) }}" class="flex flex-col h-full overflow-hidden">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+                                            <h3 class="text-base font-bold text-slate-900">Edit Admin: {{ $admin->name }}</h3>
+                                            <button type="button" onclick="closeModal('editAdminModal{{ $admin->id }}')"
+                                                    class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
+                                                <i class="fa-solid fa-xmark text-lg"></i>
+                                            </button>
+                                        </div>
+                                        <div class="p-6 space-y-4 overflow-y-auto flex-1">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Name</label>
+                                                    <input type="text" name="name" value="{{ old('name', $admin->name) }}" required
+                                                           class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Email</label>
+                                                    <input type="email" name="email" value="{{ old('email', $admin->email) }}" required
+                                                           class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Role</label>
+                                                    <select name="role" required
+                                                            class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all cursor-pointer">
+                                                        <option value="" disabled>Select a role</option>
+                                                        @foreach($roles as $role)
+                                                            <option value="{{ $role->name }}" {{ $admin->hasRole($role->name) ? 'selected' : '' }}>{{ $role->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Password <span class="text-slate-400 normal-case tracking-normal">(blank to keep)</span></label>
+                                                    <input type="password" name="password" minlength="6"
+                                                           class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100 shrink-0">
+                                            <button type="button" onclick="closeModal('editAdminModal{{ $admin->id }}')"
+                                                    class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                                                Close
+                                            </button>
+                                            <button type="submit"
+                                                    class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm transition-colors cursor-pointer">
+                                                <i class="fa-solid fa-floppy-disk text-xs"></i>
+                                                <span>Update Admin</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        @endcan
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-slate-400 py-12 text-sm">No admin users found.</td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if($admins->hasPages())
+                <div class="px-5 py-4 border-t border-slate-100 dark:border-slate-800">
+                    {{ $admins->withQueryString()->links() }}
+                </div>
+            @endif
         </div>
     </div>
 
-    {{-- Table Starts--}}
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">Admins List</h4>
-{{--                       @can('Create Admin')--}}
-                       @if(Auth::guard('admin')->user()->can('Create Admin'))
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAdminModal">
-                                Create Admin
-                            </button>
-{{--                        @endcan--}}
-                        @endif
+    <!-- Create Modal -->
+    @can('Create Admin')
+        <div id="createAdminModal"
+             class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100 transform transition-all max-h-[90vh] flex flex-col">
+                <form method="POST" action="{{ route('admin.admins.store') }}" class="flex flex-col h-full overflow-hidden">
+                    @csrf
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+                        <h3 class="text-base font-bold text-slate-900">Create New Admin</h3>
+                        <button type="button" onclick="closeModal('createAdminModal')"
+                                class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
+                            <i class="fa-solid fa-xmark text-lg"></i>
+                        </button>
                     </div>
-
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table mb-0  nowrap w-100 dataTable no-footer dtr-inline" id="adminTable">
-                            <thead>
-                            <tr>
-                                <th>SL</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Status</th>
-
-
-                                <th>Actions</th>
-
-                            </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table>
+                    <div class="p-6 space-y-4 overflow-y-auto flex-1">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Name</label>
+                                <input type="text" name="name" value="{{ old('name') }}" required placeholder="John Doe"
+                                       class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Email</label>
+                                <input type="email" name="email" value="{{ old('email') }}" required placeholder="john@example.com"
+                                       class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Role</label>
+                                <select name="role" required
+                                        class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all cursor-pointer">
+                                    <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select a role</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>{{ $role->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Password</label>
+                                <input type="password" name="password" minlength="6" required
+                                       class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                            </div>
+                        </div>
                     </div>
-
-                </div>
-                <!-- end card body -->
-            </div>
-            <!-- end card -->
-        </div>
-        <!-- end col -->
-    </div>
-
-    {{--    Table Ends--}}
-
-    {{--    Create Categories Modal--}}
-    <div class="modal fade" id="createAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-         style="display: none;" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Create Admin</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form name="form" id="createAdmin">
-                        @csrf
-
-                        <div class="mb-3">
-                            <label for="Name" class="col-form-label">Name</label>
-                            <input type="text" class="form-control" id="Name" name="name">
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="col-form-label">Email</label>
-                            <input type="text" class="form-control" id="email" name="email">
-                        </div>
-                        <div class="mb-3">
-                            <label for="phone" class="col-form-label">Phone</label>
-                            <input type="text" class="form-control" id="phone" name="phone">
-                        </div>
-                        <div class="mb-3">
-                            <label for="type" class="col-form-label">Role</label>
-                            <input type="text" class="form-control" name="type" id="type">
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="col-form-label">Password</label>
-                            <input type="password" class="form-control" name="password" id="password">
-                        </div>
-
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100 shrink-0">
+                        <button type="button" onclick="closeModal('createAdminModal')"
+                                class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                            Close
+                        </button>
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm transition-colors cursor-pointer">
+                            <i class="fa-solid fa-floppy-disk text-xs"></i>
+                            <span>Save Admin</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
+    @endcan
 
-    {{--    Edit Categories Modal--}}
-    <div class="modal fade" id="editAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-         style="display: none;" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Edit Admin</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form name="form2" id="editAdmin">
-                        @csrf
-                        @method('PUT')
-                        <div class="mb-3">
-                            <label for="eName" class="col-form-label">Name</label>
-                            <input type="text" id="eName" class="form-control" name="name">
-                        </div>
-                        <div class="mb-3">
-                            <label for="eEmail" class="col-form-label">Email</label>
-                            <input type="text" id="eEmail" class="form-control" name="email">
-                        </div>
-                        <div class="mb-3">
-                            <label for="ePhone" class="col-form-label">Phone</label>
-                            <input type="text" id="ePhone" class="form-control" name="phone">
-                        </div>
-                        <div class="mb-3">
-                            <label for="eType" class="col-form-label">Roles</label>
-                            <select name="role" id="rolesId" class="form-control">
-
-
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ePassword" class="col-form-label">Password</label>
-                            <input type="password" id="ePassword" class="form-control" name="password">
-                        </div>
-                        <input id="id" type="number" hidden>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
-
-@push('backendJs')
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{asset('backend')}}/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="{{asset('backend')}}/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-
+    <!-- Modal Handlers Script -->
     <script>
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
 
-        $(document).ready(function () {
-
-
-            var token = $("input[name='_token']").val();
-
-            //Show Data through Datatable
-            let adminTable = $('#adminTable').DataTable({
-                order: [
-                    [0, 'asc']
-                ],
-                processing: true,
-                serverSide: true,
-                {{--ajax: "{{url('/admin/data')}}",--}}
-                ajax: "{{route('admin.data')}}",
-                // pageLength: 30,
-
-                columns: [
-                    {
-                        data: 'id',
-
-
-                    },
-                    {
-                        data: 'name',
-
-                    },
-                    {
-                        data: 'email',
-
-                    },
-                    {
-                        data:'role'
-                    },
-                    {
-                        data: 'status',
-                        name: 'Status',
-                        orderable: false,
-                        searchable: false,
-                    },
-
-                    {
-                        data: 'action',
-                        name: 'Actions',
-                        orderable: false,
-                        searchable: false
-                    },
-
-                ]
-            });
-
-
-            // Create Admin
-            $('#createAdmin').submit(function (e) {
-                e.preventDefault();
-
-                let formData = new FormData(this);
-
-                $.ajax({
-                    type: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    url: "{{ route('admin.admins.store') }}",
-                    data: formData,
-                    processData: false,  // Prevent jQuery from processing the data
-                    contentType: false,  // Prevent jQuery from setting contentType
-                    success: function (res) {
-                        if (res.message === 'success') {
-                            $('#createAdminModal').modal('hide');
-                            $('#createAdmin')[0].reset();
-                            adminTable.ajax.reload()
-                            swal.fire({
-                                title: "Success",
-                                text: "Admin Created !",
-                                icon: "success"
-                            })
-
-
-                        }
-                    },
-                    error: function (err) {
-                        console.error('Error:', err);
-                        swal.fire({
-                            title: "Failed",
-                            text: "Something Went Wrong !",
-                            icon: "error"
-                        })
-                        // Optionally, handle error behavior like showing an error message
-                    }
-                });
-            });
-
-            // Read Admin Data
-            $(document).on('click', '.editButton', function () {
-                let id = $(this).data('id');
-                $('#id').val(id);
-
-                $.ajax(
-                    {
-                        type: "GET",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: "{{ url('admin/admins') }}/" + id + "/edit",
-                        data: {
-                            id: id
-                        },
-
-                        processData: false,  // Prevent jQuery from processing the data
-                        contentType: false,  // Prevent jQuery from setting contentType
-                        success: function (res) {
-
-                            console.log('success')
-                            $('#eName').val(res.data.name);
-                            $('#eEmail').val(res.data.email);
-                            $('#ePhone').val(res.data.phone);
-                            $('#eType').val(res.data.type);
-
-                            $('#rolesId').empty();
-
-                            // Append a default option (optional)
-                            $('#rolesId').append('<option value="">Select a Role</option>');
-
-                            // Iterate over the response data and append each role as an option
-                            $.each(res.roles, function(index, role) {
-                                $('#rolesId').append(
-                                    `<option value="${role.name}">${role.name}</option>`
-                                );
-                            });
-                        },
-                        error: function (err) {
-                            console.log('failed')
-                        }
-                    }
-                )
-            })
-
-            // Edit Admin Data
-            $('#editAdmin').submit(function (e) {
-                e.preventDefault();
-                let id = $('#id').val();
-                let formData = new FormData(this);
-
-                $.ajax({
-                    type: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    url: "{{ url('admin/admins') }}/" + id,
-                    data: formData,
-                    processData: false,  // Prevent jQuery from processing the data
-                    contentType: false,  // Prevent jQuery from setting contentType
-                    success: function (res) {
-                        if (res.message === 'success') {
-                            $('#editAdminModal').modal('hide');
-                            $('#editAdmin')[0].reset();
-                            adminTable.ajax.reload()
-                            swal.fire({
-                                title: "Success",
-                                text: "Admin Edited !",
-                                icon: "success"
-                            })
-
-
-                        }
-                    },
-                    error: function (err) {
-                        console.error('Error:', err);
-                        swal.fire({
-                            title: "Failed",
-                            text: "Something Went Wrong !",
-                            icon: "error"
-                        })
-                        // Optionally, handle error behavior like showing an error message
-                    }
-                });
-            });
-
-
-            // Delete Admin
-            $(document).on('click', '#deleteAdminBtn', function () {
-                let id = $(this).data('id');
-
-                swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to revert this !",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#d33",
-                    cancelButtonColor: "#3085d6",
-                    confirmButtonText: "Yes, delete it!"
-                })
-                    .then((result) => {
-                        if (result.isConfirmed) {
-
-
-                            $.ajax({
-                                type: 'DELETE',
-
-                                url: "{{ url('admin/admins') }}/" + id,
-                                data: {
-                                    '_token': token
-                                },
-                                success: function (res) {
-                                    Swal.fire({
-                                        title: "Deleted!",
-                                        text: "Admin has been deleted.",
-                                        icon: "success"
-                                    });
-
-                                    adminTable.ajax.reload();
-                                },
-                                error: function (err) {
-                                    console.log('error')
-                                }
-                            })
-
-
-                        } else {
-                            swal.fire('Your Data is Safe');
-                        }
-
-                    })
-
-
-            })
-
-            // Change Admin Status
-            $(document).on('click', '#adminStatus', function () {
-                let id = $(this).data('id');
-                let status = $(this).data('status')
-                console.log(id + status)
-                $.ajax(
-                    {
-                        type: 'post',
-                        url: "{{route('admin.status')}}",
-                        data: {
-                            '_token': token,
-                            id: id,
-                            status: status
-
-                        },
-                        success: function (res) {
-                            adminTable.ajax.reload();
-
-                            if (res.status == 1) {
-
-                                swal.fire(
-                                    {
-                                        title: 'Status Changed to Active',
-                                        icon: 'success'
-                                    })
-                            } else {
-                                swal.fire(
-                                    {
-                                        title: 'Status Changed to Inactive',
-                                        icon: 'success'
-                                    })
-
-                            }
-                        },
-                        error: function (err) {
-                            console.log(err)
-                        }
-                    }
-                )
-            })
-        });
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        }
     </script>
-
-@endpush
+@endsection

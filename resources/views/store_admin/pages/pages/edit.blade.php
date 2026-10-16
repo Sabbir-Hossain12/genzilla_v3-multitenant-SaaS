@@ -1,152 +1,38 @@
-@extends('backend.layout.master')
+@extends('platform_admin.layout.master')
 
-@push('backendCss')
+@section('contents')
 
-
-@endpush
-
-@section ('contents')
-
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Edit Page <span class="text-primary"> {{$data->title}}</span></h4>
-
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Pages</a></li>
-                        <li class="breadcrumb-item active">Edit Page</li>
-                    </ol>
-                </div>
-
-            </div>
+    {{-- Page Title --}}
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h4 class="text-xl font-extrabold text-ink dark:text-white">Edit Custom Page</h4>
+            <nav class="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+                <a href="{{ route('admin.dashboard.index') }}" class="hover:text-primary transition-colors">Admin</a>
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                <a href="{{ route('admin.pages.index') }}" class="hover:text-primary transition-colors">Custom Pages</a>
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                <span class="text-slate-500 dark:text-slate-300 font-medium">Edit</span>
+            </nav>
         </div>
     </div>
-    <form method="post" action="{{route('admin.pages.update',$data->id)}}">
+
+    {{-- Validation Errors --}}
+    @if ($errors->any())
+        <div class="flex items-start gap-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30
+                    text-red-700 dark:text-red-400 rounded-2xl px-4 py-3.5 mb-5 text-sm">
+            <svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <ul class="flex-1 space-y-0.5 list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('admin.pages.update', $page->id) }}">
         @csrf
-        @method('put')
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title text-center">Page Information</h4>
-
-                    </div>
-                    <div class="card-body p-4">
-
-                        <div class="row">
-                            @if(Session::has('error_message'))
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    {{Session::get('error_message')}}
-                                </div>
-                            @endif
-                            @if(Session::has('success_message'))
-                                <div class="alert alert-success alert-dismissible" role="alert">
-                                    {{Session::get('success_message')}}
-                                </div>
-                            @endif
-                            <div class="col-lg-6">
-
-
-                                <div>
-                                    <div class="mb-3">
-                                        <label for="title" class="form-label">Title</label>
-                                        <input class="form-control" type="text" placeholder="Page Title"
-                                               id="title" name="title" value="{{$data->title}}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="pageStatus" class="form-label">Select</label>
-                                        <select id="pageStatus" class="form-select" name="status">
-                                            <option>Select</option>
-                                            <option {{$data->status==1 ? 'selected' : ''}}  value="1">Active</option>
-                                            <option {{$data->status==0 ? 'selected' : ''}}  value="0">Inactive</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="url" class="form-label">URL</label>
-                                        <textarea id="url" name="url" class="form-control">{{$data->url}}</textarea>
-                                    </div>
-
-
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6">
-                                <div class="mb-3">
-                                    <label for="meta_title" class="form-label">Meta Title</label>
-                                    <input class="form-control" type="text" placeholder="Meta Title"
-                                           id="meta_title" name="meta_title" value="{{$data->meta_title}}">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="meta_keyword" class="form-label">Meta Keywords</label>
-                                    <input class="form-control" type="text" placeholder="Enter Meta Keywords"
-                                           id="meta_keyword" name="meta_keywords" value="{{$data->meta_keywords}}">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="meta_desc" class="form-label">Meta Description</label>
-                                    <textarea id="meta_desc" name="meta_desc" class="form-control">{{$data->meta_desc}}</textarea>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div> <!-- end col -->
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title text-center">Page Description</h4>
-
-                    </div>
-                    <div class="card-body p-4">
-
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div>
-                                    <div class="mb-3">
-
-                                        <textarea id="page_desc" name="desc" class="form-control">{{$data->desc}}</textarea>
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                        <div class="text-center mt-4 d-grid">
-                            <button type="submit" class="btn  btn-primary">Update</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div> <!-- end col -->
-        </div>
+        @method('PUT')
+        @include('platform_admin.pages.pages._fields')
     </form>
+
 @endsection
-
-@push('backendJs')
-
-    {{--  CkEditor CDN  --}}
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
-    <script>
-        $(document).ready(function () {
-
-            ClassicEditor
-                .create( document.querySelector( '#page_desc' ) )
-                .catch( error => {
-                    console.error( error );
-                } );
-        });
-
-
-    </script>
-@endpush
