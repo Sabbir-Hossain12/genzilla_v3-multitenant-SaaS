@@ -107,3 +107,7 @@
         </button>
     </div>
 </div>
+
+@push('js')
+    @include('platform_admin.pages.pages._scripts')
+@endpush

@@ -18,8 +18,10 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RoleSeeder::class,
             SuperAdminSeeder::class,
+            PlatformSubscriptionPlanSeeder::class,
             PlatformSeeder::class,
             PlatformBlogSeeder::class,
+            PlatformStoreDemoSeeder::class,
         ]);
     }
 }

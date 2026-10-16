@@ -17,8 +17,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
 
             // Core Store Details
-            $table->string('name');
-            $table->string('email')->nullable()->comment('Public store contact email');
+            $table->string('store_name');
+            $table->string('support_phone')->nullable();
+            $table->string('support_email')->nullable()->comment('Public store contact email');
             $table->string('logo_path')->nullable();
 
             // Domain & Routing
@@ -29,6 +30,16 @@ return new class extends Migration
             $table->string('stripe_account_id')->nullable()->unique()->comment('For connected merchant payouts');
             $table->tinyInteger('stripeOnboarded')->default(0)->comment('0=no, 1=yes');
             $table->string('currency', 3)->default('USD');
+
+            $table->string('fb_pixel_id')->nullable();
+            $table->string('google_analytics_id')->nullable();
+            $table->string('gtm_id')->nullable();
+            $table->text('custom_head_script')->nullable();
+
+            $table->integer('current_subscription_id')->nullable();
+            $table->enum('subscription_status',['trialing','active','past_due','expired','cancelled'])->default('trialing');
+            $table->json('theme_settings')->nullable();
+
 
             // Localization & Operations
             $table->string('timezone')->default('UTC');

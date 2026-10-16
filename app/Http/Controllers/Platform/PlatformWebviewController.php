@@ -10,6 +10,7 @@ use App\Models\PlatformHero;
 use App\Models\PlatformMatrix;
 use App\Models\PlatformPlan;
 use App\Models\PlatformStep;
+use App\Models\PlatformStoreDemo;
 use App\Models\PlatformTestimonial;
 use App\Models\PlatformUseCase;
 use Illuminate\Support\Collection;
@@ -29,6 +30,7 @@ class PlatformWebviewController extends Controller
             'steps' => $this->stepList(),
             'testimonials' => $this->testimonialList(),
             'plans' => $this->planTeaser(),
+            'storeDemos' => $this->storeDemoList(),
             'brand' => $this->brand(),
         ]);
     }
@@ -140,6 +142,25 @@ class PlatformWebviewController extends Controller
                 'name' => $testimonial->merchant_name,
                 'role' => $testimonial->merchant_title,
                 'initials' => $this->initials($testimonial->merchant_name),
+            ])
+            ->all();
+    }
+
+    /**
+     * Store demo previews shown in the hero product showcase.
+     *
+     * @return array<int, array<string, string|null>>
+     */
+    private function storeDemoList(): array
+    {
+        return PlatformStoreDemo::query()
+            ->where('status', 1)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn (PlatformStoreDemo $demo) => [
+                'title' => $demo->title,
+                'image' => $demo->image ? asset('storage/'.$demo->image) : null,
+                'link' => $demo->link,
             ])
             ->all();
     }

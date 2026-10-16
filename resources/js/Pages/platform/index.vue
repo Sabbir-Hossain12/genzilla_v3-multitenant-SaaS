@@ -26,6 +26,7 @@ const props = defineProps({
     steps: { type: Array, default: () => [] },
     testimonials: { type: Array, default: () => [] },
     plans: { type: Array, default: () => [] },
+    storeDemos: { type: Array, default: () => [] },
 })
 
 const heroView = computed(() => {
@@ -39,11 +40,10 @@ const heroView = computed(() => {
         titleTail: '',
         subtitle: hero.subtitle || fallbackHero.subtitle,
         note: fallbackHero.note,
-        url: fallbackHero.url,
         primaryLabel: hero.primaryLabel || 'Start Free 14-Day Trial',
         primaryTo: hero.primaryTo || '/register',
         secondaryLabel: hero.secondaryLabel || 'Watch Demo',
-        secondaryTo: hero.secondaryTo || '#demo',
+        secondaryTo: hero.secondaryTo || '#demos',
     }
 })
 
@@ -74,14 +74,12 @@ const testimonialsView = computed(() => {
     }))
 })
 
-const chartBars = [
-    { height: '40%', class: 'bg-primary/30' },
-    { height: '65%', class: 'bg-primary/50' },
-    { height: '45%', class: 'bg-primary/30' },
-    { height: '80%', class: 'bg-primary' },
-    { height: '55%', class: 'bg-primary/40' },
-    { height: '90%', class: 'bg-accent' },
-]
+const storeDemosView = computed(() =>
+    props.storeDemos.map((demo) => ({
+        ...demo,
+        image: demo.image || '/backend/assets/images/placeholder.jpg',
+    })),
+)
 </script>
 
 <template>
@@ -149,69 +147,56 @@ const chartBars = [
                 </div>
                 <p class="text-[13px] text-gray-400 mt-4">{{ heroView.note }}</p>
 
-                <!-- Hero product mockup -->
-                <div class="mt-14 max-w-4xl mx-auto">
-                    <div
-                        class="bg-white rounded-2xl border border-gray-200 shadow-2xl shadow-gray-300/40 overflow-hidden"
+                <!-- Demo stores showcase -->
+                <div
+                    v-if="storeDemosView.length"
+                    id="demos"
+                    class="mt-14 max-w-5xl mx-auto scroll-mt-24 text-left"
+                >
+                    <p
+                        class="text-center text-[12.5px] font-semibold text-gray-400 uppercase tracking-wider mb-6"
                     >
-                        <div
-                            class="flex items-center gap-1.5 px-4 py-3 border-b border-gray-100 bg-gray-50"
+                        Explore live demo stores
+                    </p>
+                    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        <component
+                            :is="demo.link ? 'a' : 'div'"
+                            v-for="demo in storeDemosView"
+                            :key="demo.title"
+                            :href="demo.link || undefined"
+                            :target="demo.link ? '_blank' : undefined"
+                            :rel="demo.link ? 'noopener noreferrer' : undefined"
+                            class="group block bg-white rounded-2xl border border-gray-200 shadow-xl shadow-gray-300/30 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-300/50"
                         >
-                            <span class="w-2.5 h-2.5 rounded-full bg-red-300"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-yellow-300"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-green-300"></span>
-                            <span
-                                class="ml-3 text-[12px] text-gray-400 bg-white border border-gray-200 rounded-md px-3 py-1"
-                            >
-                                {{ heroView.url }}
-                            </span>
-                        </div>
-                        <div class="grid grid-cols-4 min-h-[280px] sm:min-h-[360px]">
-                            <div
-                                class="hidden sm:block col-span-1 bg-gray-50 border-r border-gray-100 p-4 space-y-3"
-                            >
-                                <div class="h-8 rounded-lg bg-primarylt flex items-center px-3">
-                                    <span class="w-3 h-3 rounded bg-primary"></span>
-                                </div>
-                                <div class="h-3 w-3/4 rounded bg-gray-200"></div>
-                                <div class="h-3 w-2/3 rounded bg-gray-200"></div>
-                                <div class="h-3 w-1/2 rounded bg-gray-200"></div>
-                                <div class="h-3 w-3/4 rounded bg-gray-200"></div>
+                            <div class="aspect-[4/3] overflow-hidden bg-gray-50">
+                                <img
+                                    :src="demo.image"
+                                    :alt="demo.title"
+                                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    loading="lazy"
+                                />
                             </div>
-                            <div class="col-span-4 sm:col-span-3 p-5 sm:p-6">
-                                <div class="flex items-center justify-between mb-5">
-                                    <div class="h-4 w-28 rounded bg-gray-200"></div>
-                                    <div class="h-8 w-24 rounded-lg bg-primary/90"></div>
-                                </div>
-                                <div class="grid grid-cols-3 gap-3 mb-5">
-                                    <div class="h-20 rounded-xl bg-primarylt border border-primary/10 p-3">
-                                        <div class="h-3 w-10 bg-primary/30 rounded mb-2"></div>
-                                        <div class="h-5 w-16 bg-primary rounded"></div>
-                                    </div>
-                                    <div
-                                        class="h-20 rounded-xl bg-emerald-50 border border-emerald-100 p-3"
-                                    >
-                                        <div class="h-3 w-10 bg-emerald-300 rounded mb-2"></div>
-                                        <div class="h-5 w-14 bg-accent rounded"></div>
-                                    </div>
-                                    <div class="h-20 rounded-xl bg-amber-50 border border-amber-100 p-3">
-                                        <div class="h-3 w-10 bg-amber-300 rounded mb-2"></div>
-                                        <div class="h-5 w-12 bg-amber-400 rounded"></div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="h-32 rounded-xl bg-gray-50 border border-gray-100 flex items-end gap-2 p-4"
+                            <div class="flex items-center justify-between gap-3 px-5 py-4">
+                                <span class="text-[15px] font-bold text-ink truncate">
+                                    {{ demo.title }}
+                                </span>
+                                <span
+                                    v-if="demo.link"
+                                    class="inline-flex items-center gap-1 text-[13px] font-semibold text-primary shrink-0"
                                 >
-                                    <div
-                                        v-for="(bar, i) in chartBars"
-                                        :key="i"
-                                        class="w-full rounded-t"
-                                        :class="bar.class"
-                                        :style="{ height: bar.height }"
-                                    ></div>
-                                </div>
+                                    Visit
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                        <path
+                                            d="M7 17L17 7M17 7H8M17 7v9"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                    </svg>
+                                </span>
                             </div>
-                        </div>
+                        </component>
                     </div>
                 </div>
             </div>
