@@ -1,34 +1,38 @@
 @extends('platform_admin.layout.master')
 
 @section('contents')
-    <div class="space-y-6">
-        <!-- Page Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-xl font-bold text-slate-900 tracking-tight dark:text-white">Edit Blog Post</h1>
-                <p class="text-sm text-slate-500 mt-0.5">Update article content, metadata, and publication settings.</p>
-            </div>
-            <a href="{{ route('admin.blog.index') }}"
-               class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg shadow-sm transition-all gap-2">
-                <i class="fa-solid fa-arrow-left text-xs"></i>
-                <span>Back to Blog</span>
-            </a>
+
+    {{-- Page Title --}}
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h4 class="text-xl font-extrabold text-ink dark:text-white">Edit Blog Post</h4>
+            <nav class="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+                <a href="{{ route('admin.dashboard.index') }}" class="hover:text-primary transition-colors">Admin</a>
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                <a href="{{ route('admin.blog.index') }}" class="hover:text-primary transition-colors">Blog Posts</a>
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                <span class="text-slate-500 dark:text-slate-300 font-medium">Edit</span>
+            </nav>
         </div>
-
-        @if ($errors->any())
-            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm">
-                <ul class="list-disc list-inside space-y-1">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('admin.blog.update', $blogPost) }}" class="space-y-6">
-            @csrf
-            @method('PUT')
-            @include('platform_admin.pages.blog._fields')
-        </form>
     </div>
+
+    {{-- Validation Errors --}}
+    @if ($errors->any())
+        <div class="flex items-start gap-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30
+                    text-red-700 dark:text-red-400 rounded-2xl px-4 py-3.5 mb-5 text-sm">
+            <svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <ul class="flex-1 space-y-0.5 list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('admin.blog.update', $blogPost) }}" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        @include('platform_admin.pages.blog._fields')
+    </form>
+
 @endsection

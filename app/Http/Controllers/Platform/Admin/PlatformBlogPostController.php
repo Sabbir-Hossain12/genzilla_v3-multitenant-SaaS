@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PlatformBlogCategory;
 use App\Models\PlatformBlogPost;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -74,8 +75,8 @@ class PlatformBlogPostController extends Controller
             'author_initials' => 'nullable|string|max:5',
             'read_time' => 'required|integer|min:1|max:120',
             'published_at' => 'nullable|date',
-            'cover_class' => 'nullable|string|max:255',
-            'emoji' => 'nullable|string|max:16',
+            'cover_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5048',
+            'thumbnail_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5024',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string|max:255',
@@ -89,6 +90,24 @@ class PlatformBlogPostController extends Controller
         $validated['is_featured'] = $request->boolean('is_featured');
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
         $validated['published_at'] = $validated['published_at'] ?? null;
+
+        if ($request->hasFile('cover_img')) {
+            if ($post?->cover_img && Storage::disk('public')->exists($post->cover_img)) {
+                Storage::disk('public')->delete($post->cover_img);
+            }
+            $validated['cover_img'] = $request->file('cover_img')->store('blog', 'public');
+        } else {
+            unset($validated['cover_img']);
+        }
+
+        if ($request->hasFile('thumbnail_img')) {
+            if ($post?->thumbnail_img && Storage::disk('public')->exists($post->thumbnail_img)) {
+                Storage::disk('public')->delete($post->thumbnail_img);
+            }
+            $validated['thumbnail_img'] = $request->file('thumbnail_img')->store('blog', 'public');
+        } else {
+            unset($validated['thumbnail_img']);
+        }
 
         return $validated;
     }

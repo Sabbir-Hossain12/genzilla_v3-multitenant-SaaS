@@ -41,8 +41,6 @@ class PlatformBlogSeeder extends Seeder
                     'title' => $post['title'],
                     'excerpt' => $post['excerpt'],
                     'long_desc' => $this->renderBody($post['body']),
-                    'cover_class' => $post['coverClass'],
-                    'emoji' => $post['emoji'],
                     'author_name' => $post['author'],
                     'author_role' => $post['role'],
                     'author_initials' => $post['initials'],
@@ -104,8 +102,6 @@ class PlatformBlogSeeder extends Seeder
                 'author' => 'Nadia Rahman',
                 'role' => 'Head of Merchant Success',
                 'initials' => 'NR',
-                'coverClass' => 'bg-gradient-to-br from-indigo-50 to-indigo-100',
-                'emoji' => '🚀',
                 'is_featured' => true,
                 'body' => [
                     ['type' => 'p', 'text' => 'Most merchants do not need three months of planning. They need one focused Saturday and one Sunday. This is the exact sequence we walk new Shopwave merchants through, in the order that avoids rework.'],
@@ -135,8 +131,6 @@ class PlatformBlogSeeder extends Seeder
                 'author' => 'Tanvir Ahmed',
                 'role' => 'Growth Lead',
                 'initials' => 'TA',
-                'coverClass' => 'bg-gradient-to-br from-emerald-50 to-emerald-100',
-                'emoji' => '📸',
                 'body' => [
                     ['type' => 'p', 'text' => 'Shoppers decide in about two seconds, and most of that decision is made on the image before they read a single word of your description. Here is how to shoot product photos that hold up in a grid, without renting a studio.'],
                     ['type' => 'h2', 'text' => 'The one-room setup'],
@@ -163,8 +157,6 @@ class PlatformBlogSeeder extends Seeder
                 'author' => 'Sadia Islam',
                 'role' => 'Payments Specialist',
                 'initials' => 'SI',
-                'coverClass' => 'bg-gradient-to-br from-sky-50 to-sky-100',
-                'emoji' => '💳',
                 'body' => [
                     ['type' => 'p', 'text' => 'There is no single best gateway here — the right answer depends on what you are selling and how your customers prefer to pay. What follows is how the three main options actually behave in production.'],
                     ['type' => 'h2', 'text' => 'Mobile wallets'],
@@ -188,8 +180,7 @@ class PlatformBlogSeeder extends Seeder
                 'author' => 'Farhan Kabir',
                 'role' => 'Product Manager',
                 'initials' => 'FK',
-                'coverClass' => 'bg-gradient-to-br from-violet-50 to-violet-100',
-                'emoji' => '✨',
+
                 'body' => [
                     ['type' => 'p', 'text' => 'A short release round this month, weighted towards the two things merchants told us slowed them down most: changing prices in bulk, and reworking delivery rates.'],
                     ['type' => 'h2', 'text' => 'Shipped'],
@@ -214,8 +205,6 @@ class PlatformBlogSeeder extends Seeder
                 'author' => 'Nadia Rahman',
                 'role' => 'Head of Merchant Success',
                 'initials' => 'NR',
-                'coverClass' => 'bg-gradient-to-br from-rose-50 to-rose-100',
-                'emoji' => '🛒',
                 'body' => [
                     ['type' => 'p', 'text' => 'We looked at where carts stall across several thousand stores. Nine causes accounted for nearly all of it, and they are listed here in roughly descending order of revenue lost.'],
                     ['type' => 'h2', 'text' => 'The big ones'],
@@ -243,8 +232,6 @@ class PlatformBlogSeeder extends Seeder
                 'author' => 'Tanvir Ahmed',
                 'role' => 'Growth Lead',
                 'initials' => 'TA',
-                'coverClass' => 'bg-gradient-to-br from-amber-50 to-amber-100',
-                'emoji' => '🚚',
                 'body' => [
                     ['type' => 'p', 'text' => 'Shipping is where margin quietly disappears. The rate model you pick changes what you can sell, what you earn per order, and how often a customer abandons at the last step.'],
                     ['type' => 'h2', 'text' => 'Flat rate'],
@@ -266,8 +253,6 @@ class PlatformBlogSeeder extends Seeder
                 'author' => 'Farhan Kabir',
                 'role' => 'Product Manager',
                 'initials' => 'FK',
-                'coverClass' => 'bg-gradient-to-br from-teal-50 to-teal-100',
-                'emoji' => '💾',
                 'body' => [
                     ['type' => 'p', 'text' => 'Digital products on Shopwave now support expiring download links. Configure how many times a customer can download a file and when the link stops working, and we handle the rest of the delivery automatically.'],
                     ['type' => 'h2', 'text' => 'What you can set'],

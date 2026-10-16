@@ -226,3 +226,15 @@ body {
     @apply border-b border-slate-100 dark:border-slate-800
     hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors;
 }
+
+/* CKEditor 5 (classic) ships a light-only theme. Its editing surface is painted
+   with `--ck-color-base-background` (#fff) while the text colour is inherited
+   from the page, so in dark mode the Long Description rendered light text on a
+   white canvas. Re-map the editor palette under .dark so the canvas, toolbar,
+   dropdowns and icons all stay legible. */
+.dark .ck.ck-editor {
+    --ck-color-base-background: #1e293b; /* slate-800  — editing canvas */
+    --ck-color-base-foreground: #0f172a; /* slate-950  — toolbar surface */
+    --ck-color-base-border: #334155;     /* slate-700  — chrome borders */
+    --ck-color-base-text: #e2e8f0;       /* slate-200  — text + icons */
+}

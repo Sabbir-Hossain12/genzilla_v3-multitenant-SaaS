@@ -1,74 +1,37 @@
 @extends('platform_admin.layout.master')
 
 @section('contents')
-    <div class="space-y-6">
-        <!-- Page Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-xl font-bold text-slate-900 tracking-tight dark:text-white">Create Custom Page</h1>
-                <p class="text-sm text-slate-500 mt-0.5">Add a new dynamic platform page with custom content.</p>
-            </div>
-            <a href="{{ route('admin.pages.index') }}"
-               class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg shadow-sm transition-all gap-2">
-                <i class="fa-solid fa-arrow-left text-xs"></i>
-                <span>Back to Pages</span>
-            </a>
+
+    {{-- Page Title --}}
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h4 class="text-xl font-extrabold text-ink dark:text-white">Create Custom Page</h4>
+            <nav class="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+                <a href="{{ route('admin.dashboard.index') }}" class="hover:text-primary transition-colors">Admin</a>
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                <a href="{{ route('admin.pages.index') }}" class="hover:text-primary transition-colors">Custom Pages</a>
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                <span class="text-slate-500 dark:text-slate-300 font-medium">Create</span>
+            </nav>
         </div>
-
-        <form method="POST" action="{{ route('admin.pages.store') }}">
-            @csrf
-            <div class="card overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm">
-                <div class="p-6 md:p-8 space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Page Title</label>
-                            <input type="text" name="title" required placeholder="Terms of Service"
-                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Page Slug</label>
-                            <input type="text" name="slug" placeholder="terms-of-service"
-                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Meta Title</label>
-                            <input type="text" name="meta_title" placeholder="Terms & Conditions | Genzilla"
-                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Status</label>
-                            <select name="status"
-                                    class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
-                                <option value="1" selected>Active</option>
-                                <option value="0">Draft</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Meta Description</label>
-                        <textarea name="meta_description" rows="2" placeholder="Read our terms and conditions..."
-                                  class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Page Content (HTML / Text)</label>
-                        <textarea name="content" rows="12" required placeholder="Write or paste your HTML content here..."
-                                  class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all font-mono"></textarea>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-end px-6 py-4 bg-slate-50 border-t border-slate-100">
-                    <button type="submit"
-                            class="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm transition-colors cursor-pointer">
-                        <i class="fa-solid fa-floppy-disk text-xs"></i>
-                        <span>Save Page</span>
-                    </button>
-                </div>
-            </div>
-        </form>
     </div>
+
+    {{-- Validation Errors --}}
+    @if ($errors->any())
+        <div class="flex items-start gap-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30
+                    text-red-700 dark:text-red-400 rounded-2xl px-4 py-3.5 mb-5 text-sm">
+            <svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <ul class="flex-1 space-y-0.5 list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('admin.pages.store') }}">
+        @csrf
+        @include('platform_admin.pages.pages._fields')
+    </form>
+
 @endsection

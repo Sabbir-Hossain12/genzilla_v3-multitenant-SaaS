@@ -22,6 +22,8 @@ const props = defineProps({
 
 const activeCategory = ref('all')
 
+const blogPlaceholder = '/backend/assets/images/placeholder.jpg'
+
 const categories = computed(() => (props.categories.length ? props.categories : fallbackCategories))
 const featured = computed(() => props.featured || fallbackFeatured)
 const posts = computed(() => (props.posts.length ? props.posts : fallbackPosts))
@@ -67,12 +69,15 @@ function categorySlug(label) {
                     :href="`/blog/${featured.slug}`"
                     class="grid md:grid-cols-2 gap-7 items-center border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 transition-colors"
                 >
-                    <div
-                        class="h-52 sm:h-64 md:h-full flex items-center justify-center text-7xl"
-                        :class="featured.coverClass"
-                    >
-                        {{ featured.emoji }}
-                    </div>
+                <div
+                    class="h-52 sm:h-64 md:h-full overflow-hidden rounded-2xl md:rounded-r-none md:rounded-l-3xl shadow-inner"
+                >
+                    <img
+                        :src="featured.coverImage || blogPlaceholder"
+                        :alt="featured.title"
+                        class="w-full h-full object-cover"
+                    />
+                </div>
                     <div class="p-7 sm:p-9">
                         <div class="flex items-center gap-2.5 mb-3.5">
                             <span
@@ -150,10 +155,13 @@ function categorySlug(label) {
                         class="group block bg-white border border-gray-100 rounded-2xl p-6 hover:border-gray-300 hover:shadow-sm transition-all"
                     >
                         <div
-                            class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl mb-4"
-                            :class="post.coverClass"
+                            class="w-14 h-14 rounded-xl overflow-hidden shrink-0"
                         >
-                            {{ post.emoji }}
+                            <img
+                                :src="post.thumbnail || blogPlaceholder"
+                                :alt="post.title"
+                                class="w-full h-full object-cover"
+                            />
                         </div>
                         <div class="flex items-center gap-2 mb-2.5">
                             <span

@@ -15,8 +15,9 @@ return new class extends Migration
             $table->string('title');
             $table->text('excerpt');
             $table->longText('long_desc')->nullable()->comment('Full article body as HTML markup');
-            $table->string('cover_class')->nullable()->comment('Tailwind gradient classes for the cover');
-            $table->string('emoji')->nullable();
+            $table->string('cover_img')->nullable();
+            $table->string('thumbnail_img')->nullable();
+
             $table->string('author_name');
             $table->string('author_role')->nullable();
             $table->string('author_initials')->nullable();

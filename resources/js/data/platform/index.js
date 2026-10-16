@@ -538,9 +538,6 @@ export const authTestimonial = {
 }
 
 /* ── blog ─────────────────────────────────────────────────────
-   `coverClass` values are soft tinted gradients, matching how
-   businessTypes fakes artwork without shipping images.
-
    `body` is an ordered list of blocks rather than raw HTML so the
    show page stays declarative and never uses v-html. Supported
    types: p, h2, ul, quote. */
@@ -564,8 +561,6 @@ export const blogFeatured = {
     author: 'Nadia Rahman',
     role: 'Head of Merchant Success',
     initials: 'NR',
-    coverClass: 'bg-gradient-to-br from-indigo-50 to-indigo-100',
-    emoji: '🚀',
     body: [
         {
             type: 'p',
@@ -628,8 +623,6 @@ export const blogPosts = [
         author: 'Tanvir Ahmed',
         role: 'Growth Lead',
         initials: 'TA',
-        coverClass: 'bg-gradient-to-br from-emerald-50 to-emerald-100',
-        emoji: '📸',
         body: [
             {
                 type: 'p',
@@ -673,8 +666,6 @@ export const blogPosts = [
         author: 'Sadia Islam',
         role: 'Payments Specialist',
         initials: 'SI',
-        coverClass: 'bg-gradient-to-br from-sky-50 to-sky-100',
-        emoji: '💳',
         body: [
             {
                 type: 'p',
@@ -718,8 +709,6 @@ export const blogPosts = [
         author: 'Farhan Kabir',
         role: 'Product Manager',
         initials: 'FK',
-        coverClass: 'bg-gradient-to-br from-violet-50 to-violet-100',
-        emoji: '✨',
         body: [
             {
                 type: 'p',
@@ -758,8 +747,6 @@ export const blogPosts = [
         author: 'Nadia Rahman',
         role: 'Head of Merchant Success',
         initials: 'NR',
-        coverClass: 'bg-gradient-to-br from-rose-50 to-rose-100',
-        emoji: '🛒',
         body: [
             {
                 type: 'p',
@@ -804,8 +791,6 @@ export const blogPosts = [
         author: 'Tanvir Ahmed',
         role: 'Growth Lead',
         initials: 'TA',
-        coverClass: 'bg-gradient-to-br from-amber-50 to-amber-100',
-        emoji: '🚚',
         body: [
             {
                 type: 'p',
@@ -844,8 +829,6 @@ export const blogPosts = [
         author: 'Farhan Kabir',
         role: 'Product Manager',
         initials: 'FK',
-        coverClass: 'bg-gradient-to-br from-teal-50 to-teal-100',
-        emoji: '💾',
         body: [
             {
                 type: 'p',

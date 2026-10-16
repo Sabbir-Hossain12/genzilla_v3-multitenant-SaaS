@@ -48,6 +48,7 @@
                     <thead>
                     <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40">
                         <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-16">#</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-20">Image</th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-64">Title</th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-40">Category</th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 w-44">Author</th>
@@ -60,6 +61,11 @@
                     @forelse($posts as $post)
                         <tr class="trow border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 transition-colors">
                             <td class="px-4 py-3.5 text-xs font-bold text-primary w-16">{{ $posts->firstItem() + $loop->index }}</td>
+                            <td class="px-4 py-3.5 w-20">
+                                <img src="{{ $post->thumbnail_img ? asset('storage/' . $post->thumbnail_img) : asset('backend/assets/images/placeholder.jpg') }}"
+                                     alt="{{ $post->title }}"
+                                     class="w-12 h-12 rounded-lg object-cover border border-slate-200 dark:border-slate-700">
+                            </td>
                             <td class="px-4 py-3.5 w-64 truncate">
                                 <div class="font-semibold text-slate-900 dark:text-white truncate" title="{{ $post->title }}">{{ $post->title }}</div>
                                 <div class="text-xs text-slate-400 truncate font-mono"><code>/blog/{{ $post->slug }}</code></div>
@@ -120,7 +126,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-slate-400 py-12 text-sm">No blog posts found.</td>
+                            <td colspan="8" class="text-center text-slate-400 py-12 text-sm">No blog posts found.</td>
                         </tr>
                     @endforelse
                     </tbody>

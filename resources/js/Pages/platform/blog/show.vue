@@ -15,6 +15,8 @@ const props = defineProps({
 
 const post = computed(() => props.post)
 const related = computed(() => props.related ?? [])
+
+const blogPlaceholder = '/backend/assets/images/placeholder.jpg'
 </script>
 
 <template>
@@ -94,10 +96,13 @@ const related = computed(() => props.related ?? [])
             ════════════════════════════════════════ -->
             <div class="max-w-4xl mx-auto px-4 sm:px-6">
                 <div
-                    class="h-52 sm:h-72 rounded-2xl flex items-center justify-center text-8xl sm:text-9xl"
-                    :class="post.coverClass"
+                    class="h-52 sm:h-72 rounded-2xl overflow-hidden shadow-inner"
                 >
-                    {{ post.emoji }}
+                    <img
+                        :src="post.coverImage || blogPlaceholder"
+                        :alt="post.title"
+                        class="w-full h-full object-cover"
+                    />
                 </div>
             </div>
 
@@ -129,10 +134,13 @@ const related = computed(() => props.related ?? [])
                             class="group bg-white border border-gray-100 rounded-2xl p-6 hover:border-gray-300 hover:shadow-sm transition-all"
                         >
                             <div
-                                class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl mb-4"
-                                :class="item.coverClass"
+                                class="w-14 h-14 rounded-xl overflow-hidden shrink-0"
                             >
-                                {{ item.emoji }}
+                                <img
+                                    :src="item.thumbnail || blogPlaceholder"
+                                    :alt="item.title"
+                                    class="w-full h-full object-cover"
+                                />
                             </div>
                             <h3
                                 class="text-[15.5px] font-bold text-ink leading-snug group-hover:text-primary transition-colors"
