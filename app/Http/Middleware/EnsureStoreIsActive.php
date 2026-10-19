@@ -35,7 +35,7 @@ class EnsureStoreIsActive
 
             if ($subscription->trial_ends_at && now()->gt($subscription->trial_ends_at)) {
                 // Trial has expired
-                $subscription->update(['status' => 'expired']);
+                $subscription->update(['subscription_status' => 'expired']);
                 return Inertia::render('store/StorePause', [
                     'storeName' => $tenant->name,
                     'isOwner' => auth()->check() && auth()->user()->id === $tenant->user_id,
@@ -46,9 +46,9 @@ class EnsureStoreIsActive
         }
 
         // 3. Check Active Paid Status
-        if ($subscription->status === 'active') {
+        if ($subscription->subscription_status === 'active') {
             if ($subscription->ends_at && now()->gt($subscription->ends_at)) {
-                $subscription->update(['status' => 'expired']);
+                $subscription->update(['subscription_status' => 'expired']);
                 return Inertia::render('store/StorePause', [
                     'storeName' => $tenant->name,
                     'isOwner' => auth()->check() && auth()->user()->id === $tenant->user_id,

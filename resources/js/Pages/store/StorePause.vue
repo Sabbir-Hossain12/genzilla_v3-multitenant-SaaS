@@ -26,23 +26,6 @@ const props = defineProps({
 
     <div class="min-h-screen bg-gray-50 flex flex-col justify-between font-sans antialiased">
         <!-- Top Navigation / Brand Header -->
-        <header class="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-lg">
-                    G
-                </div>
-                <span class="text-xl font-extrabold text-gray-900 tracking-tight">
-                    Gen<span class="text-emerald-600">zilla</span>
-                </span>
-            </div>
-
-            <a
-                :href="`mailto:${supportEmail}`"
-                class="text-xs font-semibold text-gray-500 hover:text-gray-800 transition-colors"
-            >
-                Contact Platform Support
-            </a>
-        </header>
 
         <!-- Main Card Content -->
         <main class="flex-1 flex items-center justify-center px-4 py-12">

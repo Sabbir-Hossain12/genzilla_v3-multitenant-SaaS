@@ -85,7 +85,7 @@ Route::domain(config('app.base_domain'))->prefix('admin')->group(function () {
 
         // Group 2: Plans & Subscriptions
         Route::resource('/plans', PlatformPlanController::class)->except(['create', 'show', 'edit'])->names('admin.plans')->middleware('permission:Manage Plans');
-        Route::resource('/subscriptions', TenantSubscriptionController::class)->only(['index', 'store', 'update'])->names('admin.subscriptions')->middleware('permission:Manage Subscriptions');
+        Route::resource('/subscriptions', TenantSubscriptionController::class)->only(['index', 'store', 'edit', 'update'])->names('admin.subscriptions')->middleware('permission:Manage Subscriptions');
 
         Route::get('/invoices', [TenantInvoiceController::class, 'index'])->name('admin.invoices.index')->middleware('permission:Manage Invoices');
         Route::get('/invoices/{invoice}', [TenantInvoiceController::class, 'show'])->name('admin.invoices.show')->middleware('permission:Manage Invoices');
@@ -113,8 +113,8 @@ Route::domain(config('app.base_domain'))->prefix('admin')->group(function () {
         Route::patch('/contacts/{contact}/status', [PlatformContactController::class, 'updateStatus'])->name('admin.contacts.update-status')->middleware('permission:Manage Contacts');
         Route::delete('/contacts/{contact}', [PlatformContactController::class, 'destroy'])->name('admin.contacts.destroy')->middleware('permission:Manage Contacts');
 
-        Route::get('/newsletter-subscribers', [PlatformNewsletterSubscriberController::class, 'index'])->name('admin.newsletter.index')->middleware('permission:Manage Newsletter');
-        Route::post('/newsletter-subscribers/{subscriber}/toggle', [PlatformNewsletterSubscriberController::class, 'toggleStatus'])->name('admin.newsletter.toggle')->middleware('permission:Manage Newsletter');
-        Route::delete('/newsletter-subscribers/{subscriber}', [PlatformNewsletterSubscriberController::class, 'destroy'])->name('admin.newsletter.destroy')->middleware('permission:Manage Newsletter');
+        // Newsletter
+        Route::get('/newsletters', [PlatformNewsletterSubscriberController::class, 'index'])->name('admin.newsletter.index')->middleware('permission:Manage Newsletter');
+        Route::delete('/newsletters/{subscriber}', [PlatformNewsletterSubscriberController::class, 'destroy'])->name('admin.newsletter.destroy')->middleware('permission:Manage Newsletter');
     });
 });
