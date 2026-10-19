@@ -17,6 +17,7 @@ return new class extends Migration
             $table->timestamp('current_period_starts_at')->nullable();
             $table->timestamp('current_period_ends_at')->nullable();
             $table->timestamp('canceled_at')->nullable();
+            $table->enum('source',['manual','automatic'])->default('manual');
             $table->enum('subscription_status', ['trialing', 'active', 'past_due', 'expired', 'cancelled', 'superseded'])->default('trialing');
             $table->timestamps();
         });

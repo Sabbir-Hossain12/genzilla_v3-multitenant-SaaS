@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             PlatformSeeder::class,
             PlatformBlogSeeder::class,
             PlatformStoreDemoSeeder::class,
+            TenantSubscriptionSeeder::class
         ]);
     }
 }

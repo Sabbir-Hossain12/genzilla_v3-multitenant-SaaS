@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class IdentifyStorefront
+class IdentifyTenant
 {
     /**
      * Handle an incoming request.
@@ -26,7 +26,6 @@ class IdentifyStorefront
         if (str_ends_with($host, $baseDomain) && $host !== $baseDomain) {
             // Extract subdomain prefix (e.g., "mystore" from "mystore.yourplatform.com" or "mystore.127.0.0.1.nip.io")
             $subdomain = explode('.', $host)[0];
-
             $store = Tenant::where('subdomain', $subdomain)->first();
         }
         // 2. Otherwise, treat it as a Custom Domain
