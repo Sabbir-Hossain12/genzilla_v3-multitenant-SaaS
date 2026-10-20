@@ -57,7 +57,12 @@ class User extends Authenticatable
     protected function imgUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->img ? asset('storage/'.ltrim($this->img, '/')) : null,
+            get: fn() => $this->img ? asset('storage/' . ltrim($this->img, '/')) : null,
         );
+    }
+
+    public function tenant()
+    {
+        return $this->hasOne(Tenant::class);
     }
 }

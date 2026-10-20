@@ -37,7 +37,7 @@ import { openMobileNav } from '@/composables/platform/usePlatformUi'
                     Log in
                 </a>
                 <Link
-                    :href="route('register')"
+                    href="#pricing"
                     class="bg-primary hover:bg-primarydark text-white text-[14.5px] font-semibold px-5 py-2.5 rounded-xl transition-colors"
                 >
                     Start Free Trial

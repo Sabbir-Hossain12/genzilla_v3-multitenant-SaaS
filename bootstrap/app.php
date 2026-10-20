@@ -31,6 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.identify' => \App\Http\Middleware\IdentifyTenant::class,
             'store.status' => \App\Http\Middleware\EnsureStoreIsActive::class,
 
+            // Store Admin
+            'auth.tenant' => \App\Http\Middleware\AuthTenant::class,
+
             //Global
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,

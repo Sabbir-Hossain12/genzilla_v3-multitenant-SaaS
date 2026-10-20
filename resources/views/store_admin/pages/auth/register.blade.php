@@ -144,17 +144,18 @@
 
                         <div>
                             <label class="block text-[13px] font-semibold text-gray-700 mb-1">Store Name</label>
-                            <input required type="text" name="store_name" value="{{ old('store_name') }}" placeholder="MediCare Pharmacy"
+                            <input required type="text" name="store_name" id="store_name" value="{{ old('store_name') }}" placeholder="MediCare Pharmacy"
+                                   oninput="autoGenerateSubdomain(this.value)"
                                    class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
                         </div>
 
                         <div>
                             <label class="block text-[13px] font-semibold text-gray-700 mb-1">Store Subdomain</label>
                             <div class="flex rounded-lg border border-gray-200 overflow-hidden focus-within:border-primary transition-colors">
-                                <input required type="text" name="subdomain" value="{{ old('subdomain') }}" placeholder="medicare"
+                                <input required type="text" name="subdomain" id="subdomain" value="{{ old('subdomain') }}" placeholder="medicare"
                                        class="w-full min-w-0 px-3.5 py-2.5 text-[14px] focus:outline-none"/>
                                 <span class="bg-gray-50 border-l border-gray-200 px-3 py-2.5 text-[12.5px] text-gray-500 font-medium flex items-center shrink-0">
-                                    .genzilla.com
+                                    .{{ config('app.base_domain', 'genzilla.com') }}
                                 </span>
                             </div>
                         </div>
@@ -208,6 +209,23 @@
                 input.type = "text";
             } else {
                 input.type = "password";
+            }
+        }
+
+        let isSubdomainUserModified = false;
+        const subdomainInput = document.getElementById('subdomain');
+        if (subdomainInput) {
+            subdomainInput.addEventListener('input', function() {
+                isSubdomainUserModified = true;
+            });
+        }
+
+        function autoGenerateSubdomain(storeName) {
+            if (!isSubdomainUserModified && subdomainInput) {
+                const slug = storeName.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                subdomainInput.value = slug;
             }
         }
     </script>

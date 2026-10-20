@@ -6,7 +6,7 @@
         <div class="absolute -right-24 -top-24 w-80 h-80 rounded-full bg-primary/20"></div>
         <div class="absolute -left-16 bottom-0 w-64 h-64 rounded-full bg-accent/10"></div>
 
-        <a href="index.html" class="flex items-center gap-2 relative z-10">
+        <a href="{{ url('/') }}" class="flex items-center gap-2 relative z-10">
             <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M3 12c3-4 6 4 9 0s6-4 9 0M3 18c3-4 6 4 9 0s6-4 9 0" stroke="white" stroke-width="2"
@@ -41,7 +41,7 @@
     <!-- Right form panel -->
     <div class="flex flex-col items-center justify-center p-6 sm:p-10">
         <div class="w-full max-w-sm">
-            <a href="index.html" class="flex lg:hidden items-center gap-2 justify-center mb-8">
+            <a href="{{ url('/') }}" class="flex lg:hidden items-center gap-2 justify-center mb-8">
                 <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M3 12c3-4 6 4 9 0s6-4 9 0M3 18c3-4 6 4 9 0s6-4 9 0" stroke="white" stroke-width="2"
