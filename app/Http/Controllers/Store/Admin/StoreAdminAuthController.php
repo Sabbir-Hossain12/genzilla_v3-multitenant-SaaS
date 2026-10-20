@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Store\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PlatformPlan;
 use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -28,27 +30,39 @@ class StoreAdminAuthController extends Controller
         ]);
 
         try {
-            // 2. Attempt authentication using Laravel's Auth guard
             $remember = $request->boolean('remember');
 
-            if (! Auth::attempt($credentials, $remember)) {
-                // Throw validation exception if authentication fails
+            // 2. Find the user by email
+            $user = User::where('email', $credentials['email'])->first();
+
+            // 3. Verify user exists and password matches
+            if (! $user || ! Hash::check($credentials['password'], $user->password)) {
                 throw ValidationException::withMessages([
                     'email' => ['These credentials do not match our records.'],
                 ]);
             }
 
-            // 3. Regenerate session to protect against Session Fixation attacks
+            // 4. Check if the user has an associated tenant row
+            $hasTenant = Tenant::where('user_id', $user->id)->exists();
+
+            if (! $hasTenant) {
+                throw ValidationException::withMessages([
+                    'email' => ['This account does not have an associated store account.'],
+                ]);
+            }
+
+            // 5. Manually log the user in
+            Auth::login($user, $remember);
+
+            // 6. Regenerate session to protect against Session Fixation attacks
             $request->session()->regenerate();
 
-            // 4. Redirect user to intended route
-            return redirect()->intended(route('admin.dashboard.index', absolute: false))->with('success', 'You are now logged in.');
+            // 7. Redirect user to dashboard
+            return redirect()->intended(route('store.admin.dashboard.index', absolute: false))->with('success', 'You are now logged in.');
 
         } catch (ValidationException $e) {
-            // Re-throw validation exception so Laravel automatically attaches $errors to the view
             throw $e;
         } catch (Throwable $e) {
-            // Log unexpected database or server errors
             report($e);
 
             return back()->withErrors([
@@ -56,7 +70,6 @@ class StoreAdminAuthController extends Controller
             ])->onlyInput('email');
         }
     }
-
     public function registerPage(Request $request)
     {
         // 1. Read query parameters with fallbacks

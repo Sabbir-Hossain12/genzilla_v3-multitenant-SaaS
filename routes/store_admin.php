@@ -17,7 +17,7 @@ Route::domain(config('app.base_domain'))->prefix('store')->name('store.')->group
         Route::post('logout', [StoreAdminAuthController::class, 'logout'])->name('admin.logout');
 
         // Dashboard
-        Route::resource('/dashboard', StoreAdminDashboardController::class)->names('admin.dashboard');
+        Route::get('/dashboard', [StoreAdminDashboardController::class,'index'])->name('admin.dashboard');
 
 
         // Platform Settings

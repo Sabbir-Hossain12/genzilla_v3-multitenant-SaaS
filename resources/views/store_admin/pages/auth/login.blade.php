@@ -57,7 +57,7 @@
                 @csrf
                 <div>
                     <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Email Address</label>
-                    <input required id="li-email" type="email" name="email" value="admin@admin.com" placeholder="you@example.com"
+                    <input required id="li-email" type="email" name="email"  placeholder="you@example.com"
                            class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
                 </div>
                 <div>
@@ -66,7 +66,7 @@
                     </div>
 
                     <div class="relative">
-                        <input id="li-password" type="password" name="password" value="password" placeholder="Enter your password"
+                        <input id="li-password" type="password" name="password"  placeholder="Enter your password"
                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 pr-10 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
                         <button type="button" onclick="togglePw('li-password', this)"
                                 class="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
