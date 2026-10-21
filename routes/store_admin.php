@@ -5,7 +5,10 @@ use App\Http\Controllers\Platform\Admin\PlatformSettingController;
 use App\Http\Controllers\Store\Admin\StoreAdminAuthController;
 use App\Http\Controllers\Store\Admin\StoreAdminDashboardController;
 
-Route::domain(config('app.base_domain'))->prefix('store')->name('store.')->group(function () {
+Route::domain(config('app.base_domain'))
+    ->prefix('store')->name('store.')
+    ->middleware('web')
+    ->group(function () {
     Route::get('/login', [StoreAdminAuthController::class, 'loginPage'])->name('admin.login');
     Route::post('/login', [StoreAdminAuthController::class, 'login'])->name('admin.login.store');
 

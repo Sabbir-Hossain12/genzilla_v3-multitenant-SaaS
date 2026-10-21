@@ -14,20 +14,20 @@
 
 <body class="bg-slate-50 dark:bg-slate-950 text-ink dark:text-slate-100 antialiased">
 
-@include('platform_admin.include.sidebar')
+@include('store_admin.include.sidebar')
 
 <!-- ══════════════════════════════════════════════
      MAIN WRAPPER
 ══════════════════════════════════════════════ -->
 <div class="lg:pl-64 flex flex-col min-h-screen">
-    @include('platform_admin.include.topbar')
+    @include('store_admin.include.topbar')
 
     <!-- ══════ PAGE CONTENT ══════ -->
     <main class="flex-1 p-4 md:p-6 xl:p-8 space-y-6">
         @yield('contents')
     </main>
 
-    @include('platform_admin.include.footer')
+    @include('store_admin.include.footer')
 
 </div><!-- /main wrapper -->
 

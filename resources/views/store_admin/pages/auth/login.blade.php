@@ -53,7 +53,7 @@
             <h1 class="text-[26px] font-extrabold text-ink">Welcome back</h1>
             <p class="text-[14px] text-gray-500 mt-1.5 mb-7">Log in to manage your Platform.</p>
 
-            <form id="login-form" method="POST" action="{{ route('admin.login.store')}}" class="space-y-4">
+            <form id="login-form" method="POST" action="{{ route('store.admin.login.store')}}" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Email Address</label>

@@ -58,7 +58,7 @@ class StoreAdminAuthController extends Controller
             $request->session()->regenerate();
 
             // 7. Redirect user to dashboard
-            return redirect()->intended(route('store.admin.dashboard.index', absolute: false))->with('success', 'You are now logged in.');
+            return redirect()->intended(route('store.admin.dashboard', absolute: false))->with('success', 'You are now logged in.');
 
         } catch (ValidationException $e) {
             throw $e;
@@ -177,6 +177,7 @@ class StoreAdminAuthController extends Controller
 
     public function logout(Request $request)
     {
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
