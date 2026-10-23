@@ -1,4 +1,4 @@
-@extends('platform_admin.layout.master')
+@extends('store_admin.layout.master')
 
 @section('contents')
     <div class="space-y-6">
@@ -8,7 +8,7 @@
                 <h1 class="text-xl font-bold text-slate-900 tracking-tight dark:text-white">Assign Permissions</h1>
                 <p class="text-sm text-slate-500 mt-0.5">Permissions for <span class="font-semibold text-indigo-600">{{ $role->name }}</span></p>
             </div>
-            <a href="{{ route('admin.role.index') }}"
+            <a href="{{ route('store.admin.role.index') }}"
                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors gap-2 cursor-pointer">
                 <i class="fa-solid fa-arrow-left text-xs"></i>
                 <span>Back to Roles</span>
@@ -16,7 +16,7 @@
         </div>
 
         <!-- Main Card Container -->
-        <form action="{{ route('admin.role.permission.update', $role->id) }}" method="POST" class="space-y-6">
+        <form action="{{ route('store.admin.role.permission.update', $role->id) }}" method="POST" class="space-y-6">
             @csrf
             @method('PUT')
 
@@ -89,3 +89,4 @@
         });
     </script>
 @endsection
+

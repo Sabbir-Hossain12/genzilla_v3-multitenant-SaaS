@@ -8,7 +8,7 @@
                 <h1 class="text-xl font-bold text-slate-900 tracking-tight dark:text-white">Admin Users</h1>
                 <p class="text-sm text-slate-500 mt-0.5">Manage platform administrators, their roles, and account access.</p>
             </div>
-            @can('Create Admin')
+            @can('Platform Create Admin')
                 <button type="button" onclick="openModal('createAdminModal')"
                         class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg shadow-sm transition-all gap-2 cursor-pointer">
                     <i class="fa-solid fa-plus text-xs"></i>
@@ -63,7 +63,7 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3.5 text-center w-28">
-                                @can('Status Admin')
+                                @can('Platform Status Admin')
                                     <form action="{{ route('admin.status', $admin->id) }}" method="POST" class="inline-flex justify-center">
                                         @csrf
                                         <label class="relative inline-flex items-center cursor-pointer" title="Toggle status">
@@ -87,7 +87,7 @@
                             </td>
                             <td class="px-4 py-3.5 text-center w-28">
                                 <div class="inline-flex items-center gap-1.5">
-                                    @can('Edit Admin')
+                                    @can('Platform Edit Admin')
                                         <button type="button" onclick="openModal('editAdminModal{{ $admin->id }}')"
                                                 class="p-2 text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer"
                                                 title="Edit Admin">
@@ -95,7 +95,7 @@
                                         </button>
                                     @endcan
 
-                                    @can('Delete Admin')
+                                    @can('Platform Delete Admin')
                                         <form action="{{ route('admin.admins.destroy', $admin->id) }}" method="POST"
                                               class="inline" onsubmit="return confirm('Delete this admin user?');">
                                             @csrf
@@ -112,7 +112,7 @@
                         </tr>
 
                         <!-- Edit Modal -->
-                        @can('Edit Admin')
+                        @can('Platform Edit Admin')
                             <div id="editAdminModal{{ $admin->id }}"
                                  class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
                                 <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100 transform transition-all max-h-[90vh] flex flex-col">
@@ -190,7 +190,7 @@
     </div>
 
     <!-- Create Modal -->
-    @can('Create Admin')
+    @can('Platform Create Admin')
         <div id="createAdminModal"
              class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
             <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100 transform transition-all max-h-[90vh] flex flex-col">

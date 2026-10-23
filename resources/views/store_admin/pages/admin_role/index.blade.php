@@ -1,4 +1,4 @@
-@extends('platform_admin.layout.master')
+@extends('store_admin.layout.master')
 
 @section('contents')
     <div class="space-y-6">
@@ -8,7 +8,7 @@
                 <h1 class="text-xl font-bold text-slate-900 tracking-tight dark:text-white">Roles</h1>
                 <p class="text-sm text-slate-500 mt-0.5">Define roles and control what each group of admins can access.</p>
             </div>
-            @can('Role Create')
+            @can('Manage Store Roles')
                 <button type="button" onclick="openModal('createRoleModal')"
                         class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg shadow-sm transition-all gap-2 cursor-pointer">
                     <i class="fa-solid fa-plus text-xs"></i>
@@ -71,33 +71,33 @@
                             </td>
                             <td class="px-4 py-3.5 text-center w-32">
                                 <div class="inline-flex items-center gap-1.5">
-                                    @can('Assign Permission')
-                                        <a href="{{ route('admin.role.permission.edit', $role->id) }}"
+                                    @can('Manage Store Roles')
+                                        <a href="{{ route('store.admin.role.permission.edit', $role->id) }}"
                                            class="p-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
                                            title="Assign Permissions">
                                             <i class="fa-solid fa-user-shield text-xs"></i>
                                         </a>
                                     @endcan
 
-                                    @can('Edit Role')
+                                    @can('Manage Store Roles')
                                         @unless($isProtected)
                                             <button type="button" onclick="openModal('editRoleModal{{ $role->id }}')"
                                                     class="p-2 text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer"
-                                                    title="Edit Role">
+                                                    title="Manage Store Roles">
                                                 <i class="fa-solid fa-pen text-xs"></i>
                                             </button>
                                         @endunless
                                     @endcan
 
-                                    @can('Delete Role')
+                                    @can('Manage Store Roles')
                                         @unless($isProtected)
-                                            <form action="{{ route('admin.role.destroy', $role->id) }}" method="POST"
+                                            <form action="{{ route('store.admin.role.destroy', $role->id) }}" method="POST"
                                                   class="inline" onsubmit="return confirm('Delete this role?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
                                                         class="p-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                                                        title="Delete Role">
+                                                        title="Manage Store Roles">
                                                     <i class="fa-solid fa-trash text-xs"></i>
                                                 </button>
                                             </form>
@@ -108,12 +108,12 @@
                         </tr>
 
                         <!-- Edit Modal -->
-                        @can('Edit Role')
+                        @can('Manage Store Roles')
                             @unless($isProtected)
                                 <div id="editRoleModal{{ $role->id }}"
                                      class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
                                     <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-100 transform transition-all max-h-[90vh] flex flex-col">
-                                        <form method="POST" action="{{ route('admin.role.update', $role->id) }}" class="flex flex-col h-full overflow-hidden">
+                                        <form method="POST" action="{{ route('store.admin.role.update', $role->id) }}" class="flex flex-col h-full overflow-hidden">
                                             @csrf
                                             @method('PUT')
                                             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
@@ -158,11 +158,11 @@
     </div>
 
     <!-- Create Modal -->
-    @can('Role Create')
+    @can('Manage Store Roles')
         <div id="createRoleModal"
              class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
             <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-100 transform transition-all max-h-[90vh] flex flex-col">
-                <form method="POST" action="{{ route('admin.role.store') }}" class="flex flex-col h-full overflow-hidden">
+                <form method="POST" action="{{ route('store.admin.role.store') }}" class="flex flex-col h-full overflow-hidden">
                     @csrf
                     <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
                         <h3 class="text-base font-bold text-slate-900">Create New Role</h3>
@@ -213,3 +213,5 @@
         }
     </script>
 @endsection
+
+

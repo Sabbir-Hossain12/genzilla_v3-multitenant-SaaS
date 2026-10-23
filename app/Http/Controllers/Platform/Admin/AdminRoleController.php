@@ -18,6 +18,7 @@ class AdminRoleController extends Controller
     public function index()
     {
         $roles = Role::withCount('permissions')
+            ->where('tenant_id',null)
             ->with('permissions:id,name')
             ->orderBy('name')
             ->get();

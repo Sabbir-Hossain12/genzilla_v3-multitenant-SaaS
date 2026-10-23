@@ -43,78 +43,78 @@ Route::domain(config('app.base_domain'))->prefix('admin')->group(function () {
         Route::put('/profile/password', [PlatformProfileController::class, 'updatePassword'])->name('admin.profile.password');
 
         // Admins
-        Route::get('/admins', [PlatformAdminController::class, 'index'])->name('admin.admins.index')->middleware('permission:Admin List');
-        Route::post('/admins', [PlatformAdminController::class, 'store'])->name('admin.admins.store')->middleware('permission:Create Admin');
-        Route::get('/admins/{admin}/edit', [PlatformAdminController::class, 'edit'])->name('admin.admins.edit')->middleware('permission:Edit Admin');
-        Route::put('/admins/{admin}', [PlatformAdminController::class, 'update'])->name('admin.admins.update')->middleware('permission:Edit Admin');
-        Route::delete('/admins/{admin}', [PlatformAdminController::class, 'destroy'])->name('admin.admins.destroy')->middleware('permission:Delete Admin');
-        Route::post('/change-admin-status', [PlatformAdminController::class, 'changeAdminStatus'])->name('admin.status')->middleware('permission:Status Admin');
+        Route::get('/admins', [PlatformAdminController::class, 'index'])->name('admin.admins.index')->middleware('permission:Platform Admin List');
+        Route::post('/admins', [PlatformAdminController::class, 'store'])->name('admin.admins.store')->middleware('permission:Platform Create Admin');
+        Route::get('/admins/{admin}/edit', [PlatformAdminController::class, 'edit'])->name('admin.admins.edit')->middleware('permission:Platform Edit Admin');
+        Route::put('/admins/{admin}', [PlatformAdminController::class, 'update'])->name('admin.admins.update')->middleware('permission:Platform Edit Admin');
+        Route::delete('/admins/{admin}', [PlatformAdminController::class, 'destroy'])->name('admin.admins.destroy')->middleware('permission:Platform Delete Admin');
+        Route::post('/change-admin-status', [PlatformAdminController::class, 'changeAdminStatus'])->name('admin.status')->middleware('permission:Platform Status Admin');
 
         // Roles
-        Route::get('/roles', [AdminRoleController::class, 'index'])->name('admin.role.index')->middleware('permission:Role List');
-        Route::post('/roles', [AdminRoleController::class, 'store'])->name('admin.role.store')->middleware('permission:Role Create');
-        Route::put('/roles/{role}', [AdminRoleController::class, 'update'])->name('admin.role.update')->middleware('permission:Edit Role');
-        Route::delete('/roles/{role}', [AdminRoleController::class, 'destroy'])->name('admin.role.destroy')->middleware('permission:Delete Role');
-        Route::get('/roles/{role}/permissions', [AdminRoleController::class, 'assignPermissionsToRolePage'])->name('admin.role.permission.edit')->middleware('permission:Assign Permission');
-        Route::put('/roles/{role}/permissions', [AdminRoleController::class, 'assignPermissionsToRole'])->name('admin.role.permission.update')->middleware('permission:Assign Permission');
+        Route::get('/roles', [AdminRoleController::class, 'index'])->name('admin.role.index')->middleware('permission:Platform Role List');
+        Route::post('/roles', [AdminRoleController::class, 'store'])->name('admin.role.store')->middleware('permission:Platform Role Create');
+        Route::put('/roles/{role}', [AdminRoleController::class, 'update'])->name('admin.role.update')->middleware('permission:Platform Edit Role');
+        Route::delete('/roles/{role}', [AdminRoleController::class, 'destroy'])->name('admin.role.destroy')->middleware('permission:Platform Delete Role');
+        Route::get('/roles/{role}/permissions', [AdminRoleController::class, 'assignPermissionsToRolePage'])->name('admin.role.permission.edit')->middleware('permission:Platform Assign Permission');
+        Route::put('/roles/{role}/permissions', [AdminRoleController::class, 'assignPermissionsToRole'])->name('admin.role.permission.update')->middleware('permission:Platform Assign Permission');
 
         // Permissions
-        Route::get('/permissions', [AdminPermissionController::class, 'index'])->name('admin.permission.index')->middleware('permission:Permission List');
-        Route::post('/permissions', [AdminPermissionController::class, 'store'])->name('admin.permission.store')->middleware('permission:Create Permission');
-        Route::delete('/permissions/bulk', [AdminPermissionController::class, 'bulkDestroy'])->name('admin.permission.bulk-destroy')->middleware('permission:Delete Permission');
-        Route::put('/permissions/{permission}', [AdminPermissionController::class, 'update'])->name('admin.permission.update')->middleware('permission:Edit Permission');
-        Route::delete('/permissions/{permission}', [AdminPermissionController::class, 'destroy'])->name('admin.permission.destroy')->middleware('permission:Delete Permission');
+        Route::get('/permissions', [AdminPermissionController::class, 'index'])->name('admin.permission.index')->middleware('permission:Platform Permission List');
+        Route::post('/permissions', [AdminPermissionController::class, 'store'])->name('admin.permission.store')->middleware('permission:Platform Create Permission');
+        Route::delete('/permissions/bulk', [AdminPermissionController::class, 'bulkDestroy'])->name('admin.permission.bulk-destroy')->middleware('permission:Platform Delete Permission');
+        Route::put('/permissions/{permission}', [AdminPermissionController::class, 'update'])->name('admin.permission.update')->middleware('permission:Platform Edit Permission');
+        Route::delete('/permissions/{permission}', [AdminPermissionController::class, 'destroy'])->name('admin.permission.destroy')->middleware('permission:Platform Delete Permission');
 
         // Platform Settings
-        Route::get('/settings', [PlatformSettingController::class, 'index'])->name('admin.settings.index')->middleware('permission:General Setting');
-        Route::put('/settings', [PlatformSettingController::class, 'update'])->name('admin.settings.update')->middleware('permission:Edit Setting');
+        Route::get('/settings', [PlatformSettingController::class, 'index'])->name('admin.settings.index')->middleware('permission:Platform General Setting');
+        Route::put('/settings', [PlatformSettingController::class, 'update'])->name('admin.settings.update')->middleware('permission:Platform Edit Setting');
 
         // Group 1: Landing Page CMS
-        Route::get('/hero', [PlatformHeroController::class, 'index'])->name('admin.hero.index')->middleware('permission:Manage Hero');
-        Route::put('/hero', [PlatformHeroController::class, 'update'])->name('admin.hero.update')->middleware('permission:Manage Hero');
+        Route::get('/hero', [PlatformHeroController::class, 'index'])->name('admin.hero.index')->middleware('permission:Platform Manage Hero');
+        Route::put('/hero', [PlatformHeroController::class, 'update'])->name('admin.hero.update')->middleware('permission:Platform Manage Hero');
 
-        Route::resource('/features', PlatformFeatureController::class)->except(['create', 'show', 'edit'])->names('admin.features')->middleware('permission:Manage Features');
-        Route::resource('/steps', PlatformStepController::class)->except(['create', 'show', 'edit'])->names('admin.steps')->middleware('permission:Manage Steps');
-        Route::resource('/use-cases', PlatformUseCaseController::class)->except(['create', 'show', 'edit'])->names('admin.use-cases')->middleware('permission:Manage Use Cases');
-        Route::resource('/store-demos', PlatformStoreDemoController::class)->except(['create', 'show', 'edit'])->names('admin.store-demos')->middleware('permission:Manage Store Demos');
-        Route::resource('/testimonials', PlatformTestimonialController::class)->except(['create', 'show', 'edit'])->names('admin.testimonials')->middleware('permission:Manage Testimonials');
-        Route::resource('/faqs', PlatformFaqController::class)->except(['create', 'show', 'edit'])->names('admin.faqs')->middleware('permission:Manage Faqs');
+        Route::resource('/features', PlatformFeatureController::class)->except(['create', 'show', 'edit'])->names('admin.features')->middleware('permission:Platform Manage Features');
+        Route::resource('/steps', PlatformStepController::class)->except(['create', 'show', 'edit'])->names('admin.steps')->middleware('permission:Platform Manage Steps');
+        Route::resource('/use-cases', PlatformUseCaseController::class)->except(['create', 'show', 'edit'])->names('admin.use-cases')->middleware('permission:Platform Manage Use Cases');
+        Route::resource('/store-demos', PlatformStoreDemoController::class)->except(['create', 'show', 'edit'])->names('admin.store-demos')->middleware('permission:Platform Manage Store Demos');
+        Route::resource('/testimonials', PlatformTestimonialController::class)->except(['create', 'show', 'edit'])->names('admin.testimonials')->middleware('permission:Platform Manage Testimonials');
+        Route::resource('/faqs', PlatformFaqController::class)->except(['create', 'show', 'edit'])->names('admin.faqs')->middleware('permission:Platform Manage Faqs');
 
-        Route::get('/matrix', [PlatformMatrixController::class, 'index'])->name('admin.matrix.index')->middleware('permission:Manage Matrix');
-        Route::put('/matrix', [PlatformMatrixController::class, 'update'])->name('admin.matrix.update')->middleware('permission:Manage Matrix');
+        Route::get('/matrix', [PlatformMatrixController::class, 'index'])->name('admin.matrix.index')->middleware('permission:Platform Manage Matrix');
+        Route::put('/matrix', [PlatformMatrixController::class, 'update'])->name('admin.matrix.update')->middleware('permission:Platform Manage Matrix');
 
         // Group 2: Plans & Subscriptions
-        Route::resource('/plans', PlatformPlanController::class)->except(['create', 'show', 'edit'])->names('admin.plans')->middleware('permission:Manage Plans');
-        Route::resource('/subscriptions', TenantSubscriptionController::class)->only(['index', 'store', 'edit', 'update'])->names('admin.subscriptions')->middleware('permission:Manage Subscriptions');
+        Route::resource('/plans', PlatformPlanController::class)->except(['create', 'show', 'edit'])->names('admin.plans')->middleware('permission:Platform Manage Plans');
+        Route::resource('/subscriptions', TenantSubscriptionController::class)->only(['index', 'store', 'edit', 'update'])->names('admin.subscriptions')->middleware('permission:Platform Manage Subscriptions');
 
-        Route::get('/invoices', [TenantInvoiceController::class, 'index'])->name('admin.invoices.index')->middleware('permission:Manage Invoices');
-        Route::get('/invoices/{invoice}', [TenantInvoiceController::class, 'show'])->name('admin.invoices.show')->middleware('permission:Manage Invoices');
-        Route::patch('/invoices/{invoice}/status', [TenantInvoiceController::class, 'updateStatus'])->name('admin.invoices.update-status')->middleware('permission:Manage Invoices');
+        Route::get('/invoices', [TenantInvoiceController::class, 'index'])->name('admin.invoices.index')->middleware('permission:Platform Manage Invoices');
+        Route::get('/invoices/{invoice}', [TenantInvoiceController::class, 'show'])->name('admin.invoices.show')->middleware('permission:Platform Manage Invoices');
+        Route::patch('/invoices/{invoice}/status', [TenantInvoiceController::class, 'updateStatus'])->name('admin.invoices.update-status')->middleware('permission:Platform Manage Invoices');
 
         // Group 3: Tenant Management
-        Route::resource('/domains', TenantDomainController::class)->except(['create', 'show', 'edit'])->names('admin.domains')->middleware('permission:Manage Domains');
-        Route::get('/usages', [TenantUsageController::class, 'index'])->name('admin.usages.index')->middleware('permission:Manage Usages');
+        Route::resource('/domains', TenantDomainController::class)->except(['create', 'show', 'edit'])->names('admin.domains')->middleware('permission:Platform Manage Domains');
+        Route::get('/usages', [TenantUsageController::class, 'index'])->name('admin.usages.index')->middleware('permission:Platform Manage Usages');
 
         // Group 4: Content & Support
-        Route::resource('/pages', PlatformPageController::class)->names('admin.pages')->middleware('permission:Manage Pages');
+        Route::resource('/pages', PlatformPageController::class)->names('admin.pages')->middleware('permission:Platform Manage Pages');
 
         // Blog
         Route::resource('/blog', PlatformBlogPostController::class)
             ->parameters(['blog' => 'blogPost'])
             ->names('admin.blog')
             ->except('show')
-            ->middleware('permission:Manage Blog');
-        Route::get('/blog-categories', [PlatformBlogCategoryController::class, 'index'])->name('admin.blog-categories.index')->middleware('permission:Manage Blog Categories');
-        Route::post('/blog-categories', [PlatformBlogCategoryController::class, 'store'])->name('admin.blog-categories.store')->middleware('permission:Manage Blog Categories');
-        Route::put('/blog-categories/{blogCategory}', [PlatformBlogCategoryController::class, 'update'])->name('admin.blog-categories.update')->middleware('permission:Manage Blog Categories');
-        Route::delete('/blog-categories/{blogCategory}', [PlatformBlogCategoryController::class, 'destroy'])->name('admin.blog-categories.destroy')->middleware('permission:Manage Blog Categories');
+            ->middleware('permission:Platform Manage Blog');
+        Route::get('/blog-categories', [PlatformBlogCategoryController::class, 'index'])->name('admin.blog-categories.index')->middleware('permission:Platform Manage Blog Categories');
+        Route::post('/blog-categories', [PlatformBlogCategoryController::class, 'store'])->name('admin.blog-categories.store')->middleware('permission:Platform Manage Blog Categories');
+        Route::put('/blog-categories/{blogCategory}', [PlatformBlogCategoryController::class, 'update'])->name('admin.blog-categories.update')->middleware('permission:Platform Manage Blog Categories');
+        Route::delete('/blog-categories/{blogCategory}', [PlatformBlogCategoryController::class, 'destroy'])->name('admin.blog-categories.destroy')->middleware('permission:Platform Manage Blog Categories');
 
-        Route::get('/contacts', [PlatformContactController::class, 'index'])->name('admin.contacts.index')->middleware('permission:Manage Contacts');
-        Route::patch('/contacts/{contact}/status', [PlatformContactController::class, 'updateStatus'])->name('admin.contacts.update-status')->middleware('permission:Manage Contacts');
-        Route::delete('/contacts/{contact}', [PlatformContactController::class, 'destroy'])->name('admin.contacts.destroy')->middleware('permission:Manage Contacts');
+        Route::get('/contacts', [PlatformContactController::class, 'index'])->name('admin.contacts.index')->middleware('permission:Platform Manage Contacts');
+        Route::patch('/contacts/{contact}/status', [PlatformContactController::class, 'updateStatus'])->name('admin.contacts.update-status')->middleware('permission:Platform Manage Contacts');
+        Route::delete('/contacts/{contact}', [PlatformContactController::class, 'destroy'])->name('admin.contacts.destroy')->middleware('permission:Platform Manage Contacts');
 
         // Newsletter
-        Route::get('/newsletters', [PlatformNewsletterSubscriberController::class, 'index'])->name('admin.newsletter.index')->middleware('permission:Manage Newsletter');
-        Route::delete('/newsletters/{subscriber}', [PlatformNewsletterSubscriberController::class, 'destroy'])->name('admin.newsletter.destroy')->middleware('permission:Manage Newsletter');
+        Route::get('/newsletters', [PlatformNewsletterSubscriberController::class, 'index'])->name('admin.newsletter.index')->middleware('permission:Platform Manage Newsletter');
+        Route::delete('/newsletters/{subscriber}', [PlatformNewsletterSubscriberController::class, 'destroy'])->name('admin.newsletter.destroy')->middleware('permission:Platform Manage Newsletter');
     });
 });

@@ -46,8 +46,9 @@
             </svg>
             Dashboard
         </a>
+
         <!-- Landing Page CMS -->
-        @canany(['Manage Hero', 'Manage Features', 'Manage Steps', 'Manage Use Cases', 'Manage Store Demos', 'Manage Testimonials', 'Manage Faqs', 'Manage Matrix'])
+        @canany(['Platform Manage Hero', 'Platform Manage Features', 'Platform Manage Steps', 'Platform Manage Use Cases', 'Platform Manage Store Demos', 'Platform Manage Testimonials', 'Platform Manage Faqs', 'Platform Manage Matrix'])
             <div class="nav-group">
                 @php $grpActive = $isActive(['admin.hero.', 'admin.matrix.', 'admin.faqs.', 'admin.testimonials.', 'admin.store-demos.', 'admin.use-cases.', 'admin.steps.', 'admin.features.']); @endphp
                 <button type="button" class="nav-link nav-toggle w-full text-left {{ $grpActive ? 'has-active' : '' }}" aria-expanded="{{ $grpActive ? 'true' : 'false' }}"
@@ -62,35 +63,35 @@
 
                 <div class="submenu {{ $grpActive ? 'open' : '' }}">
                     <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
-                        @can('Manage Hero')
+                        @can('Platform Manage Hero')
                             <a href="{{ route('admin.hero.index') }}" class="sub-link {{ $isActive('admin.hero.') ? 'active' : '' }}">Hero Section</a>
                         @endcan
 
-                        @can('Manage Matrix')
+                        @can('Platform Manage Matrix')
                             <a href="{{ route('admin.matrix.index') }}" class="sub-link {{ $isActive('admin.matrix.') ? 'active' : '' }}">Platform Metrics</a>
                         @endcan
 
-                        @can('Manage Faqs')
+                        @can('Platform Manage Faqs')
                             <a href="{{ route('admin.faqs.index') }}" class="sub-link {{ $isActive('admin.faqs.') ? 'active' : '' }}"> FAQs</a>
                         @endcan
 
-                        @can('Manage Testimonials')
+                        @can('Platform Manage Testimonials')
                             <a href="{{ route('admin.testimonials.index') }}" class="sub-link {{ $isActive('admin.testimonials.') ? 'active' : '' }}">Testimonials</a>
                         @endcan
 
-                        @can('Manage Store Demos')
+                        @can('Platform Manage Store Demos')
                             <a href="{{ route('admin.store-demos.index') }}" class="sub-link {{ $isActive('admin.store-demos.') ? 'active' : '' }}">Store Demos</a>
                         @endcan
 
-                        @can('Manage Use Cases')
+                        @can('Platform Manage Use Cases')
                             <a href="{{ route('admin.use-cases.index') }}" class="sub-link {{ $isActive('admin.use-cases.') ? 'active' : '' }}">Use Cases</a>
                         @endcan
 
-                        @can('Manage Steps')
+                        @can('Platform Manage Steps')
                             <a href="{{ route('admin.steps.index') }}" class="sub-link {{ $isActive('admin.steps.') ? 'active' : '' }}">How It Works</a>
                         @endcan
 
-                        @can('Manage Features')
+                        @can('Platform Manage Features')
                             <a href="{{ route('admin.features.index') }}" class="sub-link {{ $isActive('admin.features.') ? 'active' : '' }}">Features</a>
                         @endcan
                     </div>
@@ -99,7 +100,7 @@
         @endcanany
 
         <!-- Plans & Subscriptions -->
-        @canany(['Manage Plans', 'Manage Subscriptions', 'Manage Invoices'])
+        @canany(['Platform Manage Plans', 'Platform Manage Subscriptions', 'Platform Manage Invoices'])
             <div class="nav-group">
                 @php $grpActive = $isActive(['admin.plans.', 'admin.subscriptions.', 'admin.invoices.']); @endphp
                 <button type="button" class="nav-link nav-toggle w-full text-left {{ $grpActive ? 'has-active' : '' }}" aria-expanded="{{ $grpActive ? 'true' : 'false' }}"
@@ -113,16 +114,16 @@
                 </button>
                 <div class="submenu {{ $grpActive ? 'open' : '' }}">
                     <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
-                        @can('Manage Plans')
+                        @can('Platform Manage Plans')
                             <a href="{{ route('admin.plans.index') }}" class="sub-link {{ $isActive('admin.plans.') ? 'active' : '' }}">Subscription Plans</a>
                         @endcan
 
-                        @can('Manage Subscriptions')
+                        @can('Platform Manage Subscriptions')
                             <a href="{{ route('admin.subscriptions.index') }}" class="sub-link {{ $isActive('admin.subscriptions.') ? 'active' : '' }}">Merchant
                                 Subscriptions</a>
                         @endcan
 
-                        @can('Manage Invoices')
+                        @can('Platform Manage Invoices')
                             <a href="{{ route('admin.invoices.index') }}" class="sub-link {{ $isActive('admin.invoices.') ? 'active' : '' }}">Invoices</a>
                         @endcan
                     </div>
@@ -131,7 +132,7 @@
         @endcanany
 
         <!-- Tenant Management -->
-        @canany(['Manage Domains', 'Manage Usages'])
+        @canany(['Platform Manage Domains', 'Platform Manage Usages'])
             <div class="nav-group">
                 @php $grpActive = $isActive(['admin.domains.', 'admin.usages.']); @endphp
                 <button type="button" class="nav-link nav-toggle w-full text-left {{ $grpActive ? 'has-active' : '' }}" aria-expanded="{{ $grpActive ? 'true' : 'false' }}"
@@ -145,11 +146,11 @@
                 </button>
                 <div class="submenu {{ $grpActive ? 'open' : '' }}">
                     <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
-                        @can('Manage Domains')
+                        @can('Platform Manage Domains')
                             <a href="{{ route('admin.domains.index') }}" class="sub-link {{ $isActive('admin.domains.') ? 'active' : '' }}">Domains & SSL</a>
                         @endcan
 
-                        @can('Manage Usages')
+                        @can('Platform Manage Usages')
                             <a href="{{ route('admin.usages.index') }}" class="sub-link {{ $isActive('admin.usages.') ? 'active' : '' }}">Resource Usage</a>
                         @endcan
                     </div>
@@ -158,7 +159,7 @@
         @endcanany
 
         <!-- Content & Support -->
-        @canany(['Manage Pages', 'Manage Blog', 'Manage Blog Categories', 'Manage Contacts', 'Manage Newsletter'])
+        @canany(['Platform Manage Pages', 'Platform Manage Blog', 'Platform Manage Blog Categories', 'Platform Manage Contacts', 'Platform Manage Newsletter'])
             <div class="nav-group">
                 @php $grpActive = $isActive(['admin.pages.', 'admin.blog.', 'admin.blog-categories.', 'admin.contacts.', 'admin.newsletter.']); @endphp
                 <button type="button" class="nav-link nav-toggle w-full text-left {{ $grpActive ? 'has-active' : '' }}" aria-expanded="{{ $grpActive ? 'true' : 'false' }}"
@@ -172,23 +173,23 @@
                 </button>
                 <div class="submenu {{ $grpActive ? 'open' : '' }}">
                     <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
-                        @can('Manage Pages')
+                        @can('Platform Manage Pages')
                             <a href="{{ route('admin.pages.index') }}" class="sub-link {{ $isActive('admin.pages.') ? 'active' : '' }}">Custom Pages</a>
                         @endcan
 
-                        @can('Manage Blog')
+                        @can('Platform Manage Blog')
                             <a href="{{ route('admin.blog.index') }}" class="sub-link {{ $isActive('admin.blog.') ? 'active' : '' }}">Blog Posts</a>
                         @endcan
 
-                        @can('Manage Blog Categories')
+                        @can('Platform Manage Blog Categories')
                             <a href="{{ route('admin.blog-categories.index') }}" class="sub-link {{ $isActive('admin.blog-categories.') ? 'active' : '' }}"> Blog Categories</a>
                         @endcan
 
-                        @can('Manage Contacts')
+                        @can('Platform Manage Contacts')
                             <a href="{{ route('admin.contacts.index') }}" class="sub-link {{ $isActive('admin.contacts.') ? 'active' : '' }}">Contact Messages</a>
                         @endcan
 
-                        @can('Manage Newsletter')
+                        @can('Platform Manage Newsletter')
                             <a href="{{ route('admin.newsletter.index') }}" class="sub-link {{ $isActive('admin.newsletter.') ? 'active' : '' }}">Newsletter Subs</a>
                         @endcan
                     </div>
@@ -201,7 +202,7 @@
 
         <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-3 pb-2">
             System</p>
-        @canany(['Admin List', 'Role List', 'Permission List'])
+        @canany(['Platform Admin List', 'Platform Role List', 'Platform Permission List'])
             <div class="nav-group">
                 @php $grpActive = $isActive(['admin.admins.', 'admin.role.', 'admin.permission.']); @endphp
                 <button type="button" class="nav-link nav-toggle w-full text-left {{ $grpActive ? 'has-active' : '' }}" aria-expanded="{{ $grpActive ? 'true' : 'false' }}"
@@ -215,15 +216,15 @@
                 </button>
                 <div class="submenu {{ $grpActive ? 'open' : '' }}">
                     <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
-                        @can('Admin List')
+                        @can('Platform Admin List')
                             <a href="{{ route('admin.admins.index') }}" class="sub-link {{ $isActive('admin.admins.') ? 'active' : '' }}">Admin Users</a>
                         @endcan
 
-                        @can('Role List')
+                        @can('Platform Role List')
                             <a href="{{ route('admin.role.index') }}" class="sub-link {{ $isActive('admin.role.') ? 'active' : '' }}">Roles</a>
                         @endcan
 
-                        @can('Permission List')
+                        @can('Platform Permission List')
                             <a href="{{ route('admin.permission.index') }}" class="sub-link {{ $isActive('admin.permission.') ? 'active' : '' }}">Permissions</a>
                         @endcan
                     </div>
@@ -231,7 +232,7 @@
             </div>
         @endcanany
 
-        @can('General Setting')
+        @can('Platform General Setting')
             <a href="{{ route('admin.settings.index') }}" class="nav-link {{ $isActive('admin.settings.') ? 'active' : '' }}">
                 <i class="fa-solid fa-sliders"></i>
                 Settings

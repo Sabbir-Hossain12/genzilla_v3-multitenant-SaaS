@@ -8,65 +8,73 @@ use Spatie\Permission\PermissionRegistrar;
 
 class PermissionSeeder extends Seeder
 {
-    /**
-     * Platform permission groups. Tenant-scoped permissions are intentionally
-     * out of scope for now (see config/permission.php teams => true).
-     *
-     * @var array<string, array<int, string>>
-     */
     public const GROUPS = [
         'Platform Admin Dashboard' => [
             'Platform Admin Dashboard',
         ],
-        'Admin Management' => [
-            'Admin List',
-            'Create Admin',
-            'Edit Admin',
-            'Delete Admin',
-            'Status Admin',
+        'Platform Admin Management' => [
+            'Platform Admin List',
+            'Platform Create Admin',
+            'Platform Edit Admin',
+            'Platform Delete Admin',
+            'Platform Status Admin',
         ],
-        'Role Management' => [
-            'Role List',
-            'Role Create',
-            'Edit Role',
+        'Platform Role Management' => [
+            'Platform Role List',
+            'PlatformRole Create',
+            'Platform Edit Role',
             'Delete Role',
-            'Assign Permission',
+            'Platform Assign Permission',
         ],
-        'Permission Management' => [
-            'Permission List',
-            'Create Permission',
-            'Edit Permission',
-            'Delete Permission',
+        'Platform Permission Management' => [
+            'Platform Permission List',
+            'Platform Create Permission',
+            'Platform Edit Permission',
+            'Platform Delete Permission',
         ],
-        'Settings' => [
-            'General Setting',
-            'Edit Setting',
+        'Platform Settings' => [
+            'Platform General Setting',
+            'Platform Edit Setting',
         ],
-        'Landing Page CMS' => [
-            'Manage Hero',
-            'Manage Features',
-            'Manage Steps',
-            'Manage Use Cases',
-            'Manage Store Demos',
-            'Manage Testimonials',
-            'Manage Faqs',
-            'Manage Matrix',
+        'Platform Landing Page CMS' => [
+            'Platform Manage Hero',
+            'Platform Manage Features',
+            'Platform Manage Steps',
+            'Platform Manage Use Cases',
+            'Platform Manage Store Demos',
+            'Platform Manage Testimonials',
+            'Platform Manage Faqs',
+            'Platform Manage Matrix',
         ],
-        'Plans & Billing' => [
-            'Manage Plans',
-            'Manage Subscriptions',
-            'Manage Invoices',
+        'Platform Plans & Billing' => [
+            'Platform Manage Plans',
+            'Platform Manage Subscriptions',
+            'Platform Manage Invoices',
         ],
-        'Tenant Operations' => [
-            'Manage Domains',
-            'Manage Usages',
+        'Platform Tenant Operations' => [
+            'Platform Manage Domains',
+            'Platform Manage Usages',
         ],
-        'Content & Support' => [
-            'Manage Pages',
-            'Manage Blog',
-            'Manage Blog Categories',
-            'Manage Contacts',
-            'Manage Newsletter',
+        'PlatformContent & Support' => [
+            'Platform Manage Pages',
+            'Platform Manage Blog',
+            'Platform Manage Blog Categories',
+            'Platform Manage Contacts',
+            'Platform Manage Newsletter',
+        ],
+    ];
+
+    /** @var array<string, array<int, string>> */
+    public const STOREFRONT_GROUPS = [
+        'Store Admin Dashboard' => [
+            'Store Dashboard',
+        ],
+        'Store Role Management' => [
+            'Store Role List',
+            'Store Role Create',
+            'Store Edit Role',
+            'Store Delete Role',
+            'Store Assign Permission',
         ],
     ];
 
@@ -75,6 +83,7 @@ class PermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // 1. Seed Platform-level permissions
         foreach (self::GROUPS as $groupName => $permissions) {
             foreach ($permissions as $permissionName) {
                 Permission::firstOrCreate(
@@ -84,6 +93,23 @@ class PermissionSeeder extends Seeder
                     ],
                     [
                         'group_name' => $groupName,
+                        'panel' => 'platform', // Assigned to SaaS platform panel
+                    ]
+                );
+            }
+        }
+
+        // 2. Seed Store-level permissions
+        foreach (self::STOREFRONT_GROUPS as $groupName => $permissions) {
+            foreach ($permissions as $permissionName) {
+                Permission::firstOrCreate(
+                    [
+                        'name' => $permissionName,
+                        'guard_name' => 'web',
+                    ],
+                    [
+                        'group_name' => $groupName,
+                        'panel' => 'store', // Assigned to merchant store panel
                     ]
                 );
             }

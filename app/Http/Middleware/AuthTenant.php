@@ -5,6 +5,10 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\PermissionRegistrar;
+use Spatie\Permission\Models\Permission;
+use Database\Seeders\PermissionSeeder;
+use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthTenant
@@ -35,6 +39,41 @@ class AuthTenant
                 ->with('error', 'This account does not have an associated store.');
         }
 
+        $permissions = app(PermissionRegistrar::class);
+        $permissions->setPermissionsTeamId($user->tenant->id);
+
+        // The tenant owner is the initial Store Owner. Repair older tenants that
+        // have the role row but were created before its permissions were seeded.
+        if ((int) $user->tenant->user_id === (int) $user->id) {
+            $ownerRole = Role::firstOrCreate([
+                'tenant_id' => $user->tenant->id,
+                'name' => 'Store Owner',
+                'guard_name' => 'web',
+            ]);
+
+            if (! $ownerRole->permissions()->exists()) {
+                $storePermissions = [];
+                foreach (PermissionSeeder::STOREFRONT_GROUPS as $groupName => $permissionNames) {
+                    foreach ($permissionNames as $permissionName) {
+                        $storePermissions[] = Permission::firstOrCreate(
+                            ['name' => $permissionName, 'guard_name' => 'web'],
+                            ['group_name' => $groupName]
+                        );
+                    }
+                }
+                $ownerRole->syncPermissions($storePermissions);
+            }
+
+            if (! $user->hasRole($ownerRole)) {
+                $user->assignRole($ownerRole);
+            }
+        }
+
         return $next($request);
+    }
+
+    public function terminate(Request $request, Response $response): void
+    {
+        app(PermissionRegistrar::class)->setPermissionsTeamId(null);
     }
 }

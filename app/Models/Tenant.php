@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Database\Seeders\PermissionSeeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class Tenant extends Model
 {
@@ -133,6 +137,33 @@ class Tenant extends Model
                     : 'trialing',
                 'status' => $tenantData['status'] ?? 'active',
             ]);
+
+            // Give each newly onboarded tenant a tenant-scoped owner role with
+            // the full storefront permission catalog.
+            $permissionRegistrar = app(PermissionRegistrar::class);
+            $previousTeamId = $permissionRegistrar->getPermissionsTeamId();
+            $permissionRegistrar->setPermissionsTeamId($tenant->id);
+
+            try {
+                $ownerRole = Role::firstOrCreate([
+                    'tenant_id' => $tenant->id,
+                    'name' => 'Store Owner',
+                    'guard_name' => 'web',
+                ]);
+                $storePermissions = [];
+                foreach (PermissionSeeder::STOREFRONT_GROUPS as $groupName => $permissionNames) {
+                    foreach ($permissionNames as $permissionName) {
+                        $storePermissions[] = Permission::firstOrCreate(
+                            ['name' => $permissionName, 'guard_name' => 'web'],
+                            ['group_name' => $groupName]
+                        );
+                    }
+                }
+                $ownerRole->syncPermissions($storePermissions);
+                $user->assignRole($ownerRole);
+            } finally {
+                $permissionRegistrar->setPermissionsTeamId($previousTeamId);
+            }
 
             // ------------------------------------------------------------------
             // 3. Create Tenant Domain Entry (*.genzilla.com)

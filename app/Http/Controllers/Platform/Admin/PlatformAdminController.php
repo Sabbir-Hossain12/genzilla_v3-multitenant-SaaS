@@ -13,7 +13,9 @@ class PlatformAdminController extends Controller
 {
     public function index(Request $request)
     {
-        $roles = Role::orderBy('name')->get();
+        $roles = Role::orderBy('name')
+            ->where('tenant_id',null)
+            ->get();
 
         $admins = User::query()
             ->permission('Platform Admin Dashboard')

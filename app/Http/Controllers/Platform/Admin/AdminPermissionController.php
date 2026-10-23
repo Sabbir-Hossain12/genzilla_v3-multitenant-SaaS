@@ -27,6 +27,7 @@ class AdminPermissionController extends Controller
         }
 
         $permissions = Permission::query()
+            ->where('panel','platform')
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($sub) use ($search) {
                     $sub->where('name', 'like', "%{$search}%")

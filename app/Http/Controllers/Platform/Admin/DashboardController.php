@@ -109,7 +109,7 @@ class DashboardController extends Controller
             ->get()
             ->map(fn (Role $role) => [
                 'name' => $role->name,
-                'count' => User::role($role->name)->count(),
+//                'count' => User::role($role->name)->count() ?? null,
             ]);
 
         $recentContacts = PlatformContact::latest()->limit(5)->get();
