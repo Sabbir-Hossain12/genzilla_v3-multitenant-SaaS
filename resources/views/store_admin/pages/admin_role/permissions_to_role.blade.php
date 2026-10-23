@@ -9,7 +9,7 @@
                 <p class="text-sm text-slate-500 mt-0.5">Permissions for <span class="font-semibold text-indigo-600">{{ $role->name }}</span></p>
             </div>
             <a href="{{ route('store.admin.role.index') }}"
-               class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors gap-2 cursor-pointer">
+               class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors gap-2 cursor-pointer dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700">
                 <i class="fa-solid fa-arrow-left text-xs"></i>
                 <span>Back to Roles</span>
             </a>
@@ -25,21 +25,21 @@
                     @php($groupKey = 'group-'.$loop->index)
                     <div class="card p-5">
                         <div class="flex items-center justify-between mb-3">
-                            <h6 class="text-xs font-bold uppercase tracking-wider text-slate-600">{{ $groupName ?: 'General' }}</h6>
+                            <h6 class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">{{ $groupName ?: 'General' }}</h6>
                             <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-500">
-                                <input type="checkbox" class="group-toggle rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                <input type="checkbox" class="group-toggle rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-700"
                                        data-group="{{ $groupKey }}">
                                 <span>Select all</span>
                             </label>
                         </div>
-                        <hr class="border-slate-100 mb-3">
+                        <hr class="border-slate-100 mb-3 dark:border-slate-800">
                         <div class="space-y-2.5">
                             @foreach($permissions as $permission)
-                                <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+                                <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-700 dark:text-slate-200">
                                     <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
                                            data-group-member="{{ $groupKey }}"
                                            @checked($role->hasPermissionTo($permission->name))
-                                           class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                           class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-700">
                                     <span>{{ $permission->name }}</span>
                                 </label>
                             @endforeach

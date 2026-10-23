@@ -12,6 +12,9 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class TenantSubscriptionSeeder extends Seeder
 {
@@ -55,6 +58,30 @@ class TenantSubscriptionSeeder extends Seeder
                 'subscription_status' => 'trialing',
                 'status' => 'active',
             ]);
+
+            $permissionRegistrar = app(PermissionRegistrar::class);
+            $previousTeamId = $permissionRegistrar->getPermissionsTeamId();
+            $permissionRegistrar->setPermissionsTeamId($tenant->id);
+            try {
+                $ownerRole = Role::firstOrCreate([
+                    'tenant_id' => $tenant->id,
+                    'name' => 'Store Owner',
+                    'guard_name' => 'web',
+                ]);
+                $storePermissions = [];
+                foreach (PermissionSeeder::STOREFRONT_GROUPS as $groupName => $permissionNames) {
+                    foreach ($permissionNames as $permissionName) {
+                        $storePermissions[] = Permission::updateOrCreate(
+                            ['name' => $permissionName, 'guard_name' => 'web'],
+                            ['group_name' => $groupName, 'panel' => 'store']
+                        );
+                    }
+                }
+                $ownerRole->syncPermissions($storePermissions);
+                $merchantUser->assignRole($ownerRole);
+            } finally {
+                $permissionRegistrar->setPermissionsTeamId($previousTeamId);
+            }
 
             // 3. Create Tenant Domain Entry (*.genzilla.com)
             $fullSubdomain = strtolower($tenant->subdomain) . '.' . config('app.base_domain', 'genzilla.com');

@@ -66,6 +66,27 @@ class Tenant extends Model
         return $this->hasMany(TenantDomain::class, 'tenant_id');
     }
 
+    public function categories(): HasMany { return $this->hasMany(Category::class); }
+    public function brands(): HasMany { return $this->hasMany(Brand::class); }
+    public function products(): HasMany { return $this->hasMany(Product::class); }
+    public function productAttributes(): HasMany { return $this->hasMany(ProductAttribute::class, 'tenant_id'); }
+
+    public function initializeCatalogDefaults(): void
+    {
+        foreach (['Size' => ['Small', 'Medium', 'Large'], 'Color' => ['Black', 'White']] as $name => $values) {
+            $attribute = ProductAttribute::firstOrCreate(
+                ['tenant_id' => $this->id, 'slug' => Str::slug($name)],
+                ['name' => $name, 'position' => 0]
+            );
+            foreach ($values as $position => $value) {
+                ProductAttributeValue::firstOrCreate(
+                    ['tenant_id' => $this->id, 'attribute_id' => $attribute->id, 'slug' => Str::slug($value)],
+                    ['value' => $value, 'position' => $position, 'status' => true]
+                );
+            }
+        }
+    }
+
     public function primaryDomain(): HasOne
     {
         return $this->hasOne(TenantDomain::class, 'tenant_id')->where('is_primary', true);
@@ -137,6 +158,7 @@ class Tenant extends Model
                     : 'trialing',
                 'status' => $tenantData['status'] ?? 'active',
             ]);
+            $tenant->initializeCatalogDefaults();
 
             // Give each newly onboarded tenant a tenant-scoped owner role with
             // the full storefront permission catalog.
@@ -153,9 +175,9 @@ class Tenant extends Model
                 $storePermissions = [];
                 foreach (PermissionSeeder::STOREFRONT_GROUPS as $groupName => $permissionNames) {
                     foreach ($permissionNames as $permissionName) {
-                        $storePermissions[] = Permission::firstOrCreate(
+                        $storePermissions[] = Permission::updateOrCreate(
                             ['name' => $permissionName, 'guard_name' => 'web'],
-                            ['group_name' => $groupName]
+                            ['group_name' => $groupName, 'panel' => 'store']
                         );
                     }
                 }

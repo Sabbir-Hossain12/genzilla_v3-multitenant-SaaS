@@ -1,14 +1,20 @@
 <!-- TOP BAR -->
-<header class="sticky top-0 z-10 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md
-                 border-b border-slate-200 dark:border-slate-800
-                 flex items-center px-4 md:px-6 gap-3">
+<header class="sticky top-0 z-10 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center px-4 md:px-6 gap-3">
 
-    @php($currentRoute = request()->route()?->getName() ?? 'store.admin.dashboard')
+    @php
+        $currentRoute = request()->route()?->getName() ?? 'store.admin.dashboard';
+        $pageTitle = match (true) {
+            str_starts_with($currentRoute, 'store.admin.admins.') => 'Admin Users',
+            str_starts_with($currentRoute, 'store.admin.permission.') => 'Permissions',
+            str_starts_with($currentRoute, 'store.admin.role.permission.') => 'Role Permissions',
+            str_starts_with($currentRoute, 'store.admin.role.') => 'Roles',
+            default => 'Dashboard',
+        };
+    @endphp
 
     <!-- Hamburger -->
     <button onclick="openSidebar()"
-            class="lg:hidden w-9 h-9 grid place-items-center rounded-xl
-             hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
+            class="lg:hidden w-9 h-9 grid place-items-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
         <svg class="w-5 h-5 text-slate-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2">
             <line x1="3" y1="6" x2="21" y2="6"/>
@@ -19,7 +25,7 @@
 
     <!-- Title -->
     <div class="hidden md:block">
-        <p class="text-base font-bold text-ink dark:text-white leading-none">{{ str($currentRoute ?? request()->route()?->getName())->afterLast('.')->replace('-', ' ')->title() }}</p>
+        <p class="text-base font-bold text-ink dark:text-white leading-none">{{ $pageTitle }}</p>
         <p class="text-xs text-slate-400 mt-0.5">{{ today()->format('D, d M Y') }}</p>
     </div>
 
@@ -32,11 +38,7 @@
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <input type="text" placeholder="Search anything…"
-                   class="w-full pl-9 pr-4 py-2 text-sm rounded-xl
-                 bg-slate-100 dark:bg-slate-800
-                 border border-transparent focus:border-primary dark:focus:border-primary
-                 text-ink dark:text-slate-100 placeholder:text-slate-400
-                 focus:outline-none transition-colors"/>
+                   class="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-primary dark:focus:border-primary text-ink dark:text-slate-100 placeholder:text-slate-400 focus:outline-none transition-colors"/>
         </div>
     </div>
 
@@ -45,9 +47,7 @@
 
         <!-- Dark toggle -->
         <button onclick="toggleDark()" title="Toggle dark mode"
-                class="w-9 h-9 grid place-items-center rounded-xl
-               hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors
-               text-slate-500 dark:text-slate-400">
+                class="w-9 h-9 grid place-items-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400">
             <svg id="icon-moon" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
@@ -67,9 +67,7 @@
         </button>
 
         <!-- Notifications -->
-        <button class="relative w-9 h-9 grid place-items-center rounded-xl
-                     hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors
-                     text-slate-500 dark:text-slate-400">
+        <button class="relative w-9 h-9 grid place-items-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400">
             <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -86,8 +84,8 @@
             <button type="button" id="profile-btn" onclick="toggleProfileMenu(event)"
                     aria-haspopup="true" aria-expanded="false"
                     class="cursor-pointer flex items-center gap-2 rounded-xl p-1 pr-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                <img src="{{ auth()->user()->img_url ?? 'https://i.pravatar.cc/40?img=68' }}"
-                     class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" alt="{{ auth()->user()->name ?? 'Admin' }}"/>
+                <img src="https://i.pravatar.cc/40?img=68"
+                     class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" alt="Alex"/>
                 <div class="hidden sm:block text-left">
                     <p class="text-xs font-semibold text-ink dark:text-white leading-none">{{ auth()->user()->name ?? 'Admin' }}</p>
                     <p class="text-[10px] text-slate-400">{{ auth()->user()->getRoleNames()->implode(', ') }}</p>
@@ -104,6 +102,14 @@
                     <p class="text-sm font-semibold text-ink dark:text-white truncate">{{ auth()->user()->name ?? 'Admin' }}</p>
                     <p class="text-xs text-slate-400 truncate">{{ auth()->user()->email ?? 'me@admin.com' }}</p>
                 </div>
+                <a href="#" role="menuitem"
+                   class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primarylt dark:hover:bg-slate-800 hover:text-primary cursor-pointer transition-colors">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    Profile
+                </a>
                 <form method="post" action="{{ route('store.admin.logout') }}">
                     @csrf
                     <button type="submit" role="menuitem"

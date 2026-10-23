@@ -21,8 +21,7 @@
         {{-- Validation Errors --}}
         @if ($errors->any())
             <div id="errorAlert"
-                 class="flex items-start gap-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30
-                    text-red-700 dark:text-red-400 rounded-2xl px-4 py-3.5 mb-5 text-sm">
+                 class="flex items-start gap-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 rounded-2xl px-4 py-3.5 mb-5 text-sm">
                 <svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 <ul class="flex-1 space-y-0.5 list-disc list-inside">
                     @foreach ($errors->all() as $error)
@@ -137,12 +136,7 @@
                                      src="{{ $setting->black_logo ? asset('storage/' . $setting->black_logo) : asset('backend/assets/images/logo-dark.png') }}"
                                      class="max-h-12 max-w-full object-contain" alt="Dark Logo"/>
                             </div>
-                            <input class="block w-full text-xs text-slate-500 dark:text-slate-400
-                                      file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
-                                      file:text-xs file:font-semibold
-                                      file:bg-primarylt file:text-primary
-                                      dark:file:bg-primary/10 dark:file:text-primary
-                                      hover:file:bg-primarylt/80 cursor-pointer transition-colors"
+                            <input class="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primarylt file:text-primary dark:file:bg-primary/10 dark:file:text-primary hover:file:bg-primarylt/80 cursor-pointer transition-colors"
                                    type="file" id="black_logo" name="black_logo" accept="image/*"
                                    onchange="previewImg(this, 'blackLogoPrev')"/>
                         </div>
@@ -155,12 +149,7 @@
                                      src="{{ $setting->light_logo ? asset('storage/' . $setting->light_logo) : asset('backend/assets/images/logo-light.png') }}"
                                      class="max-h-12 max-w-full object-contain" alt="Light Logo"/>
                             </div>
-                            <input class="block w-full text-xs text-slate-500 dark:text-slate-400
-                                      file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
-                                      file:text-xs file:font-semibold
-                                      file:bg-primarylt file:text-primary
-                                      dark:file:bg-primary/10 dark:file:text-primary
-                                      hover:file:bg-primarylt/80 cursor-pointer transition-colors"
+                            <input class="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primarylt file:text-primary dark:file:bg-primary/10 dark:file:text-primary hover:file:bg-primarylt/80 cursor-pointer transition-colors"
                                    type="file" id="light_logo" name="light_logo" accept="image/*"
                                    onchange="previewImg(this, 'lightLogoPrev')"/>
                         </div>
@@ -173,12 +162,7 @@
                                      src="{{ $setting->favicon ? asset('storage/' . $setting->favicon) : asset('backend/assets/images/favicon.ico') }}"
                                      class="max-h-10 max-w-full object-contain" alt="Favicon"/>
                             </div>
-                            <input class="block w-full text-xs text-slate-500 dark:text-slate-400
-                                      file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
-                                      file:text-xs file:font-semibold
-                                      file:bg-primarylt file:text-primary
-                                      dark:file:bg-primary/10 dark:file:text-primary
-                                      hover:file:bg-primarylt/80 cursor-pointer transition-colors"
+                            <input class="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primarylt file:text-primary dark:file:bg-primary/10 dark:file:text-primary hover:file:bg-primarylt/80 cursor-pointer transition-colors"
                                    type="file" id="favicon" name="favicon" accept="image/*"
                                    onchange="previewImg(this, 'faviconPrev')"/>
                         </div>
@@ -303,13 +287,7 @@
                         </div>
                         <div>
                             <label for="og_image" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">OG Image</label>
-                            <input class="block w-full text-xs text-slate-500 dark:text-slate-400
-                                      file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
-                                      file:text-xs file:font-semibold
-                                      file:bg-primarylt file:text-primary
-                                      dark:file:bg-primary/10 dark:file:text-primary
-                                      hover:file:bg-primarylt/80 cursor-pointer transition-colors
-                                      border border-slate-200 dark:border-slate-700 rounded-xl py-2"
+                            <input class="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primarylt file:text-primary dark:file:bg-primary/10 dark:file:text-primary hover:file:bg-primarylt/80 cursor-pointer transition-colors border border-slate-200 dark:border-slate-700 rounded-xl py-2"
                                    type="file" id="og_image" name="og_image" accept="image/*"
                                    onchange="previewImg(this, 'ogImgPrev')"/>
                             <div class="mt-2">
@@ -495,9 +473,7 @@
             <div class="px-6 md:px-8 py-4 bg-slate-50/60 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
                 <p class="text-xs text-slate-400 hidden sm:block">All changes are saved globally across the platform.</p>
                 <button type="submit"
-                        class="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primarydark
-                           text-white text-sm font-semibold rounded-xl transition-colors
-                           shadow-sm shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/30">
+                        class="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primarydark text-white text-sm font-semibold rounded-xl transition-colors shadow-sm shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/30">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     Save Platform Settings
                 </button>

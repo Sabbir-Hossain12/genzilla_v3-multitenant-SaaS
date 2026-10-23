@@ -18,8 +18,7 @@
 
     {{-- Validation Errors --}}
     @if ($errors->any())
-        <div class="flex items-start gap-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30
-                    text-red-700 dark:text-red-400 rounded-2xl px-4 py-3.5 mb-5 text-sm">
+        <div class="flex items-start gap-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 rounded-2xl px-4 py-3.5 mb-5 text-sm">
             <svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <ul class="flex-1 space-y-0.5 list-disc list-inside">
                 @foreach ($errors->all() as $error)

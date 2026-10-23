@@ -17,11 +17,11 @@ class StoreAdminRoleController extends Controller
 
     private function permissions()
     {
-        return Permission::query()->whereIn('name', [
-            'Store Dashboard', 'Manage Store Pages', 'Manage Store Blog',
-            'Manage Store Testimonials', 'Manage Store Brands', 'Manage Store Users',
-            'Manage Store Roles',
-        ])->orderBy('group_name')->orderBy('name')->get();
+        return Permission::query()
+            ->where('panel','store')
+            ->orderBy('group_name')
+            ->orderBy('name')
+            ->get();
     }
 
     public function index()
@@ -71,6 +71,7 @@ class StoreAdminRoleController extends Controller
         abort_if($role->name === 'Store Owner', 403);
         $permissionGroups = $this->permissions()->groupBy('group_name');
 
+//        dd($permissionGroups);
         return view('store_admin.pages.admin_role.permissions_to_role', compact('role', 'permissionGroups'));
     }
 

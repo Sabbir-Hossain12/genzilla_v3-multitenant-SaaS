@@ -10,7 +10,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('admin.blog-categories.index') }}"
-                   class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg shadow-sm transition-all gap-2">
+                   class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg shadow-sm transition-all gap-2 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700">
                     <i class="fa-solid fa-tags text-xs"></i>
                     <span>Categories</span>
                 </a>
@@ -98,7 +98,7 @@
                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Published
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
                                             <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Draft
                                         </span>
                                     @endif

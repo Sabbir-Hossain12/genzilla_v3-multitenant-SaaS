@@ -36,6 +36,13 @@ return new class extends Migration
             $table->string('gtm_id')->nullable();
             $table->text('custom_head_script')->nullable();
 
+            $table->string('meta_title')->nullable();
+            $table->text('meta_description')->nullable();
+            $table->text('meta_keywords')->nullable();
+            $table->string('meta_robots')->default('index, follow');
+            $table->string('canonical_url')->nullable();
+            $table->text('schema_markup')->nullable();
+
             $table->integer('current_subscription_id')->nullable();
             $table->enum('subscription_status',['trialing','active','past_due','expired','cancelled'])->default('trialing');
             $table->json('theme_settings')->nullable();

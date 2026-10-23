@@ -102,28 +102,28 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-start">
                     <!-- COLUMN 1: ACCOUNT IDENTITY -->
                     <div class="space-y-3.5">
-                        <div class="flex items-center gap-2 pb-1 border-b border-gray-100">
+                        <div class="flex items-center gap-2 pb-1 border-b border-gray-100 dark:border-slate-800">
                             <span class="w-5 h-5 rounded-full bg-primary/10 text-primary text-[11px] font-bold flex items-center justify-center">1</span>
                             <span class="text-[11.5px] font-bold uppercase tracking-wider text-primary">Account Identity</span>
                         </div>
 
                         <div>
-                            <label class="block text-[13px] font-semibold text-gray-700 mb-1">Full Name</label>
+                            <label class="block text-[13px] font-semibold text-gray-700 mb-1 dark:text-slate-200">Full Name</label>
                             <input required type="text" name="name" value="{{ old('name') }}" placeholder="Dr. John Doe"
-                                   class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
+                                   class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors dark:border-slate-700"/>
                         </div>
 
                         <div>
-                            <label class="block text-[13px] font-semibold text-gray-700 mb-1">Email Address</label>
+                            <label class="block text-[13px] font-semibold text-gray-700 mb-1 dark:text-slate-200">Email Address</label>
                             <input required type="email" name="email" value="{{ old('email') }}" placeholder="you@example.com"
-                                   class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
+                                   class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors dark:border-slate-700"/>
                         </div>
 
                         <div>
-                            <label class="block text-[13px] font-semibold text-gray-700 mb-1">Password</label>
+                            <label class="block text-[13px] font-semibold text-gray-700 mb-1 dark:text-slate-200">Password</label>
                             <div class="relative">
                                 <input id="reg-password" type="password" name="password" required placeholder="Create a password"
-                                       class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 pr-10 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
+                                       class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 pr-10 text-[14px] focus:outline-none focus:border-primary transition-colors dark:border-slate-700"/>
                                 <button type="button" onclick="togglePw('reg-password', this)"
                                         class="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
@@ -137,24 +137,24 @@
 
                     <!-- COLUMN 2: STORE SETUP -->
                     <div class="space-y-3.5">
-                        <div class="flex items-center gap-2 pb-1 border-b border-gray-100">
+                        <div class="flex items-center gap-2 pb-1 border-b border-gray-100 dark:border-slate-800">
                             <span class="w-5 h-5 rounded-full bg-primary/10 text-primary text-[11px] font-bold flex items-center justify-center">2</span>
                             <span class="text-[11.5px] font-bold uppercase tracking-wider text-primary">Store Setup</span>
                         </div>
 
                         <div>
-                            <label class="block text-[13px] font-semibold text-gray-700 mb-1">Store Name</label>
+                            <label class="block text-[13px] font-semibold text-gray-700 mb-1 dark:text-slate-200">Store Name</label>
                             <input required type="text" name="store_name" id="store_name" value="{{ old('store_name') }}" placeholder="MediCare Pharmacy"
                                    oninput="autoGenerateSubdomain(this.value)"
-                                   class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"/>
+                                   class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors dark:border-slate-700"/>
                         </div>
 
                         <div>
-                            <label class="block text-[13px] font-semibold text-gray-700 mb-1">Store Subdomain</label>
-                            <div class="flex rounded-lg border border-gray-200 overflow-hidden focus-within:border-primary transition-colors">
+                            <label class="block text-[13px] font-semibold text-gray-700 mb-1 dark:text-slate-200">Store Subdomain</label>
+                            <div class="flex rounded-lg border border-gray-200 overflow-hidden focus-within:border-primary transition-colors dark:border-slate-700">
                                 <input required type="text" name="subdomain" id="subdomain" value="{{ old('subdomain') }}" placeholder="medicare"
                                        class="w-full min-w-0 px-3.5 py-2.5 text-[14px] focus:outline-none"/>
-                                <span class="bg-gray-50 border-l border-gray-200 px-3 py-2.5 text-[12.5px] text-gray-500 font-medium flex items-center shrink-0">
+                                <span class="bg-gray-50 border-l border-gray-200 px-3 py-2.5 text-[12.5px] text-gray-500 font-medium flex items-center shrink-0 dark:border-slate-700">
                                     .{{ config('app.base_domain', 'genzilla.com') }}
                                 </span>
                             </div>
@@ -167,8 +167,8 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <div class="text-[12px] text-gray-600 leading-snug">
-                                <span class="font-bold text-gray-800">14-day trial on {{ $selectedPlan->name }} plan.</span>
+                            <div class="text-[12px] text-gray-600 leading-snug dark:text-slate-300">
+                                <span class="font-bold text-gray-800 dark:text-white">14-day trial on {{ $selectedPlan->name }} plan.</span>
                                 <span class="block text-gray-500 text-[11px] mt-0.5">Instant activation &bull; No card required</span>
                             </div>
                         </div>
@@ -179,7 +179,7 @@
                 <div class="pt-1">
                     <label class="flex items-start gap-2.5 cursor-pointer">
                         <input type="checkbox" required checked class="w-4 h-4 rounded accent-primary cursor-pointer mt-0.5"/>
-                        <span class="text-[12.5px] text-gray-600 leading-snug">
+                        <span class="text-[12.5px] text-gray-600 leading-snug dark:text-slate-300">
                             I agree to the <a href="" target="_blank" class="text-primary underline">Terms of Service</a> and <a href="" target="_blank" class="text-primary underline">Privacy Policy</a>.
                         </span>
                     </label>

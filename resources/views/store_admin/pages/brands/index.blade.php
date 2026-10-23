@@ -45,7 +45,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table mb-0  nowrap w-100 dataTable no-footer dtr-inline" id="brandTable">
+                        <table class="table mb-0 nowrap w-100 dataTable no-footer dtr-inline" id="brandTable">
                             <thead>
                             <tr>
                                 <th>SL</th>

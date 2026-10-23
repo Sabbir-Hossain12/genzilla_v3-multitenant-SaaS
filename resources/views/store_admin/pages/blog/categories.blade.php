@@ -10,7 +10,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('admin.blog.index') }}"
-                   class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg shadow-sm transition-all gap-2">
+                   class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg shadow-sm transition-all gap-2 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700">
                     <i class="fa-solid fa-arrow-left text-xs"></i>
                     <span>Back to Blog</span>
                 </a>
@@ -98,12 +98,12 @@
                         <!-- Edit Modal -->
                         <div id="editCategoryModal{{ $category->id }}"
                              class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-                            <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-100 transform transition-all">
+                            <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-100 transform transition-all dark:bg-slate-900 dark:border-slate-800">
                                 <form method="POST" action="{{ route('admin.blog-categories.update', $category) }}">
                                     @csrf
                                     @method('PUT')
-                                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                                        <h3 class="text-base font-bold text-slate-900">Edit Category</h3>
+                                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Edit Category</h3>
                                         <button type="button" onclick="closeModal('editCategoryModal{{ $category->id }}')"
                                                 class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
                                             <i class="fa-solid fa-xmark text-lg"></i>
@@ -111,19 +111,19 @@
                                     </div>
                                     <div class="p-6 space-y-4">
                                         <div>
-                                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Name</label>
+                                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Name</label>
                                             <input type="text" name="name" value="{{ $category->name }}" required
-                                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                   class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Slug</label>
+                                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Slug</label>
                                             <input type="text" name="slug" value="{{ $category->slug }}" placeholder="auto-generated from name"
-                                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                   class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Sort Order</label>
+                                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Sort Order</label>
                                             <input type="number" name="sort_order" value="{{ $category->sort_order }}" min="0"
-                                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                   class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                                         </div>
                                         <div class="flex items-center gap-3 pt-2">
                                             <label class="relative inline-flex items-center cursor-pointer">
@@ -131,12 +131,12 @@
                                                        class="sr-only peer" {{ $category->status ? 'checked' : '' }}>
                                                 <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
                                             </label>
-                                            <label for="categoryStatusEdit{{ $category->id }}" class="text-sm font-medium text-slate-700 cursor-pointer select-none">Active Status</label>
+                                            <label for="categoryStatusEdit{{ $category->id }}" class="text-sm font-medium text-slate-700 cursor-pointer select-none dark:text-slate-200">Active Status</label>
                                         </div>
                                     </div>
-                                    <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
+                                    <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100 dark:bg-slate-800/50 dark:border-slate-800">
                                         <button type="button" onclick="closeModal('editCategoryModal{{ $category->id }}')"
-                                                class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                                                class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700">
                                             Close
                                         </button>
                                         <button type="submit"
@@ -161,11 +161,11 @@
     <!-- Create Modal -->
     <div id="createCategoryModal"
          class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-100 transform transition-all">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-100 transform transition-all dark:bg-slate-900 dark:border-slate-800">
             <form method="POST" action="{{ route('admin.blog-categories.store') }}">
                 @csrf
-                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                    <h3 class="text-base font-bold text-slate-900">Add New Category</h3>
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Add New Category</h3>
                     <button type="button" onclick="closeModal('createCategoryModal')"
                             class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
                         <i class="fa-solid fa-xmark text-lg"></i>
@@ -173,19 +173,19 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Name</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Name</label>
                         <input type="text" name="name" required placeholder="Product Updates"
-                               class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                               class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Slug</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Slug</label>
                         <input type="text" name="slug" placeholder="auto-generated from name"
-                               class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                               class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Sort Order</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Sort Order</label>
                         <input type="number" name="sort_order" value="0" min="0"
-                               class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                               class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                     </div>
                     <div class="flex items-center gap-3 pt-2">
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -193,12 +193,12 @@
                                    class="sr-only peer">
                             <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
                         </label>
-                        <label for="categoryStatusCreate" class="text-sm font-medium text-slate-700 cursor-pointer select-none">Active Status</label>
+                        <label for="categoryStatusCreate" class="text-sm font-medium text-slate-700 cursor-pointer select-none dark:text-slate-200">Active Status</label>
                     </div>
                 </div>
-                <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
+                <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100 dark:bg-slate-800/50 dark:border-slate-800">
                     <button type="button" onclick="closeModal('createCategoryModal')"
-                            class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                            class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700">
                         Close
                     </button>
                     <button type="submit"

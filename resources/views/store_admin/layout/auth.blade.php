@@ -13,7 +13,7 @@
     @stack('css')
 </head>
 
-<body class="bg-white text-ink font-sans antialiased">
+<body class="bg-white text-ink font-sans antialiased dark:bg-slate-900">
 <div class="min-h-screen grid lg:grid-cols-2">
     @yield('contents')
 </div>

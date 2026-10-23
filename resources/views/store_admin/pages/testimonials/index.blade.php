@@ -61,7 +61,7 @@
                                 <div class="flex items-center gap-3">
                                     @if($testi->merchant_image)
                                         <img src="{{ asset('storage/' . $testi->merchant_image) }}"
-                                             class="rounded-full object-cover w-9 h-9 border border-slate-200"
+                                             class="rounded-full object-cover w-9 h-9 border border-slate-200 dark:border-slate-700"
                                              alt="Avatar">
                                     @else
                                         <div
@@ -122,13 +122,13 @@
                         <div id="editTestimonialModal{{ $testi->id }}"
                              class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
                             <div
-                                class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100 transform transition-all">
+                                class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100 transform transition-all dark:bg-slate-900 dark:border-slate-800">
                                 <form method="POST" action="{{ route('admin.testimonials.update', $testi->id) }}"
                                       enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
-                                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                                        <h3 class="text-base font-bold text-slate-900">Edit Testimonial Entry</h3>
+                                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Edit Testimonial Entry</h3>
                                         <button type="button"
                                                 onclick="closeModal('editTestimonialModal{{ $testi->id }}')"
                                                 class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
@@ -139,28 +139,28 @@
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label
-                                                    class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Merchant
+                                                    class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Merchant
                                                     Name</label>
                                                 <input type="text" name="merchant_name"
                                                        value="{{ $testi->merchant_name }}" required
-                                                       class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                       class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                                             </div>
                                             <div>
                                                 <label
-                                                    class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Title
+                                                    class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Title
                                                     / Store Name</label>
                                                 <input type="text" name="merchant_title"
                                                        value="{{ $testi->merchant_title }}"
-                                                       class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                       class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                                             </div>
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label
-                                                    class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Rating
+                                                    class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Rating
                                                     (1-5 Stars)</label>
                                                 <select name="rating"
-                                                        class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                        class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                                                     @for($r = 5; $r >= 1; $r--)
                                                         <option
                                                             value="{{ $r }}" {{ $testi->rating == $r ? 'selected' : '' }}>{{ $r }}
@@ -171,10 +171,10 @@
                                             </div>
                                             <div>
                                                 <label
-                                                    class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Merchant
+                                                    class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Merchant
                                                     Photo</label>
                                                 <input type="file" name="merchant_image"
-                                                       class="w-full px-3.5 py-1.5 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                                       class="w-full px-3.5 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:bg-slate-900 dark:border-slate-700">
                                                 @if($testi->merchant_image)
                                                     <img src="{{ asset('storage/'. $testi->merchant_image) }}"  class="p-1 w-30 h-auto" alt="">
                                                 @endif
@@ -182,18 +182,18 @@
                                         </div>
                                         <div>
                                             <label
-                                                class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Testimonial
+                                                class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Testimonial
                                                 Content</label>
                                             <textarea name="text" rows="3" required
-                                                      class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">{{ $testi->text }}</textarea>
+                                                      class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">{{ $testi->text }}</textarea>
                                         </div>
                                         <div>
                                             <label
-                                                class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Sort
+                                                class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Sort
                                                 Order</label>
                                             <input type="number" name="sort_order" value="{{ $testi->sort_order }}"
                                                    min="1"
-                                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                                   class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                                         </div>
                                         <div class="flex items-center gap-3 pt-2">
                                             <label class="relative inline-flex items-center cursor-pointer">
@@ -204,15 +204,15 @@
                                                     class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
                                             </label>
                                             <label for="testiStatusEdit{{ $testi->id }}"
-                                                   class="text-sm font-medium text-slate-700 cursor-pointer select-none">Active
+                                                   class="text-sm font-medium text-slate-700 cursor-pointer select-none dark:text-slate-200">Active
                                                 Status</label>
                                         </div>
                                     </div>
                                     <div
-                                        class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
+                                        class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100 dark:bg-slate-800/50 dark:border-slate-800">
                                         <button type="button"
                                                 onclick="closeModal('editTestimonialModal{{ $testi->id }}')"
-                                                class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                                                class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700">
                                             Close
                                         </button>
                                         <button type="submit"
@@ -238,11 +238,11 @@
     <div id="createTestimonialModal"
          class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
         <div
-            class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100 transform transition-all">
+            class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100 transform transition-all dark:bg-slate-900 dark:border-slate-800">
             <form method="POST" action="{{ route('admin.testimonials.store') }}" enctype="multipart/form-data">
                 @csrf
-                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                    <h3 class="text-base font-bold text-slate-900">Add New Testimonial</h3>
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Add New Testimonial</h3>
                     <button type="button" onclick="closeModal('createTestimonialModal')"
                             class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
                         <i class="fa-solid fa-xmark text-lg"></i>
@@ -251,24 +251,24 @@
                 <div class="p-6 space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Merchant
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Merchant
                                 Name</label>
                             <input type="text" name="merchant_name" required placeholder="Jane Doe"
-                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                   class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Title
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Title
                                 / Store Name</label>
                             <input type="text" name="merchant_title" placeholder="CEO, GlowApparel"
-                                   class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                   class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Rating
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Rating
                                 (1-5 Stars)</label>
                             <select name="rating"
-                                    class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                                    class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                                 <option value="5" selected>5 Stars</option>
                                 <option value="4">4 Stars</option>
                                 <option value="3">3 Stars</option>
@@ -277,23 +277,23 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Merchant
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Merchant
                                 Photo</label>
                             <input type="file" name="merchant_image"
-                                   class="w-full px-3.5 py-1.5 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                   class="w-full px-3.5 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:bg-slate-900 dark:border-slate-700">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Testimonial
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Testimonial
                             Content</label>
                         <textarea name="text" rows="3" required placeholder="Write merchant feedback here..."
-                                  class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"></textarea>
+                                  class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700"></textarea>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Sort
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5 dark:text-slate-300">Sort
                             Order</label>
                         <input type="number" name="sort_order" value="1" min="1"
-                               class="w-full px-3.5 py-2 text-sm dark:text-black bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all">
+                               class="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all dark:bg-slate-900 dark:border-slate-700">
                     </div>
                     <div class="flex items-center gap-3 pt-2">
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -303,13 +303,13 @@
                                 class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
                         </label>
                         <label for="testiStatusCreate"
-                               class="text-sm font-medium text-slate-700 cursor-pointer select-none">Active
+                               class="text-sm font-medium text-slate-700 cursor-pointer select-none dark:text-slate-200">Active
                             Status</label>
                     </div>
                 </div>
-                <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
+                <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100 dark:bg-slate-800/50 dark:border-slate-800">
                     <button type="button" onclick="closeModal('createTestimonialModal')"
-                            class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                            class="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700">
                         Close
                     </button>
                     <button type="submit"

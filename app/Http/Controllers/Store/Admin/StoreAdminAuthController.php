@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -42,8 +43,27 @@ class StoreAdminAuthController extends Controller
                 ]);
             }
 
-            // 4. Check if the user has an associated tenant row
-            $hasTenant = Tenant::where('user_id', $user->id)->exists();
+            if (! $user->status) {
+                throw ValidationException::withMessages([
+                    'email' => ['This store admin account is inactive.'],
+                ]);
+            }
+
+            // Store owners have a tenant row; store staff are linked through
+            // tenant-scoped Spatie role assignments.
+            $pivot = config('permission.table_names.model_has_roles');
+            $teamKey = config('permission.column_names.team_foreign_key');
+            $roleKey = config('permission.column_names.role_pivot_key') ?: 'role_id';
+            $hasTenant = Tenant::where('user_id', $user->id)->exists()
+                || DB::table($pivot.' as model_roles')
+                    ->join(config('permission.table_names.roles').' as tenant_roles', function ($join) use ($teamKey, $roleKey) {
+                        $join->on('tenant_roles.id', '=', 'model_roles.'.$roleKey)
+                            ->on('tenant_roles.'.$teamKey, '=', 'model_roles.'.$teamKey);
+                    })
+                    ->where('model_roles.model_type', $user->getMorphClass())
+                    ->where('model_roles.model_id', $user->id)
+                    ->where('tenant_roles.guard_name', 'web')
+                    ->exists();
 
             if (! $hasTenant) {
                 throw ValidationException::withMessages([

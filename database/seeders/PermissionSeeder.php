@@ -76,6 +76,27 @@ class PermissionSeeder extends Seeder
             'Store Delete Role',
             'Store Assign Permission',
         ],
+        'Store Admin Management' => [
+            'Store Admin List',
+            'Store Create Admin',
+            'Store Edit Admin',
+            'Store Delete Admin',
+            'Store Status Admin',
+        ],
+        'Store Permission Management' => [
+            'Store Permission List',
+        ],
+        'Store Catalog Management' => [
+            'Store Category List', 'Store Category Create', 'Store Category Edit', 'Store Category Delete',
+            'Store Brand List', 'Store Brand Create', 'Store Brand Edit', 'Store Brand Delete',
+            'Store Attribute List', 'Store Attribute Create', 'Store Attribute Edit', 'Store Attribute Delete',
+            'Store Product List', 'Store Product Create', 'Store Product Edit', 'Store Product Delete',
+            'Store Inventory List', 'Store Inventory Manage',
+        ],
+        'Store Settings' => [
+            'Store General Setting',
+            'Store Edit Setting',
+        ],
     ];
 
     public function run(): void
@@ -86,7 +107,7 @@ class PermissionSeeder extends Seeder
         // 1. Seed Platform-level permissions
         foreach (self::GROUPS as $groupName => $permissions) {
             foreach ($permissions as $permissionName) {
-                Permission::firstOrCreate(
+                Permission::updateOrCreate(
                     [
                         'name' => $permissionName,
                         'guard_name' => 'web',
@@ -102,7 +123,7 @@ class PermissionSeeder extends Seeder
         // 2. Seed Store-level permissions
         foreach (self::STOREFRONT_GROUPS as $groupName => $permissions) {
             foreach ($permissions as $permissionName) {
-                Permission::firstOrCreate(
+                Permission::updateOrCreate(
                     [
                         'name' => $permissionName,
                         'guard_name' => 'web',
