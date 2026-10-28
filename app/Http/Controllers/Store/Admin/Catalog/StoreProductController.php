@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Store\Admin\Catalog;
 
 use App\Http\Controllers\Controller;
-use App\Models\InventoryBatch;
-use App\Models\Product;
-use App\Models\StockMovement;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\InventoryBatch;
+use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\ProductAttributeValue;
 use App\Models\ProductVariant;
+use App\Models\StockMovement;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -21,66 +21,157 @@ class StoreProductController extends Controller
 {
     public function products(Request $request)
     {
-        $products = Product::where('tenant_id', tenantId())->with(['category', 'brand', 'variants.batches'])->when($request->filled('search'), fn($q) => $q->where(fn($sub) => $sub->where('name', 'like', '%' . $request->search . '%')->orWhere('generic_name', 'like', '%' . $request->search . '%')))->orderByDesc('created_at')->paginate(20)->withQueryString();
+        $products = Product::where('tenant_id', tenantId())
+            ->with(['category', 'brand', 'variants.batches'])
+            ->when($request->filled('search'), fn($q) => $q->where(fn($sub) => $sub->where('name', 'like', '%' . $request->search . '%')->orWhere('generic_name', 'like', '%' . $request->search . '%')))
+            ->orderByDesc('created_at')
+            ->paginate(20)
+            ->withQueryString();
+
         return view('store_admin.pages.catalog.products.index', compact('products'));
     }
 
     public function createProduct()
     {
-        return view('store_admin.pages.catalog.products.form', $this->productFormData(new Product(), new ProductVariant()));
+        return view('store_admin.pages.catalog.products.form', $this->productFormData(new Product()));
     }
 
     public function storeProduct(Request $request)
     {
         $data = $this->validateProduct($request);
+
         DB::transaction(function () use ($request, $data) {
-            $data['variant']['sku'] = $data['variant']['sku'] ?: strtoupper(Str::random(10));
             $product = Product::create($data['product'] + ['tenant_id' => tenantId()]);
-            $variant = $product->variants()->create($data['variant'] + [
+
+            foreach ($data['variants'] as $index => $varData) {
+                $variant = $product->variants()->create([
                     'tenant_id' => tenantId(),
-                    'title' => $data['variant']['title'] ?: 'Default', 'is_default' => true, 'options_hash' => $data['variant']['options_hash'],
+                    'sku' => $varData['sku'],
+                    'barcode' => $varData['barcode'] ?? null,
+                    'title' => $varData['title'],
+                    'price' => $varData['price'],
+                    'compare_at_price' => $varData['compare_at_price'] ?? null,
+                    'mrp' => $varData['mrp'] ?? null,
+                    'cost_price' => $varData['cost_price'] ?? null,
+                    'weight_grams' => $varData['weight_grams'] ?? null,
+                    'track_inventory' => $varData['track_inventory'],
+                    'is_default' => $varData['is_default'],
+                    'position' => $index,
+                    'status' => 'active',
+                    'options_hash' => $varData['options_hash'],
                 ]);
-            $this->syncVariantOptions($variant, $data['options']);
-            if (($data['initial_quantity'] ?? 0) > 0) $this->receiveIntoBatch($variant, (int)$data['initial_quantity'], 'DEFAULT', null, $data['variant']['cost_price'] ?? null, 'Opening stock');
+
+                if (!empty($varData['options'])) {
+                    $this->syncVariantOptions($variant, $varData['options']);
+                }
+
+                if ($varData['initial_quantity'] > 0) {
+                    $this->receiveIntoBatch(
+                        $variant,
+                        $varData['initial_quantity'],
+                        'DEFAULT',
+                        null,
+                        $varData['cost_price'] ?? null,
+                        'Opening stock'
+                    );
+                }
+            }
+
             $this->saveProductImage($request, $product);
         });
-        return redirect()->route('store.admin.products.index')->with('success', 'Product created.');
-    }
 
-    private function receiveIntoBatch(ProductVariant $variant, int $quantity, string $batchNo, ?string $expiry, ?float $cost, string $note): void
-    {
-        $batch = InventoryBatch::firstOrCreate(
-            ['tenant_id' => tenantId(), 'variant_id' => $variant->id, 'batch_no' => $batchNo],
-            ['quantity' => 0, 'reserved' => 0, 'expiry_date' => $expiry, 'cost_price' => $cost, 'received_at' => now(), 'status' => 'active']
-        );
-        $batch->increment('quantity', $quantity);
-        $batch->update(['received_at' => now(), 'expiry_date' => $expiry ?? $batch->expiry_date, 'cost_price' => $cost ?? $batch->cost_price]);
-        StockMovement::create(['tenant_id' => tenantId(), 'variant_id' => $variant->id, 'batch_id' => $batch->id, 'type' => 'receive', 'qty_delta' => $quantity, 'reserved_delta' => 0, 'user_id' => auth()->id(), 'note' => $note]);
+        $variantCount = count($data['variants']);
+        $msg = $variantCount > 1
+            ? "Product created with {$variantCount} variants."
+            : 'Product created.';
+
+        return redirect()->route('store.admin.products.index')->with('success', $msg);
     }
 
     public function editProduct(int $product)
     {
-        $product = Product::where('tenant_id', tenantId())->with(['variants.batches', 'media'])->findOrFail($product);
-        return view('store_admin.pages.catalog.products.form', $this->productFormData($product, $product->variants->first() ?? new ProductVariant()));
+        $product = Product::where('tenant_id', tenantId())
+            ->with(['variants.batches', 'variants.attributeValues', 'media'])
+            ->findOrFail($product);
+
+        return view('store_admin.pages.catalog.products.form', $this->productFormData($product));
     }
 
     public function updateProduct(Request $request, int $product)
     {
-        $product = Product::where('tenant_id', tenantId())->with('variants.batches')->findOrFail($product);
+        $product = Product::where('tenant_id', tenantId())
+            ->with(['variants.batches', 'variants.attributeValues'])
+            ->findOrFail($product);
+
         $data = $this->validateProduct($request, $product);
+
         DB::transaction(function () use ($request, $product, $data) {
             $product->update($data['product']);
-            $variant = $product->variants->first();
-            if (!$variant) {
-                $data['variant']['sku'] = $data['variant']['sku'] ?: strtoupper(Str::random(10));
-                $variant = $product->variants()->create(['tenant_id' => tenantId(), 'sku' => $data['variant']['sku'] ?: strtoupper(Str::random(10)), 'title' => 'Default', 'is_default' => true] + $data['variant']);
-            } else {
-                if (!$data['variant']['sku']) unset($data['variant']['sku']);
-                $variant->update($data['variant']);
+
+            $keptVariantIds = [];
+
+            foreach ($data['variants'] as $index => $varData) {
+                $variant = null;
+                if (!empty($varData['id'])) {
+                    $variant = $product->variants()->where('id', $varData['id'])->first();
+                }
+
+                if ($variant) {
+                    $variant->update([
+                        'sku' => $varData['sku'],
+                        'barcode' => $varData['barcode'] ?? null,
+                        'title' => $varData['title'],
+                        'price' => $varData['price'],
+                        'compare_at_price' => $varData['compare_at_price'] ?? null,
+                        'mrp' => $varData['mrp'] ?? null,
+                        'cost_price' => $varData['cost_price'] ?? null,
+                        'weight_grams' => $varData['weight_grams'] ?? null,
+                        'track_inventory' => $varData['track_inventory'],
+                        'is_default' => $varData['is_default'],
+                        'position' => $index,
+                        'options_hash' => $varData['options_hash'],
+                        'status' => 'active',
+                    ]);
+                } else {
+                    $variant = $product->variants()->create([
+                        'tenant_id' => tenantId(),
+                        'sku' => $varData['sku'],
+                        'barcode' => $varData['barcode'] ?? null,
+                        'title' => $varData['title'],
+                        'price' => $varData['price'],
+                        'compare_at_price' => $varData['compare_at_price'] ?? null,
+                        'mrp' => $varData['mrp'] ?? null,
+                        'cost_price' => $varData['cost_price'] ?? null,
+                        'weight_grams' => $varData['weight_grams'] ?? null,
+                        'track_inventory' => $varData['track_inventory'],
+                        'is_default' => $varData['is_default'],
+                        'position' => $index,
+                        'status' => 'active',
+                        'options_hash' => $varData['options_hash'],
+                    ]);
+
+                    if ($varData['initial_quantity'] > 0) {
+                        $this->receiveIntoBatch(
+                            $variant,
+                            $varData['initial_quantity'],
+                            'DEFAULT',
+                            null,
+                            $varData['cost_price'] ?? null,
+                            'Opening stock'
+                        );
+                    }
+                }
+
+                $keptVariantIds[] = $variant->id;
+                $this->syncVariantOptions($variant, $varData['options'] ?? []);
             }
-            $this->syncVariantOptions($variant, $data['options']);
+
+            // Archive variants that were removed in edit form
+            $product->variants()->whereNotIn('id', $keptVariantIds)->update(['status' => 'archived']);
+
             $this->saveProductImage($request, $product);
         });
+
         return redirect()->route('store.admin.products.index')->with('success', 'Product updated.');
     }
 
@@ -91,7 +182,282 @@ class StoreProductController extends Controller
             $product->variants()->update(['status' => 'archived']);
             $product->delete();
         });
+
         return back()->with('success', 'Product archived from the catalog.');
+    }
+
+    private function validateProduct(Request $request, ?Product $product = null): array
+    {
+        $tenant = tenantId();
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:200'],
+            'slug' => ['nullable', 'string', 'max:220', Rule::unique('products', 'slug')->where('tenant_id', $tenant)->ignore($product?->id)],
+            'kind' => ['required', Rule::in(['general', 'medicine'])],
+            'description' => ['nullable', 'string'],
+            'status' => ['required', Rule::in(['draft', 'active', 'archived'])],
+            'category_id' => ['nullable', Rule::exists('categories', 'id')->where('tenant_id', $tenant)],
+            'brand_id' => ['nullable', Rule::exists('brands', 'id')->where('tenant_id', $tenant)],
+            'generic_name' => ['nullable', 'string', 'max:180'],
+            'requires_prescription' => ['nullable', 'boolean'],
+            'seo_title' => ['nullable', 'string', 'max:255'],
+            'seo_description' => ['nullable', 'string', 'max:1000'],
+            'specs_json' => ['nullable', 'json'],
+            'image' => ['nullable', 'image', 'max:5120'],
+
+            'default_variant_index' => ['nullable'],
+
+            'variants' => ['nullable', 'array', 'min:1'],
+            'variants.*.id' => ['nullable', 'integer'],
+            'variants.*.title' => ['nullable', 'string', 'max:150'],
+            'variants.*.sku' => ['nullable', 'string', 'max:100'],
+            'variants.*.barcode' => ['nullable', 'string', 'max:100'],
+            'variants.*.price' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.compare_at_price' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.mrp' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.cost_price' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.weight_grams' => ['nullable', 'integer', 'min:0'],
+            'variants.*.initial_quantity' => ['nullable', 'integer', 'min:0'],
+            'variants.*.track_inventory' => ['nullable', 'boolean'],
+            'variants.*.options' => ['nullable', 'array'],
+            'variants.*.options.*' => ['nullable', 'integer', Rule::exists('attributes_values', 'id')->where('tenant_id', $tenant)],
+
+            // Fallback legacy fields if variants array not submitted
+            'sku' => ['nullable', 'string', 'max:100'],
+            'barcode' => ['nullable', 'string', 'max:100'],
+            'variant_title' => ['nullable', 'string', 'max:150'],
+            'price' => ['nullable', 'numeric', 'min:0'],
+            'compare_at_price' => ['nullable', 'numeric', 'min:0'],
+            'mrp' => ['nullable', 'numeric', 'min:0'],
+            'cost_price' => ['nullable', 'numeric', 'min:0'],
+            'weight_grams' => ['nullable', 'integer', 'min:0'],
+            'track_inventory' => ['nullable', 'boolean'],
+            'initial_quantity' => ['nullable', 'integer', 'min:0'],
+            'options' => ['nullable', 'array'],
+            'options.*' => ['nullable', 'integer', Rule::exists('attributes_values', 'id')->where('tenant_id', $tenant)],
+        ]);
+
+        $slug = Str::slug($validated['slug'] ?: $validated['name']);
+        assertSlugAvailable(Product::class, $slug, $product?->id);
+
+        $specs = null;
+        if (!empty($validated['specs_json'])) {
+            $specs = json_decode($validated['specs_json'], true);
+            if (!is_array($specs)) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['specs_json' => 'Specs must be a JSON object or array.']);
+            }
+        }
+
+        $productData = collect($validated)->only([
+            'kind', 'name', 'description', 'status', 'category_id', 'brand_id',
+            'generic_name', 'requires_prescription', 'seo_title', 'seo_description'
+        ])->all();
+        $productData['slug'] = $slug;
+        $productData['requires_prescription'] = $request->boolean('requires_prescription');
+        $productData['specs'] = $specs;
+
+        // Process variants
+        $rawVariants = $request->input('variants');
+        if (!is_array($rawVariants) || empty($rawVariants)) {
+            $rawVariants = [[
+                'id' => $product?->variants()->value('id'),
+                'title' => $request->input('variant_title', 'Default'),
+                'sku' => $request->input('sku'),
+                'barcode' => $request->input('barcode'),
+                'price' => $request->input('price', 0),
+                'compare_at_price' => $request->input('compare_at_price'),
+                'mrp' => $request->input('mrp'),
+                'cost_price' => $request->input('cost_price'),
+                'weight_grams' => $request->input('weight_grams'),
+                'initial_quantity' => $request->input('initial_quantity', 0),
+                'track_inventory' => $request->boolean('track_inventory', true),
+                'options' => $request->input('options', []),
+            ]];
+        }
+
+        $defaultIndex = (int)$request->input('default_variant_index', 0);
+        $seenSkus = [];
+        $seenOptionHashes = [];
+        $processedVariants = [];
+
+        foreach ($rawVariants as $index => $item) {
+            $price = $item['price'] ?? null;
+            if ($price === null || $price === '') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "variants.{$index}.price" => 'Price is required for each variant.',
+                ]);
+            }
+
+            $sku = trim((string)($item['sku'] ?? ''));
+            $variantId = !empty($item['id']) ? (int)$item['id'] : null;
+
+            if ($sku !== '') {
+                $skuUpper = strtoupper($sku);
+                if (in_array($skuUpper, $seenSkus, true)) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        "variants.{$index}.sku" => "Duplicate SKU '{$sku}' entered. Each variant must have a unique SKU.",
+                    ]);
+                }
+                $skuQuery = ProductVariant::where('tenant_id', $tenant)->where('sku', $sku);
+                if ($variantId) {
+                    $skuQuery->where('id', '!=', $variantId);
+                }
+                if ($skuQuery->exists()) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        "variants.{$index}.sku" => "The SKU '{$sku}' is already taken in your store.",
+                    ]);
+                }
+                $seenSkus[] = $skuUpper;
+            } else {
+                do {
+                    $sku = strtoupper(Str::random(10));
+                } while (
+                    in_array($sku, $seenSkus, true) ||
+                    ProductVariant::where('tenant_id', $tenant)->where('sku', $sku)->exists()
+                );
+                $seenSkus[] = $sku;
+            }
+
+            // Options & hashing
+            $rawOpts = $item['options'] ?? [];
+            $cleanOptions = [];
+            foreach ($rawOpts as $attrId => $valId) {
+                if (!empty($valId)) {
+                    $attrId = (int)$attrId;
+                    $valId = (int)$valId;
+                    $valid = ProductAttributeValue::where('tenant_id', $tenant)
+                        ->where('attribute_id', $attrId)
+                        ->whereKey($valId)
+                        ->exists();
+                    if (!$valid) {
+                        throw \Illuminate\Validation\ValidationException::withMessages([
+                            "variants.{$index}.options" => 'Choose a valid value for each product option.',
+                        ]);
+                    }
+                    $cleanOptions[$attrId] = $valId;
+                }
+            }
+
+            $sortedVals = array_values($cleanOptions);
+            sort($sortedVals);
+
+            if (!empty($sortedVals)) {
+                $optionsHash = md5(implode('-', $sortedVals));
+                if (in_array($optionsHash, $seenOptionHashes, true)) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        "variants.{$index}.title" => "Variant #" . ($index + 1) . " has identical options to another variant. Each variant must have a unique combination of attributes.",
+                    ]);
+                }
+                $seenOptionHashes[] = $optionsHash;
+            } else {
+                $optionsHash = count($rawVariants) > 1
+                    ? md5('var-' . $index . '-' . Str::slug($item['title'] ?? 'default'))
+                    : md5('default');
+                $seenOptionHashes[] = $optionsHash;
+            }
+
+            $isDefault = ($index === $defaultIndex) || (!empty($item['is_default']) && $defaultIndex === 0);
+
+            $title = trim((string)($item['title'] ?? ''));
+            if ($title === '') {
+                if (!empty($cleanOptions)) {
+                    $optNames = ProductAttributeValue::whereIn('id', array_values($cleanOptions))->pluck('value')->all();
+                    $title = implode(' / ', $optNames);
+                } else {
+                    $title = $isDefault ? 'Default' : 'Variant ' . ($index + 1);
+                }
+            }
+
+            $processedVariants[] = [
+                'id' => $variantId,
+                'title' => $title,
+                'sku' => $sku,
+                'barcode' => !empty($item['barcode']) ? trim($item['barcode']) : null,
+                'price' => (float)$price,
+                'compare_at_price' => !empty($item['compare_at_price']) ? (float)$item['compare_at_price'] : null,
+                'mrp' => !empty($item['mrp']) ? (float)$item['mrp'] : null,
+                'cost_price' => !empty($item['cost_price']) ? (float)$item['cost_price'] : null,
+                'weight_grams' => !empty($item['weight_grams']) ? (int)$item['weight_grams'] : null,
+                'track_inventory' => isset($item['track_inventory']) ? (bool)$item['track_inventory'] : true,
+                'initial_quantity' => !empty($item['initial_quantity']) ? (int)$item['initial_quantity'] : 0,
+                'is_default' => $isDefault,
+                'options_hash' => $optionsHash,
+                'options' => $cleanOptions,
+            ];
+        }
+
+        $hasDefault = collect($processedVariants)->contains('is_default', true);
+        if (!$hasDefault && !empty($processedVariants)) {
+            $processedVariants[0]['is_default'] = true;
+        }
+
+        return [
+            'product' => $productData,
+            'variants' => $processedVariants,
+        ];
+    }
+
+    private function productFormData(Product $product): array
+    {
+        $variants = $product->exists
+            ? $product->variants()->where('status', 'active')->with(['attributeValues', 'batches'])->orderBy('position')->get()
+            : collect([new ProductVariant([
+                'title' => 'Default',
+                'price' => 0,
+                'is_default' => true,
+                'track_inventory' => true,
+            ])]);
+
+        if ($variants->isEmpty()) {
+            $variants = collect([new ProductVariant([
+                'title' => 'Default',
+                'price' => 0,
+                'is_default' => true,
+                'track_inventory' => true,
+            ])]);
+        }
+
+        return [
+            'product' => $product,
+            'variants' => $variants,
+            'variant' => $variants->first() ?? new ProductVariant(),
+            'categories' => Category::where('tenant_id', tenantId())->where('status', true)->orderBy('name')->get(),
+            'brands' => Brand::where('tenant_id', tenantId())->where('status', true)->orderBy('name')->get(),
+            'attributes' => ProductAttribute::where('tenant_id', tenantId())->with(['values' => fn($q) => $q->where('status', true)])->orderBy('position')->get(),
+        ];
+    }
+
+    private function syncVariantOptions(ProductVariant $variant, array $valueIds): void
+    {
+        $sync = [];
+        foreach ($valueIds as $attributeId => $valueId) {
+            if (!$valueId) continue;
+            $value = ProductAttributeValue::where('tenant_id', tenantId())->find($valueId);
+            if ($value) {
+                $sync[$value->id] = ['tenant_id' => tenantId(), 'attribute_id' => $value->attribute_id];
+            }
+        }
+        $variant->attributeValues()->sync($sync);
+    }
+
+    private function receiveIntoBatch(ProductVariant $variant, int $quantity, string $batchNo, ?string $expiry, ?float $cost, string $note): void
+    {
+        $batch = InventoryBatch::firstOrCreate(
+            ['tenant_id' => tenantId(), 'variant_id' => $variant->id, 'batch_no' => $batchNo],
+            ['quantity' => 0, 'reserved' => 0, 'expiry_date' => $expiry, 'cost_price' => $cost, 'received_at' => now(), 'status' => 'active']
+        );
+        $batch->increment('quantity', $quantity);
+        $batch->update(['received_at' => now(), 'expiry_date' => $expiry ?? $batch->expiry_date, 'cost_price' => $cost ?? $batch->cost_price]);
+        StockMovement::create([
+            'tenant_id' => tenantId(),
+            'variant_id' => $variant->id,
+            'batch_id' => $batch->id,
+            'type' => 'receive',
+            'qty_delta' => $quantity,
+            'reserved_delta' => 0,
+            'user_id' => auth()->id(),
+            'note' => $note,
+        ]);
     }
 
     private function saveProductImage(Request $request, Product $product): void
@@ -103,72 +469,16 @@ class StoreProductController extends Controller
         }
         $file = $request->file('image');
         $path = $file->store('tenants/' . tenantId() . '/products', 'public');
-        $product->media()->create(['tenant_id' => tenantId(), 'model_type' => Product::class, 'collection' => 'cover', 'path' => $path, 'mime' => $file->getMimeType(), 'size_bytes' => $file->getSize(), 'position' => 0, 'alt' => $product->name, 'created_at' => now()]);
-    }
-
-    private function validateProduct(Request $request, ?Product $product = null): array
-    {
-        $tenant = tenantId();
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:200'], 'slug' => ['nullable', 'string', 'max:220', Rule::unique('products', 'slug')->where('tenant_id', $tenant)->ignore($product?->id)],
-            'kind' => ['required', Rule::in(['general', 'medicine'])], 'description' => ['nullable', 'string'],
-            'status' => ['required', Rule::in(['draft', 'active', 'archived'])],
-            'category_id' => ['nullable', Rule::exists('categories', 'id')->where('tenant_id', $tenant)],
-            'brand_id' => ['nullable', Rule::exists('brands', 'id')->where('tenant_id', $tenant)],
-            'generic_name' => ['nullable', 'string', 'max:180'], 'requires_prescription' => ['nullable', 'boolean'],
-            'seo_title' => ['nullable', 'string', 'max:255'], 'seo_description' => ['nullable', 'string', 'max:1000'],
-            'specs_json' => ['nullable', 'json'], 'image' => ['nullable', 'image', 'max:5120'],
-            'sku' => ['nullable', 'string', 'max:100', Rule::unique('product_variants', 'sku')->where('tenant_id', $tenant)->ignore($product?->variants()->value('id'))],
-            'barcode' => ['nullable', 'string', 'max:100'], 'variant_title' => ['nullable', 'string', 'max:150'],
-            'price' => ['required', 'numeric', 'min:0'], 'compare_at_price' => ['nullable', 'numeric', 'min:0'], 'mrp' => ['nullable', 'numeric', 'min:0'],
-            'cost_price' => ['nullable', 'numeric', 'min:0'], 'weight_grams' => ['nullable', 'integer', 'min:0'],
-            'track_inventory' => ['nullable', 'boolean'], 'initial_quantity' => ['nullable', 'integer', 'min:0'],
-            'options' => ['nullable', 'array'],
-            'options.*' => ['nullable', 'integer', Rule::exists('attributes_values', 'id')->where('tenant_id', $tenant)],
+        $product->media()->create([
+            'tenant_id' => tenantId(),
+            'model_type' => Product::class,
+            'collection' => 'cover',
+            'path' => $path,
+            'mime' => $file->getMimeType(),
+            'size_bytes' => $file->getSize(),
+            'position' => 0,
+            'alt' => $product->name,
+            'created_at' => now(),
         ]);
-        $slug = Str::slug($validated['slug'] ?: $validated['name']);
-        assertSlugAvailable(Product::class, $slug, $product?->id);
-        $specs = null;
-        if (!empty($validated['specs_json'])) {
-            $specs = json_decode($validated['specs_json'], true);
-            if (!is_array($specs)) throw \Illuminate\Validation\ValidationException::withMessages(['specs_json' => 'Specs must be a JSON object or array.']);
-        }
-        $productData = collect($validated)->only(['kind', 'name', 'description', 'status', 'category_id', 'brand_id', 'generic_name', 'requires_prescription', 'seo_title', 'seo_description'])->all();
-        $productData['slug'] = $slug;
-        $productData['requires_prescription'] = $request->boolean('requires_prescription');
-        $productData['specs'] = $specs;
-        $variant = collect($validated)->only(['sku', 'barcode', 'price', 'compare_at_price', 'mrp', 'cost_price', 'weight_grams'])->all();
-        $variant['title'] = $validated['variant_title'] ?: 'Default';
-        $variant['track_inventory'] = $request->boolean('track_inventory', true);
-        $variant['status'] = 'active';
-        $options = collect($validated['options'] ?? [])->filter()->map(fn($value, $attributeId) => (int)$value)->all();
-        foreach ($options as $attributeId => $valueId) {
-            $valid = ProductAttributeValue::where('tenant_id', $tenant)->where('attribute_id', $attributeId)->whereKey($valueId)->exists();
-            if (!$valid) throw \Illuminate\Validation\ValidationException::withMessages(['options' => 'Choose a valid value for each product option.']);
-        }
-        sort($options);
-        $variant['options_hash'] = $options ? md5(implode('-', $options)) : md5('default');
-        return ['product' => $productData, 'variant' => $variant, 'options' => $options, 'initial_quantity' => (int)($validated['initial_quantity'] ?? 0)];
-    }
-
-    private function productFormData(Product $product, ProductVariant $variant): array
-    {
-        return [
-            'product' => $product, 'variant' => $variant,
-            'categories' => Category::where('tenant_id', tenantId())->where('status', true)->orderBy('name')->get(),
-            'brands' => Brand::where('tenant_id', tenantId())->where('status', true)->orderBy('name')->get(),
-            'attributes' => ProductAttribute::where('tenant_id', tenantId())->with(['values' => fn($q) => $q->where('status', true)])->orderBy('position')->get(),
-        ];
-    }
-
-
-    private function syncVariantOptions(ProductVariant $variant, array $valueIds): void
-    {
-        $sync = [];
-        foreach ($valueIds as $valueId) {
-            $value = ProductAttributeValue::where('tenant_id', tenantId())->findOrFail($valueId);
-            $sync[$value->id] = ['tenant_id' => tenantId(), 'attribute_id' => $value->attribute_id];
-        }
-        $variant->attributeValues()->sync($sync);
     }
 }
