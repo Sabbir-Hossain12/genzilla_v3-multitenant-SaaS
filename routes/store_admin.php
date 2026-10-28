@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Store\Admin\Catalog\StoreAttributeController;
+use App\Http\Controllers\Store\Admin\Catalog\StoreBrandController;
+use App\Http\Controllers\Store\Admin\Catalog\StoreCategoryController;
 use App\Http\Controllers\Store\Admin\StoreAdminAuthController;
 use App\Http\Controllers\Store\Admin\StoreAdminDashboardController;
 use App\Http\Controllers\Store\Admin\StoreAdminAdminController;
@@ -52,26 +55,26 @@ Route::domain(config('app.base_domain'))
             // Tenant catalog
 
             //..............Categories.................//
-            Route::get('/catalog/categories', [StoreCatalogController::class, 'categories'])->name('admin.categories.index')->middleware('permission:Store Category List');
-            Route::post('/catalog/categories', [StoreCatalogController::class, 'storeCategory'])->name('admin.categories.store')->middleware('permission:Store Category Create');
-            Route::put('/catalog/categories/{category}', [StoreCatalogController::class, 'updateCategory'])->name('admin.categories.update')->middleware('permission:Store Category Edit');
-            Route::delete('/catalog/categories/{category}', [StoreCatalogController::class, 'deleteCategory'])->name('admin.categories.destroy')->middleware('permission:Store Category Delete');
+            Route::get('/catalog/categories', [StoreCategoryController::class, 'categories'])->name('admin.categories.index')->middleware('permission:Store Category List');
+            Route::post('/catalog/categories', [StoreCategoryController::class, 'storeCategory'])->name('admin.categories.store')->middleware('permission:Store Category Create');
+            Route::put('/catalog/categories/{category}', [StoreCategoryController::class, 'updateCategory'])->name('admin.categories.update')->middleware('permission:Store Category Edit');
+            Route::delete('/catalog/categories/{category}', [StoreCategoryController::class, 'deleteCategory'])->name('admin.categories.destroy')->middleware('permission:Store Category Delete');
 
             //..............Brands.................//
-            Route::get('/catalog/brands', [StoreCatalogController::class, 'brands'])->name('admin.brands.index')->middleware('permission:Store Brand List');
-            Route::post('/catalog/brands', [StoreCatalogController::class, 'storeBrand'])->name('admin.brands.store')->middleware('permission:Store Brand Create');
-            Route::put('/catalog/brands/{brand}', [StoreCatalogController::class, 'updateBrand'])->name('admin.brands.update')->middleware('permission:Store Brand Edit');
-            Route::delete('/catalog/brands/{brand}', [StoreCatalogController::class, 'deleteBrand'])->name('admin.brands.destroy')->middleware('permission:Store Brand Delete');
+            Route::get('/catalog/brands', [StoreBrandController::class, 'brands'])->name('admin.brands.index')->middleware('permission:Store Brand List');
+            Route::post('/catalog/brands', [StoreBrandController::class, 'storeBrand'])->name('admin.brands.store')->middleware('permission:Store Brand Create');
+            Route::put('/catalog/brands/{brand}', [StoreBrandController::class, 'updateBrand'])->name('admin.brands.update')->middleware('permission:Store Brand Edit');
+            Route::delete('/catalog/brands/{brand}', [StoreBrandController::class, 'deleteBrand'])->name('admin.brands.destroy')->middleware('permission:Store Brand Delete');
 
 
             //..............Attributes.................//
-            Route::get('/catalog/attributes', [StoreCatalogController::class, 'attributes'])->name('admin.attributes.index')->middleware('permission:Store Attribute List');
-            Route::post('/catalog/attributes', [StoreCatalogController::class, 'storeAttribute'])->name('admin.attributes.store')->middleware('permission:Store Attribute Create');
-            Route::put('/catalog/attributes/{attribute}', [StoreCatalogController::class, 'updateAttribute'])->name('admin.attributes.update')->middleware('permission:Store Attribute Edit');
-            Route::delete('/catalog/attributes/{attribute}', [StoreCatalogController::class, 'deleteAttribute'])->name('admin.attributes.destroy')->middleware('permission:Store Attribute Delete');
-            Route::post('/catalog/attributes/{attribute}/values', [StoreCatalogController::class, 'storeAttributeValue'])->name('admin.attributes.values.store')->middleware('permission:Store Attribute Edit');
-            Route::put('/catalog/attributes/{attribute}/values/{value}', [StoreCatalogController::class, 'updateAttributeValue'])->name('admin.attributes.values.update')->middleware('permission:Store Attribute Edit');
-            Route::delete('/catalog/attributes/{attribute}/values/{value}', [StoreCatalogController::class, 'deleteAttributeValue'])->name('admin.attributes.values.destroy')->middleware('permission:Store Attribute Edit');
+            Route::get('/catalog/attributes', [StoreAttributeController::class, 'attributes'])->name('admin.attributes.index')->middleware('permission:Store Attribute List');
+            Route::post('/catalog/attributes', [StoreAttributeController::class, 'storeAttribute'])->name('admin.attributes.store')->middleware('permission:Store Attribute Create');
+            Route::put('/catalog/attributes/{attribute}', [StoreAttributeController::class, 'updateAttribute'])->name('admin.attributes.update')->middleware('permission:Store Attribute Edit');
+            Route::delete('/catalog/attributes/{attribute}', [StoreAttributeController::class, 'deleteAttribute'])->name('admin.attributes.destroy')->middleware('permission:Store Attribute Delete');
+            Route::post('/catalog/attributes/{attribute}/values', [StoreAttributeController::class, 'storeAttributeValue'])->name('admin.attributes.values.store')->middleware('permission:Store Attribute Edit');
+            Route::put('/catalog/attributes/{attribute}/values/{value}', [StoreAttributeController::class, 'updateAttributeValue'])->name('admin.attributes.values.update')->middleware('permission:Store Attribute Edit');
+            Route::delete('/catalog/attributes/{attribute}/values/{value}', [StoreAttributeController::class, 'deleteAttributeValue'])->name('admin.attributes.values.destroy')->middleware('permission:Store Attribute Edit');
 
             //..............Products.................//
             Route::get('/catalog/products', [StoreCatalogController::class, 'products'])->name('admin.products.index')->middleware('permission:Store Product List');

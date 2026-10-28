@@ -32,12 +32,13 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/helpers.php",
+            "app/Helpers/assertSlugAvailable.php",
+            "app/Helpers/tenantID.php"
+        ]
     },
-    "files": [
-        "app/Helpers/helpers.php",
-        "app/Helpers/assertSlugAvailable.php"
-    ],
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"

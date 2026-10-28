@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Store\Admin\Catalog;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\ProductAttributeValue;
 use Illuminate\Http\Request;
@@ -10,6 +11,11 @@ use Illuminate\Support\Str;
 
 class StoreAttributeController extends Controller
 {
+    private function tenantId(): int
+    {
+        return (int)auth()->user()->tenant->id;
+    }
+
     public function attributes()
     {
         $attributes = ProductAttribute::where('tenant_id', $this->tenantId())->withCount('values')->with('values')->orderBy('position')->orderBy('name')->paginate(20);
@@ -19,16 +25,16 @@ class StoreAttributeController extends Controller
     public function storeAttribute(Request $request)
     {
         $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'slug' => ['nullable', 'string', 'max:150'], 'position' => ['nullable', 'integer', 'min:0']]);
-        $data['tenant_id'] = tenantID();
+        $data['tenant_id'] = $this->tenantId();
         $data['slug'] = Str::slug($data['slug'] ?: $data['name']);
-        assertSlugAvailable(ProductAttribute::class, $data['slug']);
+        $this->assertSlugAvailable(ProductAttribute::class, $data['slug']);
         ProductAttribute::create($data);
         return back()->with('success', 'Attribute created.');
     }
 
     public function storeAttributeValue(Request $request, int $attribute)
     {
-        $attribute = ProductAttribute::where('tenant_id', $tenantID())->findOrFail($attribute);
+        $attribute = ProductAttribute::where('tenant_id', $this->tenantId())->findOrFail($attribute);
         $data = $request->validate(['value' => ['required', 'string', 'max:120'], 'position' => ['nullable', 'integer', 'min:0'], 'status' => ['nullable', 'boolean']]);
         $slug = Str::slug($data['value']);
         $exists = ProductAttributeValue::where('tenant_id', $this->tenantId())->where('attribute_id', $attribute->id)->where('slug', $slug)->exists();
@@ -70,5 +76,13 @@ class StoreAttributeController extends Controller
     {
         ProductAttribute::where('tenant_id', $this->tenantId())->findOrFail($attribute)->delete();
         return back()->with('success', 'Attribute deleted.');
+    }
+
+    private function assertSlugAvailable(string $model, string $slug, ?int $ignore = null): void
+    {
+        $query = $model::where('tenant_id', $this->tenantId())->where('slug', $slug);
+        if ($model === Product::class) $query->withTrashed();
+        if ($ignore) $query->where('id', '!=', $ignore);
+        if ($query->exists()) throw \Illuminate\Validation\ValidationException::withMessages(['slug' => 'This slug is already in use in your store.']);
     }
 }
