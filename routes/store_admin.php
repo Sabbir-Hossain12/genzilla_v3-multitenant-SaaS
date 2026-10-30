@@ -12,6 +12,9 @@ use App\Http\Controllers\Store\Admin\StoreAdminPermissionController;
 use App\Http\Controllers\Store\Admin\StoreAdminSettingController;
 use App\Http\Controllers\Store\Admin\StoreAdminRoleController;
 use App\Http\Controllers\Store\Admin\StoreCatalogController;
+use App\Http\Controllers\Store\Admin\Order\StoreOrderController;
+use App\Http\Controllers\Store\Admin\Promotions\StoreCouponController;
+use App\Http\Controllers\Store\Admin\Promotions\StoreDeliveryChargeController;
 
 Route::domain(config('app.base_domain'))
     ->prefix('store')->name('store.')
@@ -90,5 +93,27 @@ Route::domain(config('app.base_domain'))
             Route::get('/catalog/inventory', [StoreInventoryController::class, 'inventory'])->name('admin.inventory.index')->middleware('permission:Store Inventory List');
             Route::post('/catalog/inventory/{variant}/receive', [StoreInventoryController::class, 'receiveStock'])->name('admin.inventory.receive')->middleware('permission:Store Inventory Manage');
             Route::patch('/catalog/inventory/batches/{batch}', [StoreInventoryController::class, 'adjustStock'])->name('admin.inventory.adjust')->middleware('permission:Store Inventory Manage');
+
+            //..............Orders.................//
+            Route::get('/orders', [StoreOrderController::class, 'orders'])->name('admin.orders.index')->middleware('permission:Store Order List');
+            Route::get('/orders/create', [StoreOrderController::class, 'createOrder'])->name('admin.orders.create')->middleware('permission:Store Order Create');
+            Route::post('/orders', [StoreOrderController::class, 'storeOrder'])->name('admin.orders.store')->middleware('permission:Store Order Create');
+            Route::get('/orders/{order}', [StoreOrderController::class, 'showOrder'])->name('admin.orders.show')->middleware('permission:Store Order View');
+            Route::patch('/orders/{order}/status', [StoreOrderController::class, 'updateStatus'])->name('admin.orders.status')->middleware('permission:Store Order Edit');
+            Route::delete('/orders/{order}', [StoreOrderController::class, 'deleteOrder'])->name('admin.orders.destroy')->middleware('permission:Store Order Delete');
+
+            //..............Promotions: Coupons.................//
+            Route::get('/promotions/coupons', [StoreCouponController::class, 'coupons'])->name('admin.coupons.index')->middleware('permission:Store Coupon List');
+            Route::post('/promotions/coupons', [StoreCouponController::class, 'storeCoupon'])->name('admin.coupons.store')->middleware('permission:Store Coupon Create');
+            Route::put('/promotions/coupons/{coupon}', [StoreCouponController::class, 'updateCoupon'])->name('admin.coupons.update')->middleware('permission:Store Coupon Edit');
+            Route::delete('/promotions/coupons/{coupon}', [StoreCouponController::class, 'deleteCoupon'])->name('admin.coupons.destroy')->middleware('permission:Store Coupon Delete');
+            Route::patch('/promotions/coupons/{coupon}/toggle', [StoreCouponController::class, 'toggleStatus'])->name('admin.coupons.toggle')->middleware('permission:Store Coupon Edit');
+
+            //..............Promotions: Delivery Charges.................//
+            Route::get('/promotions/delivery-charges', [StoreDeliveryChargeController::class, 'deliveryCharges'])->name('admin.delivery_charges.index')->middleware('permission:Store Delivery Charge List');
+            Route::post('/promotions/delivery-charges', [StoreDeliveryChargeController::class, 'storeDeliveryCharge'])->name('admin.delivery_charges.store')->middleware('permission:Store Delivery Charge Create');
+            Route::put('/promotions/delivery-charges/{delivery_charge}', [StoreDeliveryChargeController::class, 'updateDeliveryCharge'])->name('admin.delivery_charges.update')->middleware('permission:Store Delivery Charge Edit');
+            Route::delete('/promotions/delivery-charges/{delivery_charge}', [StoreDeliveryChargeController::class, 'deleteDeliveryCharge'])->name('admin.delivery_charges.destroy')->middleware('permission:Store Delivery Charge Delete');
+            Route::patch('/promotions/delivery-charges/{delivery_charge}/toggle', [StoreDeliveryChargeController::class, 'toggleStatus'])->name('admin.delivery_charges.toggle')->middleware('permission:Store Delivery Charge Edit');
         });
     });

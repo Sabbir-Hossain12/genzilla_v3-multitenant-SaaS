@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             PlatformStoreDemoSeeder::class,
             TenantSubscriptionSeeder::class,
             TenantCatalogSeeder::class,
+            TenantOrderPromotionSeeder::class,
         ]);
     }
 }

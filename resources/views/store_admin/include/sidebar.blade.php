@@ -67,6 +67,42 @@
             </div>
         @endcanany
 
+        @can('Store Order List')
+            <a href="{{ route('store.admin.orders.index') }}"
+               class="nav-link {{ $isActive('store.admin.orders.') ? 'active' : '' }}">
+                <i class="fa-solid fa-cart-shopping"></i>
+                Orders
+            </a>
+        @endcan
+
+        @canany(['Store Coupon List', 'Store Delivery Charge List'])
+            <div class="nav-group">
+                @php $promotionsActive = $isActive(['store.admin.coupons.', 'store.admin.delivery_charges.']); @endphp
+                <button type="button"
+                        class="nav-link nav-toggle w-full text-left {{ $promotionsActive ? 'has-active' : '' }}"
+                        aria-expanded="{{ $promotionsActive ? 'true' : 'false' }}" onclick="toggleGroup(this)">
+                    <i class="fa-solid fa-tags"></i>
+                    <span>Promotions & Delivery</span>
+                    <svg class="chev ml-auto h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-200"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <div class="submenu {{ $promotionsActive ? 'open' : '' }}">
+                    <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                        @can('Store Coupon List')
+                            <a href="{{ route('store.admin.coupons.index') }}"
+                               class="sub-link {{ $isActive('store.admin.coupons.') ? 'active' : '' }}">Coupons</a>
+                        @endcan
+                        @can('Store Delivery Charge List')
+                            <a href="{{ route('store.admin.delivery_charges.index') }}"
+                               class="sub-link {{ $isActive('store.admin.delivery_charges.') ? 'active' : '' }}">Delivery Charges</a>
+                        @endcan
+                    </div>
+                </div>
+            </div>
+        @endcanany
+
         <div class="!my-4 border-t border-slate-100 dark:border-slate-800"></div>
         <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
             System</p>
