@@ -93,6 +93,13 @@ class PermissionSeeder extends Seeder
             'Store Product List', 'Store Product Create', 'Store Product Edit', 'Store Product Delete',
             'Store Inventory List', 'Store Inventory Manage',
         ],
+        'Store Customer Management' => [
+            'Store Customer List',
+            'Store Customer Create',
+            'Store Customer View',
+            'Store Customer Edit',
+            'Store Customer Delete',
+        ],
         'Store Order Management' => [
             'Store Order List',
             'Store Order View',

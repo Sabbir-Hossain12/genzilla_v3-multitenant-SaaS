@@ -54,7 +54,7 @@ return new class extends Migration
             $table->string('public_id', 36)->unique();
             $table->string('order_number', 50);
             $table->string('idempotency_key', 64)->nullable();
-            $table->foreignId('customer_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('customer_id')->nullable();
             $table->string('status', 30)->default('pending');
             $table->string('payment_method', 50)->default('cod');
             $table->string('payment_status', 30)->default('unpaid');
@@ -142,7 +142,7 @@ return new class extends Migration
         Schema::create('wishlists', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('customer_id')->constrained('users')->cascadeOnDelete();
+            $table->unsignedBigInteger('customer_id');
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->foreignId('product_variant_id')->nullable()->constrained('product_variants')->cascadeOnDelete();
             $table->timestamps();

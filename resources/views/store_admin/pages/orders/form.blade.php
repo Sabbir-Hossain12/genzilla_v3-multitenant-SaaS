@@ -84,7 +84,7 @@
 
                                 <div>
                                     <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Qty *</label>
-                                    <input type="number" min="1" name="items[0][quantity]" value="1" required class="quantity-input {{ $field }} font-mono">
+                                    <input type="number" min="1" name="items[0][quantity]\" value="1" required class="quantity-input {{ $field }} font-mono">
                                 </div>
 
                                 <div>
@@ -231,48 +231,83 @@
 
                 {{-- Customer Information Card --}}
                 <section class="card p-5 space-y-4">
-                    <h2 class="font-bold text-slate-900 dark:text-white text-base">Customer & Shipping</h2>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                        <div>
+                            <h2 class="font-bold text-slate-900 dark:text-white text-base">Customer & Shipping</h2>
+                            <p class="text-xs text-slate-400">Select an existing customer or enter manually.</p>
+                        </div>
+                        <a href="{{ route('store.admin.customers.create') }}" target="_blank" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 font-semibold">
+                            <i class="fa-solid fa-user-plus"></i> New Customer
+                        </a>
+                    </div>
 
                     <div class="space-y-3">
                         <div>
+                            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Registered Customer (Optional)</label>
+                            <select name="customer_id" id="customer-select" class="{{ $field }}">
+                                <option value="" data-name="" data-phone="" data-email="" data-address="" data-area="" data-city="" data-postcode="" data-country="">
+                                    -- Walk-in / Guest Order --
+                                </option>
+                                @foreach($customers as $c)
+                                    @php
+                                        $addr = $c->defaultAddress;
+                                    @endphp
+                                    <option value="{{ $c->id }}"
+                                            {{ old('customer_id') == $c->id ? 'selected' : '' }}
+                                            data-name="{{ $c->full_name }}"
+                                            data-phone="{{ $c->phone ?? '' }}"
+                                            data-email="{{ $c->email }}"
+                                            data-address="{{ $addr?->address_1 ?? '' }}"
+                                            data-area="{{ $addr?->address_2 ?? '' }}"
+                                            data-city="{{ $addr?->state_district ?? '' }}"
+                                            data-postcode="{{ $addr?->zip ?? '' }}"
+                                            data-country="{{ $addr?->country ?? 'United States' }}">
+                                        {{ $c->full_name }} ({{ $c->phone ?: $c->email }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <p class="text-[11px] text-slate-400 mt-1">Select an account to autofill recipient and default address.</p>
+                        </div>
+
+                        <div>
                             <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Recipient Name *</label>
-                            <input name="shipping_name" required value="{{ old('shipping_name') }}" placeholder="Full recipient name" class="{{ $field }}">
+                            <input name="shipping_name" id="shipping_name" required value="{{ old('shipping_name') }}" placeholder="Full recipient name" class="{{ $field }}">
                         </div>
 
                         <div>
                             <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Phone Number *</label>
-                            <input name="shipping_phone" required value="{{ old('shipping_phone') }}" placeholder="+1 (555) 000-0000" class="{{ $field }}">
+                            <input name="shipping_phone" id="shipping_phone" required value="{{ old('shipping_phone') }}" placeholder="+1 (555) 000-0000" class="{{ $field }}">
                         </div>
 
                         <div>
                             <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Email (Optional)</label>
-                            <input name="shipping_email" type="email" value="{{ old('shipping_email') }}" placeholder="customer@example.com" class="{{ $field }}">
+                            <input name="shipping_email" id="shipping_email" type="email" value="{{ old('shipping_email') }}" placeholder="customer@example.com" class="{{ $field }}">
                         </div>
 
                         <div>
                             <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Street Address *</label>
-                            <textarea name="shipping_address" required rows="2" placeholder="House / Building, Street name" class="{{ $field }}">{{ old('shipping_address') }}</textarea>
+                            <textarea name="shipping_address" id="shipping_address" required rows="2" placeholder="House / Building, Street name" class="{{ $field }}">{{ old('shipping_address') }}</textarea>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Area / Suburb</label>
-                                <input name="shipping_area" value="{{ old('shipping_area') }}" placeholder="e.g. Downtown" class="{{ $field }}">
+                                <input name="shipping_area" id="shipping_area" value="{{ old('shipping_area') }}" placeholder="e.g. Downtown" class="{{ $field }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">City *</label>
-                                <input name="shipping_city" required value="{{ old('shipping_city', 'New York') }}" placeholder="City name" class="{{ $field }}">
+                                <input name="shipping_city" id="shipping_city" required value="{{ old('shipping_city', 'New York') }}" placeholder="City name" class="{{ $field }}">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Postal Code</label>
-                                <input name="shipping_postcode" value="{{ old('shipping_postcode') }}" placeholder="e.g. 10001" class="{{ $field }}">
+                                <input name="shipping_postcode" id="shipping_postcode" value="{{ old('shipping_postcode') }}" placeholder="e.g. 10001" class="{{ $field }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Country</label>
-                                <input name="shipping_country" value="{{ old('shipping_country', 'United States') }}" class="{{ $field }}">
+                                <input name="shipping_country" id="shipping_country" value="{{ old('shipping_country', 'United States') }}" class="{{ $field }}">
                             </div>
                         </div>
                     </div>
@@ -477,6 +512,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('custom-shipping-input').addEventListener('input', recalculateOrderSummary);
     document.getElementById('coupon-select').addEventListener('change', recalculateOrderSummary);
+
+    // Customer Select Auto-fill
+    const customerSelect = document.getElementById('customer-select');
+    if (customerSelect) {
+        customerSelect.addEventListener('change', function () {
+            const opt = this.options[this.selectedIndex];
+            if (!opt) return;
+
+            if (opt.value) {
+                if (opt.dataset.name) document.getElementById('shipping_name').value = opt.dataset.name;
+                if (opt.dataset.phone) document.getElementById('shipping_phone').value = opt.dataset.phone;
+                if (opt.dataset.email) document.getElementById('shipping_email').value = opt.dataset.email;
+                if (opt.dataset.address) document.getElementById('shipping_address').value = opt.dataset.address;
+                if (opt.dataset.area) document.getElementById('shipping_area').value = opt.dataset.area;
+                if (opt.dataset.city) document.getElementById('shipping_city').value = opt.dataset.city;
+                if (opt.dataset.postcode) document.getElementById('shipping_postcode').value = opt.dataset.postcode;
+                if (opt.dataset.country) document.getElementById('shipping_country').value = opt.dataset.country;
+            }
+        });
+    }
 });
 </script>
 @endsection

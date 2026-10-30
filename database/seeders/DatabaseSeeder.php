@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             TenantSubscriptionSeeder::class,
             TenantCatalogSeeder::class,
             TenantOrderPromotionSeeder::class,
+            TenantCustomerSeeder::class,
         ]);
     }
 }

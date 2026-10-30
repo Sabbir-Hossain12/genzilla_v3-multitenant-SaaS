@@ -13,14 +13,17 @@ class StoreCouponController extends Controller
     {
         $tenantId = tenantId();
 
-        $coupons = Coupon::where('tenant_id', $tenantId)
-            ->withCount('orders')
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where('code', 'like', '%' . trim($request->search) . '%');
-            })
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+        $query = Coupon::where('tenant_id', $tenantId)->latest();
+
+        if ($request->filled('search')) {
+            $query->where('code', 'like', '%' . trim($request->search) . '%');
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status === 'active');
+        }
+
+        $coupons = $query->paginate(15)->withQueryString();
 
         return view('store_admin.pages.promotions.coupons', compact('coupons'));
     }
@@ -44,7 +47,8 @@ class StoreCouponController extends Controller
 
         $validated['tenant_id'] = $tenantId;
         $validated['code'] = strtoupper(trim($validated['code']));
-        $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['used_count'] = 0;
 
         Coupon::create($validated);
 
@@ -71,6 +75,8 @@ class StoreCouponController extends Controller
 
         $validated['code'] = strtoupper(trim($validated['code']));
         $validated['is_active'] = $request->boolean('is_active');
+        $validated['max_discount_amount'] = $request->filled('max_discount_amount') ? $request->input('max_discount_amount') : null;
+        $validated['min_order_amount'] = $request->filled('min_order_amount') ? $request->input('min_order_amount') : null;
 
         $coupon->update($validated);
 

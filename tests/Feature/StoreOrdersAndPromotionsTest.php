@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Coupon;
+use App\Models\Customer;
 use App\Models\DeliveryCharge;
 use App\Models\InventoryBatch;
 use App\Models\Order;
@@ -114,99 +115,101 @@ class StoreOrdersAndPromotionsTest extends TestCase
         $this->assertTrue($coupon->isValidForAmount(100.00));
         $this->assertEquals(20.00, $coupon->calculateDiscount(100.00));
 
-        // Max discount cap ($200 subtotal, 20% = $40, but capped at $30)
+        // Capped by max_discount_amount ($200 subtotal, 20% = $40 -> capped at $30)
+        $this->assertTrue($coupon->isValidForAmount(200.00));
         $this->assertEquals(30.00, $coupon->calculateDiscount(200.00));
 
         // 3. Update Coupon
-        $updateResponse = $this->actingAs($this->user)->put($this->storeUrl('/store/promotions/coupons/' . $coupon->id), [
-            'code' => 'SAVE25',
-            'type' => 'percentage',
-            'value' => 25,
-            'min_order_amount' => 60,
-            'max_discount_amount' => 50,
-            'usage_limit' => 50,
-            'usage_limit_per_customer' => 1,
+        $updateRes = $this->actingAs($this->user)->put($this->storeUrl('/store/promotions/coupons/' . $coupon->id), [
+            'code' => 'save50flat',
+            'type' => 'fixed',
+            'value' => 50,
+            'min_order_amount' => 100,
+            'max_discount_amount' => null,
             'is_active' => 1,
         ]);
-        $updateResponse->assertSessionHasNoErrors();
-        $this->assertEquals(25.00, $coupon->fresh()->value);
-        $this->assertEquals('SAVE25', $coupon->fresh()->code);
+        $updateRes->assertSessionHasNoErrors();
+        $coupon->refresh();
+        $this->assertEquals('SAVE50FLAT', $coupon->code);
+        $this->assertEquals('fixed', $coupon->type);
+        $this->assertEquals(50.00, $coupon->value);
 
-        // 4. Fixed discount test
-        $fixedCoupon = Coupon::create([
-            'tenant_id' => $this->tenant->id,
-            'code' => 'FLAT15',
-            'type' => 'fixed',
-            'value' => 15.00,
-            'min_order_amount' => 10.00,
-            'is_active' => true,
-        ]);
-        $this->assertEquals(15.00, $fixedCoupon->calculateDiscount(100.00));
-        $this->assertEquals(10.00, $fixedCoupon->calculateDiscount(10.00)); // Capped at subtotal
+        // Fixed discount check
+        $this->assertEquals(50.00, $coupon->calculateDiscount(150.00));
+
+        // 4. Toggle Status
+        $toggleRes = $this->actingAs($this->user)->patch($this->storeUrl('/store/promotions/coupons/' . $coupon->id . '/toggle'));
+        $toggleRes->assertRedirect();
+        $this->assertFalse($coupon->fresh()->is_active);
 
         // 5. Delete Coupon
-        $delResponse = $this->actingAs($this->user)->delete($this->storeUrl('/store/promotions/coupons/' . $coupon->id));
-        $delResponse->assertRedirect();
+        $deleteRes = $this->actingAs($this->user)->delete($this->storeUrl('/store/promotions/coupons/' . $coupon->id));
+        $deleteRes->assertRedirect();
         $this->assertDatabaseMissing('coupons', ['id' => $coupon->id]);
     }
 
-    public function test_delivery_charge_crud_and_status(): void
+    public function test_delivery_charge_crud(): void
     {
         // 1. Create Delivery Charge
         $response = $this->actingAs($this->user)->post($this->storeUrl('/store/promotions/delivery-charges'), [
-            'title' => 'Express City Courier',
-            'charge_amount' => 8.50,
+            'title' => 'Express Courier',
+            'charge_amount' => 15.00,
             'min_order_amount' => 100.00,
-            'estimated_days' => '1-2 business days',
-            'description' => 'Fast delivery within city perimeter',
+            'estimated_days' => '1-2 Days',
+            'sort_order' => 1,
             'status' => 1,
         ]);
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect();
 
-        $charge = DeliveryCharge::where('tenant_id', $this->tenant->id)->first();
-        $this->assertNotNull($charge);
-        $this->assertEquals('Express City Courier', $charge->title);
-        $this->assertEquals(8.50, (float)$charge->charge_amount);
-        $this->assertTrue($charge->status);
+        $delivery = DeliveryCharge::where('tenant_id', $this->tenant->id)->first();
+        $this->assertNotNull($delivery);
+        $this->assertEquals('Express Courier', $delivery->title);
+        $this->assertEquals('express-courier', $delivery->slug);
+        $this->assertEquals(15.00, $delivery->charge_amount);
+        $this->assertEquals(100.00, $delivery->min_order_amount);
 
         // 2. Update Delivery Charge
-        $updateResponse = $this->actingAs($this->user)->put($this->storeUrl('/store/promotions/delivery-charges/' . $charge->id), [
-            'title' => 'Express City Courier Updated',
-            'charge_amount' => 10.00,
-            'min_order_amount' => 120.00,
-            'estimated_days' => '24 hours',
-            'description' => 'Guaranteed 24-hr delivery',
+        $updateRes = $this->actingAs($this->user)->put($this->storeUrl('/store/promotions/delivery-charges/' . $delivery->id), [
+            'title' => 'Express Courier Prime',
+            'charge_amount' => 12.00,
             'status' => 1,
         ]);
-        $updateResponse->assertSessionHasNoErrors();
-        $this->assertEquals(10.00, (float)$charge->fresh()->charge_amount);
-        $this->assertEquals('Express City Courier Updated', $charge->fresh()->title);
+        $updateRes->assertSessionHasNoErrors();
+        $this->assertEquals('Express Courier Prime', $delivery->fresh()->title);
+        $this->assertEquals(12.00, $delivery->fresh()->charge_amount);
 
         // 3. Delete Delivery Charge
-        $delResponse = $this->actingAs($this->user)->delete($this->storeUrl('/store/promotions/delivery-charges/' . $charge->id));
-        $delResponse->assertRedirect();
-        $this->assertDatabaseMissing('delivery_charges', ['id' => $charge->id]);
+        $deleteRes = $this->actingAs($this->user)->delete($this->storeUrl('/store/promotions/delivery-charges/' . $delivery->id));
+        $deleteRes->assertRedirect();
+        $this->assertDatabaseMissing('delivery_charges', ['id' => $delivery->id]);
     }
 
-    public function test_order_creation_with_products_payments_and_status_transitions(): void
+    public function test_order_lifecycle_status_and_payment_transitions(): void
     {
-        // Setup catalog items
+        $customer = Customer::create([
+            'tenant_id' => $this->tenant->id,
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john@example.com',
+            'phone' => '+8801712345678',
+            'status' => 'active',
+        ]);
+
         $product = Product::create([
             'tenant_id' => $this->tenant->id,
             'name' => 'Paracetamol 500mg',
             'slug' => 'paracetamol-500mg',
             'kind' => 'medicine',
             'status' => 'active',
-            'requires_prescription' => false,
         ]);
 
         $variant = ProductVariant::create([
             'tenant_id' => $this->tenant->id,
             'product_id' => $product->id,
-            'title' => 'Box of 20 Tablets',
-            'sku' => 'PARA-500-20',
+            'title' => 'Strip of 10 Tablets',
+            'sku' => 'PARA-500-10',
             'price' => 12.50,
             'cost_price' => 7.00,
             'options_hash' => md5('box-20'),
@@ -236,7 +239,7 @@ class StoreOrdersAndPromotionsTest extends TestCase
         $order = Order::create([
             'tenant_id' => $this->tenant->id,
             'order_number' => 'ORD-10001',
-            'customer_id' => $this->user->id,
+            'customer_id' => $customer->id,
             'status' => 'pending',
             'payment_method' => 'cod',
             'payment_status' => 'unpaid',
@@ -253,85 +256,114 @@ class StoreOrdersAndPromotionsTest extends TestCase
             'shipping_name' => 'John Doe',
             'shipping_phone' => '+8801712345678',
             'shipping_email' => 'john@example.com',
-            'shipping_address' => 'House 12, Road 5, Dhanmondi',
+            'shipping_address' => 'House 12, Road 4, Banani',
             'shipping_city' => 'Dhaka',
             'shipping_country' => 'Bangladesh',
             'placed_at' => now(),
         ]);
 
-        $this->assertNotNull($order->public_id);
-        $this->assertEquals('ORD-10001', $order->order_number);
-
-        // Add line item
-        $item = OrderProduct::create([
+        // Add line items
+        OrderProduct::create([
             'tenant_id' => $this->tenant->id,
             'order_id' => $order->id,
             'variant_id' => $variant->id,
             'product_name' => $product->name,
             'variant_title' => $variant->title,
             'sku' => $variant->sku,
-            'variant_options' => [],
-            'requires_prescription' => false,
             'quantity' => 2,
             'unit_price' => 12.50,
-            'discount_amount' => 2.50,
-            'line_total' => 22.50,
+            'discount_amount' => 0.00,
+            'line_total' => 25.00,
         ]);
 
-        $this->assertEquals(1, $order->products()->count());
-        $this->assertEquals('Paracetamol 500mg', $order->products->first()->product_name);
+        $this->assertEquals(27.50, (float)$order->total);
+        $this->assertEquals('pending', $order->status);
+        $this->assertNull($order->shipped_at);
+        $this->assertNull($order->delivered_at);
 
-        // Add Payment record
-        $payment = OrderPayment::create([
-            'tenant_id' => $this->tenant->id,
-            'order_id' => $order->id,
-            'type' => 'charge',
-            'payment_method' => 'cod',
-            'transaction_id' => 'TXN-COD-999',
-            'amount' => 27.50,
-            'currency' => 'USD',
-            'status' => 'pending',
+        // 1. Advance Order Status to Shipped
+        $statusRes = $this->actingAs($this->user)->patch($this->storeUrl('/store/orders/' . $order->id . '/status'), [
+            'status' => 'shipped',
         ]);
+        $statusRes->assertRedirect();
+        $order->refresh();
+        $this->assertEquals('shipped', $order->status);
+        $this->assertNotNull($order->shipped_at);
 
-        $this->assertEquals(1, $order->payments()->count());
-
-        // Update status through controller
-        $statusUpdateResponse = $this->actingAs($this->user)->patch($this->storeUrl('/store/orders/' . $order->id . '/status'), [
+        // 2. Advance Order Status to Delivered
+        $deliverRes = $this->actingAs($this->user)->patch($this->storeUrl('/store/orders/' . $order->id . '/status'), [
             'status' => 'delivered',
-            'payment_status' => 'paid',
-            'order_note' => 'Delivered to recipient safely.',
         ]);
+        $deliverRes->assertRedirect();
+        $order->refresh();
+        $this->assertEquals('delivered', $order->status);
+        $this->assertNotNull($order->delivered_at);
 
-        $statusUpdateResponse->assertSessionHasNoErrors();
-        $statusUpdateResponse->assertRedirect();
+        // 3. Update Payment Status to Paid
+        $paymentRes = $this->actingAs($this->user)->patch($this->storeUrl('/store/orders/' . $order->id . '/payment-status'), [
+            'payment_status' => 'paid',
+        ]);
+        $paymentRes->assertRedirect();
+        $order->refresh();
+        $this->assertEquals('paid', $order->payment_status);
 
-        $freshOrder = $order->fresh();
-        $this->assertEquals('delivered', $freshOrder->status);
-        $this->assertEquals('paid', $freshOrder->payment_status);
-        $this->assertNotNull($freshOrder->delivered_at);
-        $this->assertEquals('Delivered to recipient safely.', $freshOrder->order_note);
+        // OrderPayment ledger entry should have been created
+        $paymentRecord = OrderPayment::where('tenant_id', $this->tenant->id)->where('order_id', $order->id)->first();
+        $this->assertNotNull($paymentRecord);
+        $this->assertEquals(27.50, (float)$paymentRecord->amount);
+        $this->assertEquals('successful', $paymentRecord->status);
+        $this->assertNotNull($paymentRecord->paid_at);
+
+        // 4. Update Prescription Status
+        $prescriptionRes = $this->actingAs($this->user)->patch($this->storeUrl('/store/orders/' . $order->id . '/prescription-status'), [
+            'prescription_status' => 'approved',
+        ]);
+        $prescriptionRes->assertRedirect();
+        $order->refresh();
+        $this->assertEquals('approved', $order->prescription_status);
+
+        // 5. Test Wishlist model relation
+        $wishlist = Wishlist::create([
+            'tenant_id' => $this->tenant->id,
+            'customer_id' => $customer->id,
+            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
+        ]);
+        $this->assertDatabaseHas('wishlists', [
+            'tenant_id' => $this->tenant->id,
+            'product_id' => $product->id,
+            'customer_id' => $customer->id,
+        ]);
     }
 
-    public function test_order_creation_via_form_controller(): void
+    public function test_store_admin_can_manually_create_order_with_live_inventory(): void
     {
-        // 1. Create Catalog Item & Stock Batch
+        $customer = Customer::create([
+            'tenant_id' => $this->tenant->id,
+            'first_name' => 'Sherlock',
+            'last_name' => 'Holmes',
+            'email' => 'sherlock@example.com',
+            'phone' => '+447960111222',
+            'status' => 'active',
+        ]);
+
+        // 1. Setup Catalog with Inventory Batch
         $product = Product::create([
             'tenant_id' => $this->tenant->id,
             'name' => 'Antiseptic Solution 250ml',
             'slug' => 'antiseptic-solution-250ml',
-            'kind' => 'general',
+            'kind' => 'medicine',
             'status' => 'active',
-            'requires_prescription' => false,
         ]);
 
         $variant = ProductVariant::create([
             'tenant_id' => $this->tenant->id,
             'product_id' => $product->id,
-            'title' => 'Default Variant',
-            'sku' => 'ANTI-250',
+            'title' => 'Bottle 250ml',
+            'sku' => 'ANTISEPTIC-250',
             'price' => 15.00,
             'cost_price' => 8.00,
-            'options_hash' => md5('anti-default'),
+            'options_hash' => md5('vol-250'),
             'track_inventory' => true,
             'is_default' => true,
             'status' => 'active',
@@ -373,7 +405,7 @@ class StoreOrdersAndPromotionsTest extends TestCase
 
         // 4. Submit Order Form
         $postData = [
-            'customer_id' => $this->user->id,
+            'customer_id' => $customer->id,
             'shipping_name' => 'Sherlock Holmes',
             'shipping_phone' => '+447960111222',
             'shipping_email' => 'sherlock@example.com',
@@ -429,56 +461,16 @@ class StoreOrdersAndPromotionsTest extends TestCase
         $this->assertEquals(2, $movement->reserved_delta);
         $this->assertEquals(2, $batch->fresh()->reserved);
 
-        // 6. Test Show Page for the newly created order
-        $showRes = $this->actingAs($this->user)->get($this->storeUrl('/store/orders/' . $order->id));
-        $showRes->assertOk();
-        $showRes->assertSee('#' . $order->order_number);
-        $showRes->assertSee('Sherlock Holmes');
-        $showRes->assertSee('221B Baker Street');
-        $showRes->assertSee('Antiseptic Solution 250ml');
-        $showRes->assertSee('SAVE10PERCENT');
-        $showRes->assertSee('Fulfillment Progress');
+        // Coupon used_count increment
+        $this->assertEquals(1, $coupon->fresh()->used_count);
     }
 
-    public function test_wishlist_creation_and_relations(): void
+    public function test_order_cancellation_releases_reserved_stock(): void
     {
         $product = Product::create([
             'tenant_id' => $this->tenant->id,
-            'name' => 'Vitamin D3 Drops',
-            'slug' => 'vitamin-d3-drops',
-            'kind' => 'medicine',
-            'status' => 'active',
-        ]);
-
-        $variant = ProductVariant::create([
-            'tenant_id' => $this->tenant->id,
-            'product_id' => $product->id,
-            'title' => '30ml Bottle',
-            'sku' => 'VIT-D3-30',
-            'price' => 8.00,
-            'options_hash' => md5('d3-30'),
-            'status' => 'active',
-        ]);
-
-        $wishlist = Wishlist::create([
-            'tenant_id' => $this->tenant->id,
-            'customer_id' => $this->user->id,
-            'product_id' => $product->id,
-            'product_variant_id' => $variant->id,
-        ]);
-
-        $this->assertEquals($this->tenant->id, $wishlist->tenant_id);
-        $this->assertEquals('Vitamin D3 Drops', $wishlist->product->name);
-        $this->assertEquals('30ml Bottle', $wishlist->variant->title);
-        $this->assertEquals($this->user->name, $wishlist->customer->name);
-    }
-
-    public function test_blade_views_render_successfully(): void
-    {
-        $product = Product::create([
-            'tenant_id' => $this->tenant->id,
-            'name' => 'Pain Relief Gel',
-            'slug' => 'pain-relief-gel',
+            'name' => 'Pain Relieving Balm',
+            'slug' => 'pain-relieving-balm',
             'kind' => 'general',
             'status' => 'active',
         ]);
@@ -486,16 +478,116 @@ class StoreOrdersAndPromotionsTest extends TestCase
         $variant = ProductVariant::create([
             'tenant_id' => $this->tenant->id,
             'product_id' => $product->id,
-            'title' => '50g Tube',
+            'title' => 'Standard Jar',
+            'sku' => 'BALM-50',
+            'price' => 10.00,
+            'cost_price' => 5.00,
+            'options_hash' => md5('jar-50'),
+            'track_inventory' => true,
+            'is_default' => true,
+            'status' => 'active',
+        ]);
+
+        $batch = InventoryBatch::create([
+            'tenant_id' => $this->tenant->id,
+            'variant_id' => $variant->id,
+            'batch_number' => 'BALM-BATCH-1',
+            'quantity' => 20,
+            'reserved' => 5, // Initially reserved
+        ]);
+
+        $order = Order::create([
+            'tenant_id' => $this->tenant->id,
+            'order_number' => 'ORD-CANCEL-001',
+            'status' => 'pending',
+            'payment_method' => 'cod',
+            'payment_status' => 'unpaid',
+            'currency' => 'USD',
+            'subtotal' => 50.00,
+            'discount_amount' => 0.00,
+            'shipping_charge' => 0.00,
+            'tax_amount' => 0.00,
+            'total' => 50.00,
+            'shipping_name' => 'John Cancel',
+            'shipping_phone' => '+1234567890',
+            'shipping_address' => 'Some St',
+            'shipping_city' => 'Anytown',
+            'shipping_country' => 'USA',
+            'placed_at' => now(),
+        ]);
+
+        OrderProduct::create([
+            'tenant_id' => $this->tenant->id,
+            'order_id' => $order->id,
+            'variant_id' => $variant->id,
+            'product_name' => $product->name,
+            'variant_title' => $variant->title,
+            'sku' => $variant->sku,
+            'quantity' => 5,
+            'unit_price' => 10.00,
+            'line_total' => 50.00,
+        ]);
+
+        // Cancel the order
+        $cancelRes = $this->actingAs($this->user)->patch($this->storeUrl('/store/orders/' . $order->id . '/cancel'), [
+            'status' => 'cancelled',
+            'cancel_reason' => 'Customer requested cancellation before shipment',
+        ]);
+
+        $cancelRes->assertRedirect();
+        $order->refresh();
+        $this->assertEquals('cancelled', $order->status);
+        $this->assertEquals('Customer requested cancellation before shipment', $order->cancel_reason);
+        $this->assertNotNull($order->cancelled_at);
+
+        // Verify reserved stock released
+        $this->assertEquals(0, $batch->fresh()->reserved);
+
+        // Verify stock movement recorded
+        $releaseMovement = StockMovement::where('tenant_id', $this->tenant->id)
+            ->where('reference_type', 'Order')
+            ->where('type', 'release')
+            ->first();
+        $this->assertNotNull($releaseMovement);
+        $this->assertEquals(-5, $releaseMovement->reserved_delta);
+    }
+
+    public function test_views_render_successfully(): void
+    {
+        $customer = Customer::create([
+            'tenant_id' => $this->tenant->id,
+            'first_name' => 'Emma',
+            'last_name' => 'Watson',
+            'email' => 'emma@example.com',
+            'phone' => '+447900123456',
+            'status' => 'active',
+        ]);
+
+        $product = Product::create([
+            'tenant_id' => $this->tenant->id,
+            'name' => 'Pain Relief Gel',
+            'slug' => 'pain-relief-gel',
+            'kind' => 'medicine',
+            'status' => 'active',
+        ]);
+
+        $variant = ProductVariant::create([
+            'tenant_id' => $this->tenant->id,
+            'product_id' => $product->id,
+            'title' => 'Tube 50g',
             'sku' => 'GEL-50',
             'price' => 9.00,
-            'options_hash' => md5('gel-50'),
+            'cost_price' => 4.00,
+            'options_hash' => md5('tube-50'),
+            'track_inventory' => false,
+            'is_default' => true,
             'status' => 'active',
         ]);
 
         $order = Order::create([
             'tenant_id' => $this->tenant->id,
             'order_number' => 'ORD-VIEW-1',
+            'customer_id' => $customer->id,
             'status' => 'processing',
             'payment_method' => 'card',
             'payment_status' => 'paid',

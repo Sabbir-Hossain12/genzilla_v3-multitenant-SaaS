@@ -5,16 +5,17 @@ use App\Http\Controllers\Store\Admin\Catalog\StoreBrandController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreCategoryController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreInventoryController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreProductController;
-use App\Http\Controllers\Store\Admin\StoreAdminAuthController;
-use App\Http\Controllers\Store\Admin\StoreAdminDashboardController;
-use App\Http\Controllers\Store\Admin\StoreAdminAdminController;
-use App\Http\Controllers\Store\Admin\StoreAdminPermissionController;
-use App\Http\Controllers\Store\Admin\StoreAdminSettingController;
-use App\Http\Controllers\Store\Admin\StoreAdminRoleController;
-use App\Http\Controllers\Store\Admin\StoreCatalogController;
+use App\Http\Controllers\Store\Admin\Customer\StoreCustomerController;
 use App\Http\Controllers\Store\Admin\Order\StoreOrderController;
 use App\Http\Controllers\Store\Admin\Promotions\StoreCouponController;
 use App\Http\Controllers\Store\Admin\Promotions\StoreDeliveryChargeController;
+use App\Http\Controllers\Store\Admin\StoreAdminAdminController;
+use App\Http\Controllers\Store\Admin\StoreAdminAuthController;
+use App\Http\Controllers\Store\Admin\StoreAdminDashboardController;
+use App\Http\Controllers\Store\Admin\StoreAdminPermissionController;
+use App\Http\Controllers\Store\Admin\StoreAdminRoleController;
+use App\Http\Controllers\Store\Admin\StoreAdminSettingController;
+use App\Http\Controllers\Store\Admin\StoreCatalogController;
 
 Route::domain(config('app.base_domain'))
     ->prefix('store')->name('store.')
@@ -100,7 +101,22 @@ Route::domain(config('app.base_domain'))
             Route::post('/orders', [StoreOrderController::class, 'storeOrder'])->name('admin.orders.store')->middleware('permission:Store Order Create');
             Route::get('/orders/{order}', [StoreOrderController::class, 'showOrder'])->name('admin.orders.show')->middleware('permission:Store Order View');
             Route::patch('/orders/{order}/status', [StoreOrderController::class, 'updateStatus'])->name('admin.orders.status')->middleware('permission:Store Order Edit');
+            Route::patch('/orders/{order}/payment-status', [StoreOrderController::class, 'updateStatus'])->name('admin.orders.payment_status')->middleware('permission:Store Order Edit');
+            Route::patch('/orders/{order}/prescription-status', [StoreOrderController::class, 'updateStatus'])->name('admin.orders.prescription_status')->middleware('permission:Store Order Edit');
+            Route::patch('/orders/{order}/cancel', [StoreOrderController::class, 'updateStatus'])->name('admin.orders.cancel')->middleware('permission:Store Order Edit');
             Route::delete('/orders/{order}', [StoreOrderController::class, 'deleteOrder'])->name('admin.orders.destroy')->middleware('permission:Store Order Delete');
+
+            //..............Customers & CRM.................//
+            Route::get('/customers', [StoreCustomerController::class, 'customers'])->name('admin.customers.index')->middleware('permission:Store Customer List');
+            Route::get('/customers/create', [StoreCustomerController::class, 'createCustomer'])->name('admin.customers.create')->middleware('permission:Store Customer Create');
+            Route::post('/customers', [StoreCustomerController::class, 'storeCustomer'])->name('admin.customers.store')->middleware('permission:Store Customer Create');
+            Route::get('/customers/{customer}', [StoreCustomerController::class, 'showCustomer'])->name('admin.customers.show')->middleware('permission:Store Customer View');
+            Route::get('/customers/{customer}/edit', [StoreCustomerController::class, 'editCustomer'])->name('admin.customers.edit')->middleware('permission:Store Customer Edit');
+            Route::put('/customers/{customer}', [StoreCustomerController::class, 'updateCustomer'])->name('admin.customers.update')->middleware('permission:Store Customer Edit');
+            Route::delete('/customers/{customer}', [StoreCustomerController::class, 'deleteCustomer'])->name('admin.customers.destroy')->middleware('permission:Store Customer Delete');
+            Route::patch('/customers/{customer}/toggle', [StoreCustomerController::class, 'toggleStatus'])->name('admin.customers.toggle')->middleware('permission:Store Customer Edit');
+            Route::post('/customers/{customer}/addresses', [StoreCustomerController::class, 'storeAddress'])->name('admin.customers.addresses.store')->middleware('permission:Store Customer Edit');
+            Route::delete('/customers/{customer}/addresses/{address}', [StoreCustomerController::class, 'deleteAddress'])->name('admin.customers.addresses.destroy')->middleware('permission:Store Customer Edit');
 
             //..............Promotions: Coupons.................//
             Route::get('/promotions/coupons', [StoreCouponController::class, 'coupons'])->name('admin.coupons.index')->middleware('permission:Store Coupon List');

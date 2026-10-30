@@ -75,6 +75,14 @@
             </a>
         @endcan
 
+        @can('Store Customer List')
+            <a href="{{ route('store.admin.customers.index') }}"
+               class="nav-link {{ $isActive('store.admin.customers.') ? 'active' : '' }}">
+                <i class="fa-solid fa-users"></i>
+                Customers
+            </a>
+        @endcan
+
         @canany(['Store Coupon List', 'Store Delivery Charge List'])
             <div class="nav-group">
                 @php $promotionsActive = $isActive(['store.admin.coupons.', 'store.admin.delivery_charges.']); @endphp
@@ -145,7 +153,6 @@
                 <i class="fa-solid fa-sliders"></i> Store Settings
             </a>
         @endcan
-
 
     </nav>
 

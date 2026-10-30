@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Store\Admin\Order;
 
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
+use App\Models\Customer;
 use App\Models\DeliveryCharge;
 use App\Models\InventoryBatch;
 use App\Models\Order;
@@ -66,7 +67,10 @@ class StoreOrderController extends Controller
         $tenantId = tenantId();
 
         $products = Product::where('tenant_id', $tenantId)
-            ->where('status', 'active')
+            ->where('status', '!=', 'archived')
+            ->whereHas('variants', function ($q) {
+                $q->where('status', 'active');
+            })
             ->with([
                 'activeVariants.batches',
                 'media',
@@ -87,9 +91,10 @@ class StoreOrderController extends Controller
             ->orderBy('code')
             ->get();
 
-        $customers = User::whereHas('tenant', fn($q) => $q->where('id', $tenantId))
-            ->orWhere('id', auth()->id())
-            ->orderBy('name')
+        $customers = Customer::where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->with('defaultAddress')
+            ->orderBy('first_name')
             ->get();
 
         return view('store_admin.pages.orders.form', compact('products', 'deliveryCharges', 'coupons', 'customers'));
@@ -100,7 +105,7 @@ class StoreOrderController extends Controller
         $tenantId = tenantId();
 
         $validated = $request->validate([
-            'customer_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
+            'customer_id' => ['nullable', 'integer', Rule::exists('customers', 'id')->where('tenant_id', $tenantId)],
             'shipping_name' => ['required', 'string', 'max:150'],
             'shipping_phone' => ['required', 'string', 'max:50'],
             'shipping_email' => ['nullable', 'email', 'max:150'],
@@ -340,41 +345,89 @@ class StoreOrderController extends Controller
 
     public function updateStatus(Request $request, int $id)
     {
-        $order = Order::where('tenant_id', tenantId())->findOrFail($id);
+        $tenantId = tenantId();
+        $order = Order::where('tenant_id', $tenantId)->findOrFail($id);
 
         $validated = $request->validate([
-            'status' => ['required', Rule::in(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned'])],
-            'payment_status' => ['required', Rule::in(['unpaid', 'paid', 'partially_paid', 'refunded', 'failed'])],
+            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned'])],
+            'payment_status' => ['nullable', Rule::in(['unpaid', 'paid', 'partially_paid', 'refunded', 'failed'])],
             'prescription_status' => ['nullable', Rule::in(['not_required', 'pending_review', 'approved', 'rejected'])],
             'order_note' => ['nullable', 'string', 'max:1000'],
             'cancel_reason' => ['nullable', 'string', 'max:500'],
         ]);
 
-        DB::transaction(function () use ($order, $validated) {
+        DB::transaction(function () use ($tenantId, $order, $validated) {
+            $newStatus = $validated['status'] ?? $order->status;
+            $newPaymentStatus = $validated['payment_status'] ?? $order->payment_status;
+
             $updates = [
-                'status' => $validated['status'],
-                'payment_status' => $validated['payment_status'],
+                'status' => $newStatus,
+                'payment_status' => $newPaymentStatus,
                 'prescription_status' => $validated['prescription_status'] ?? $order->prescription_status,
                 'order_note' => $validated['order_note'] ?? $order->order_note,
                 'processed_by_user_id' => auth()->id(),
             ];
 
-            if ($validated['status'] === 'shipped' && !$order->shipped_at) {
+            if ($newStatus === 'shipped' && !$order->shipped_at) {
                 $updates['shipped_at'] = now();
             }
 
-            if ($validated['status'] === 'delivered' && !$order->delivered_at) {
+            if ($newStatus === 'delivered' && !$order->delivered_at) {
                 $updates['delivered_at'] = now();
-                if ($order->payment_method === 'cod' && $order->payment_status === 'unpaid') {
+                if ($order->payment_method === 'cod' && $newPaymentStatus === 'unpaid') {
                     $updates['payment_status'] = 'paid';
+                    $newPaymentStatus = 'paid';
                 }
             }
 
-            if ($validated['status'] === 'cancelled') {
+            // Cancellation & Stock Release
+            if ($newStatus === 'cancelled' && $order->status !== 'cancelled') {
                 if (!$order->cancelled_at) {
                     $updates['cancelled_at'] = now();
                 }
                 $updates['cancel_reason'] = $validated['cancel_reason'] ?? $order->cancel_reason;
+
+                foreach ($order->products as $item) {
+                    if ($item->variant && $item->variant->track_inventory) {
+                        $batch = InventoryBatch::where('tenant_id', $tenantId)
+                            ->where('variant_id', $item->variant_id)
+                            ->first();
+
+                        if ($batch && $batch->reserved > 0) {
+                            $releaseQty = min($batch->reserved, $item->quantity);
+                            $batch->decrement('reserved', $releaseQty);
+
+                            StockMovement::create([
+                                'tenant_id' => $tenantId,
+                                'variant_id' => $item->variant_id,
+                                'batch_id' => $batch->id,
+                                'type' => 'release',
+                                'qty_delta' => 0,
+                                'reserved_delta' => -$releaseQty,
+                                'note' => "Order #{$order->order_number} cancelled",
+                                'reference_type' => 'Order',
+                                'reference_id' => $order->id,
+                                'created_at' => now(),
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // Payment Ledger on 'paid' status
+            if ($newPaymentStatus === 'paid' && $order->payment_status !== 'paid') {
+                OrderPayment::create([
+                    'tenant_id' => $tenantId,
+                    'order_id' => $order->id,
+                    'type' => 'charge',
+                    'payment_method' => $order->payment_method,
+                    'transaction_id' => 'MANUAL-' . strtoupper(Str::random(8)),
+                    'amount' => $order->total,
+                    'currency' => $order->currency,
+                    'status' => 'successful',
+                    'gateway_response' => ['source' => 'admin_status_update'],
+                    'paid_at' => now(),
+                ]);
             }
 
             $order->update($updates);

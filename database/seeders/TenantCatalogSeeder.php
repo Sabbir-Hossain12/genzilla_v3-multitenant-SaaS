@@ -19,8 +19,8 @@ class TenantCatalogSeeder extends Seeder
 {
     /**
      * Seed catalog defaults for every tenant. Empty catalogs receive a private,
-     * draft starter product so the merchant can inspect catalog and inventory
-     * screens without publishing sample data to the storefront.
+     * starter product so the merchant can inspect catalog and inventory
+     * screens.
      */
     public function run(): void
     {
@@ -91,7 +91,7 @@ class TenantCatalogSeeder extends Seeder
             'name' => 'Daily Essentials Kit',
             'slug' => 'daily-essentials-kit',
             'description' => 'A starter product you can edit or replace with your own catalog item.',
-            'status' => 'draft',
+            'status' => 'active',
             'category_id' => $category->id,
             'brand_id' => $brand->id,
             'requires_prescription' => false,
