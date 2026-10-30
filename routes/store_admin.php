@@ -5,6 +5,9 @@ use App\Http\Controllers\Store\Admin\Catalog\StoreBrandController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreCategoryController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreInventoryController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreProductController;
+use App\Http\Controllers\Store\Admin\Content\StoreBannerController;
+use App\Http\Controllers\Store\Admin\Content\StorePageController;
+use App\Http\Controllers\Store\Admin\Content\StoreSliderController;
 use App\Http\Controllers\Store\Admin\Customer\StoreCustomerController;
 use App\Http\Controllers\Store\Admin\Order\StoreOrderController;
 use App\Http\Controllers\Store\Admin\Promotions\StoreCouponController;
@@ -131,5 +134,28 @@ Route::domain(config('app.base_domain'))
             Route::put('/promotions/delivery-charges/{delivery_charge}', [StoreDeliveryChargeController::class, 'updateDeliveryCharge'])->name('admin.delivery_charges.update')->middleware('permission:Store Delivery Charge Edit');
             Route::delete('/promotions/delivery-charges/{delivery_charge}', [StoreDeliveryChargeController::class, 'deleteDeliveryCharge'])->name('admin.delivery_charges.destroy')->middleware('permission:Store Delivery Charge Delete');
             Route::patch('/promotions/delivery-charges/{delivery_charge}/toggle', [StoreDeliveryChargeController::class, 'toggleStatus'])->name('admin.delivery_charges.toggle')->middleware('permission:Store Delivery Charge Edit');
+
+            //..............Content: Custom Pages.................//
+            Route::get('/content/pages', [StorePageController::class, 'pages'])->name('admin.pages.index')->middleware('permission:Store Page List');
+            Route::get('/content/pages/create', [StorePageController::class, 'createPage'])->name('admin.pages.create')->middleware('permission:Store Page Create');
+            Route::post('/content/pages', [StorePageController::class, 'storePage'])->name('admin.pages.store')->middleware('permission:Store Page Create');
+            Route::get('/content/pages/{page}/edit', [StorePageController::class, 'editPage'])->name('admin.pages.edit')->middleware('permission:Store Page Edit');
+            Route::put('/content/pages/{page}', [StorePageController::class, 'updatePage'])->name('admin.pages.update')->middleware('permission:Store Page Edit');
+            Route::delete('/content/pages/{page}', [StorePageController::class, 'deletePage'])->name('admin.pages.destroy')->middleware('permission:Store Page Delete');
+            Route::patch('/content/pages/{page}/toggle', [StorePageController::class, 'toggleStatus'])->name('admin.pages.toggle')->middleware('permission:Store Page Edit');
+
+            //..............Content: Hero Sliders.................//
+            Route::get('/content/sliders', [StoreSliderController::class, 'sliders'])->name('admin.sliders.index')->middleware('permission:Store Slider List');
+            Route::post('/content/sliders', [StoreSliderController::class, 'storeSlider'])->name('admin.sliders.store')->middleware('permission:Store Slider Create');
+            Route::put('/content/sliders/{slider}', [StoreSliderController::class, 'updateSlider'])->name('admin.sliders.update')->middleware('permission:Store Slider Edit');
+            Route::delete('/content/sliders/{slider}', [StoreSliderController::class, 'deleteSlider'])->name('admin.sliders.destroy')->middleware('permission:Store Slider Delete');
+            Route::patch('/content/sliders/{slider}/toggle', [StoreSliderController::class, 'toggleStatus'])->name('admin.sliders.toggle')->middleware('permission:Store Slider Edit');
+
+            //..............Content: Promotional Banners.................//
+            Route::get('/content/banners', [StoreBannerController::class, 'banners'])->name('admin.banners.index')->middleware('permission:Store Banner List');
+            Route::post('/content/banners', [StoreBannerController::class, 'storeBanner'])->name('admin.banners.store')->middleware('permission:Store Banner Create');
+            Route::put('/content/banners/{banner}', [StoreBannerController::class, 'updateBanner'])->name('admin.banners.update')->middleware('permission:Store Banner Edit');
+            Route::delete('/content/banners/{banner}', [StoreBannerController::class, 'deleteBanner'])->name('admin.banners.destroy')->middleware('permission:Store Banner Delete');
+            Route::patch('/content/banners/{banner}/toggle', [StoreBannerController::class, 'toggleStatus'])->name('admin.banners.toggle')->middleware('permission:Store Banner Edit');
         });
     });

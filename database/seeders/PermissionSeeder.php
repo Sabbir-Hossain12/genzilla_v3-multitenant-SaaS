@@ -117,6 +117,11 @@ class PermissionSeeder extends Seeder
             'Store Delivery Charge Edit',
             'Store Delivery Charge Delete',
         ],
+        'Store Content Management' => [
+            'Store Page List', 'Store Page Create', 'Store Page Edit', 'Store Page Delete',
+            'Store Slider List', 'Store Slider Create', 'Store Slider Edit', 'Store Slider Delete',
+            'Store Banner List', 'Store Banner Create', 'Store Banner Edit', 'Store Banner Delete',
+        ],
         'Store Settings' => [
             'Store General Setting',
             'Store Edit Setting',

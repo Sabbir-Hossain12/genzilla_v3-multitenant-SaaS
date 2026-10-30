@@ -111,6 +111,38 @@
             </div>
         @endcanany
 
+        @canany(['Store Slider List', 'Store Banner List', 'Store Page List'])
+            <div class="nav-group">
+                @php $cmsActive = $isActive(['store.admin.sliders.', 'store.admin.banners.', 'store.admin.pages.']); @endphp
+                <button type="button"
+                        class="nav-link nav-toggle w-full text-left {{ $cmsActive ? 'has-active' : '' }}"
+                        aria-expanded="{{ $cmsActive ? 'true' : 'false' }}" onclick="toggleGroup(this)">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Storefront & CMS</span>
+                    <svg class="chev ml-auto h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-200"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <div class="submenu {{ $cmsActive ? 'open' : '' }}">
+                    <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                        @can('Store Slider List')
+                            <a href="{{ route('store.admin.sliders.index') }}"
+                               class="sub-link {{ $isActive('store.admin.sliders.') ? 'active' : '' }}">Hero Sliders</a>
+                        @endcan
+                        @can('Store Banner List')
+                            <a href="{{ route('store.admin.banners.index') }}"
+                               class="sub-link {{ $isActive('store.admin.banners.') ? 'active' : '' }}">Promo Banners</a>
+                        @endcan
+                        @can('Store Page List')
+                            <a href="{{ route('store.admin.pages.index') }}"
+                               class="sub-link {{ $isActive('store.admin.pages.') ? 'active' : '' }}">Custom Pages</a>
+                        @endcan
+                    </div>
+                </div>
+            </div>
+        @endcanany
+
         <div class="!my-4 border-t border-slate-100 dark:border-slate-800"></div>
         <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
             System</p>
