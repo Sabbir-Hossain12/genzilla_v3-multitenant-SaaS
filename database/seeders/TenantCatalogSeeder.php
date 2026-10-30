@@ -45,17 +45,39 @@ class TenantCatalogSeeder extends Seeder
     {
         $rootCategory = Category::firstOrCreate(
             ['tenant_id' => $tenant->id, 'slug' => 'starter-catalog'],
-            ['parent_id' => null, 'name' => 'Starter Catalog', 'position' => 0, 'status' => true]
+            [
+                'parent_id' => null,
+                'name' => 'Starter Catalog',
+                'position' => 0,
+                'status' => true,
+                'meta_title' => 'Starter Catalog',
+                'h1_heading' => 'Starter Catalog',
+                'meta_description' => 'Explore the starter catalog selection.',
+            ]
         );
 
         $category = Category::firstOrCreate(
             ['tenant_id' => $tenant->id, 'slug' => 'everyday-essentials'],
-            ['parent_id' => $rootCategory->id, 'name' => 'Everyday Essentials', 'position' => 0, 'status' => true]
+            [
+                'parent_id' => $rootCategory->id,
+                'name' => 'Everyday Essentials',
+                'position' => 0,
+                'status' => true,
+                'meta_title' => 'Everyday Essentials',
+                'h1_heading' => 'Everyday Essentials',
+                'meta_description' => 'Essential daily products for wellness.',
+            ]
         );
 
         $brand = Brand::firstOrCreate(
             ['tenant_id' => $tenant->id, 'slug' => 'store-essentials'],
-            ['name' => 'Store Essentials', 'status' => true]
+            [
+                'name' => 'Store Essentials',
+                'status' => true,
+                'meta_title' => 'Store Essentials Brand',
+                'h1_heading' => 'Store Essentials',
+                'meta_description' => 'Trusted products from Store Essentials.',
+            ]
         );
 
         $size = ProductAttribute::firstOrCreate(

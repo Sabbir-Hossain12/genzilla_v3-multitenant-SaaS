@@ -15,8 +15,13 @@ return new class extends Migration
             $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();
             $table->string('name');
             $table->string('slug');
+            $table->string('image')->nullable();
             $table->unsignedInteger('position')->default(0);
             $table->boolean('status')->default(true);
+            $table->string('meta_title')->nullable();
+            $table->text('meta_description')->nullable();
+            $table->string('h1_heading')->nullable();
+            $table->string('canonical_url')->nullable();
             $table->timestamps();
             $table->unique(['tenant_id', 'slug']);
             $table->index(['tenant_id', 'parent_id']);
@@ -27,7 +32,12 @@ return new class extends Migration
             $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('slug');
+            $table->string('image')->nullable();
             $table->boolean('status')->default(true);
+            $table->string('meta_title')->nullable();
+            $table->text('meta_description')->nullable();
+            $table->string('h1_heading')->nullable();
+            $table->string('canonical_url')->nullable();
             $table->timestamps();
             $table->unique(['tenant_id', 'slug']);
         });

@@ -66,6 +66,14 @@
             'options' => [],
         ];
     }
+
+    $thumbnailMedia = $product->exists && $product->relationLoaded('media')
+        ? ($product->media->firstWhere('collection', 'thumbnail') ?? $product->media->firstWhere('collection', 'cover') ?? $product->media->first())
+        : ($product->exists ? $product->media()->whereIn('collection', ['thumbnail', 'cover'])->first() : null);
+
+    $sliderMedia = $product->exists && $product->relationLoaded('media')
+        ? $product->media->where('collection', 'slider')
+        : ($product->exists ? $product->media()->where('collection', 'slider')->get() : collect());
 @endphp
 
 <div class="mx-auto max-w-5xl space-y-6">
@@ -141,6 +149,95 @@
             <label class="md:col-span-2 text-xs font-medium text-slate-700 dark:text-slate-300">Description
                 <textarea name="description" rows="4" class="{{ $field }}">{{ old('description', $product->description) }}</textarea>
             </label>
+
+            {{-- Product Media Subsection: Thumbnail Image (Single) & Slider Images (Multiple) --}}
+            <div class="md:col-span-2 space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div class="grid gap-6 sm:grid-cols-2">
+                    {{-- 1. Thumbnail Image (Single) --}}
+                    <div class="space-y-2">
+                        <div>
+                            <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Thumbnail image (Single)</span>
+                            <p class="text-[11px] text-slate-400">Primary thumbnail displayed across catalog, search, and cart.</p>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            {{-- Existing Thumbnail Preview --}}
+                            @if($thumbnailMedia)
+                                <div id="existing-thumbnail-box" class="relative group h-20 w-20 shrink-0 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-xs">
+                                    <img src="{{ asset('storage/' . $thumbnailMedia->path) }}" alt="{{ $product->name }}" class="h-full w-full object-cover">
+                                    <label for="product_thumbnail_input" class="absolute inset-0 bg-black/50 text-white text-[10px] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                                        <i class="fa-solid fa-camera mb-0.5"></i> Change
+                                    </label>
+                                </div>
+                            @endif
+
+                            {{-- Live New Image Preview --}}
+                            <div id="new-thumbnail-preview-box" class="relative h-20 w-20 shrink-0 rounded-lg overflow-hidden border border-indigo-300 dark:border-indigo-700 bg-indigo-50/50 dark:bg-indigo-950/30 shadow-xs hidden">
+                                <img id="new-thumbnail-preview-img" src="" alt="Thumbnail preview" class="h-full w-full object-cover">
+                                <button type="button" id="btn-cancel-thumbnail" class="absolute top-1 right-1 h-5 w-5 rounded-full bg-rose-600 text-white text-[10px] flex items-center justify-center hover:bg-rose-700 shadow-sm cursor-pointer" title="Cancel">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+
+                            {{-- Small Icon-like Upload Button --}}
+                            <label for="product_thumbnail_input" id="thumbnail-upload-trigger" class="flex flex-col items-center justify-center h-20 w-20 shrink-0 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-400 bg-slate-50/70 hover:bg-indigo-50/40 dark:bg-slate-800/50 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 cursor-pointer transition group">
+                                <i class="fa-solid fa-cloud-arrow-up text-lg group-hover:scale-110 transition"></i>
+                                <span class="mt-1 text-[10px] font-medium">Thumbnail</span>
+                                <input type="file" name="image" id="product_thumbnail_input" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/svg+xml,.avif" class="hidden">
+                            </label>
+
+                            <div class="space-y-1">
+                                <label for="product_thumbnail_input" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer transition shadow-xs">
+                                    <i class="fa-solid fa-upload text-slate-400"></i> Choose thumbnail
+                                </label>
+                                @if($thumbnailMedia)
+                                    <div>
+                                        <label class="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 cursor-pointer">
+                                            <input type="checkbox" name="remove_image" value="1" class="rounded border-slate-300 text-rose-600 focus:ring-rose-500">
+                                            Remove thumbnail
+                                        </label>
+                                    </div>
+                                @endif
+                                <div class="text-[11px] text-slate-400">AVIF, WEBP, PNG, JPG, GIF, SVG (up to 5MB)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 2. Slider Images (Multiple) --}}
+                    <div class="space-y-2">
+                        <div>
+                            <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Slider images (Multiple)</span>
+                            <p class="text-[11px] text-slate-400">Additional product gallery and slider showcase images.</p>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            {{-- Existing Slider Images with Remove Checkbox Badges --}}
+                            @if($sliderMedia->isNotEmpty())
+                                @foreach($sliderMedia as $sliderImg)
+                                    <div class="relative group h-20 w-20 shrink-0 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-xs existing-slider-item">
+                                        <img src="{{ asset('storage/' . $sliderImg->path) }}" alt="{{ $sliderImg->alt ?? $product->name }}" class="h-full w-full object-cover">
+                                        <label class="absolute top-1 right-1 h-5 w-5 rounded-full bg-rose-600 text-white text-[10px] flex items-center justify-center hover:bg-rose-700 shadow-sm cursor-pointer" title="Mark for removal">
+                                            <input type="checkbox" name="remove_slider_images[]" value="{{ $sliderImg->id }}" class="hidden slider-remove-checkbox">
+                                            <i class="fa-solid fa-trash-can text-[9px]"></i>
+                                        </label>
+                                    </div>
+                                @endforeach
+                            @endif
+
+                            {{-- Live Previews for Newly Selected Slider Images --}}
+                            <div id="new-slider-previews" class="flex flex-wrap items-center gap-2.5"></div>
+
+                            {{-- Small Icon-like Upload Button for Slider --}}
+                            <label for="product_slider_input" class="flex flex-col items-center justify-center h-20 w-20 shrink-0 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-400 bg-slate-50/70 hover:bg-indigo-50/40 dark:bg-slate-800/50 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 cursor-pointer transition group">
+                                <i class="fa-solid fa-images text-lg group-hover:scale-110 transition"></i>
+                                <span class="mt-1 text-[10px] font-medium">+ Slider</span>
+                                <input type="file" name="slider_images[]" id="product_slider_input" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/svg+xml,.avif" class="hidden">
+                            </label>
+                        </div>
+                        <div class="text-[11px] text-slate-400">AVIF, WEBP, PNG, JPG, GIF, SVG (up to 5MB each).</div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         {{-- Medicine Specific Section --}}
@@ -194,7 +291,7 @@
 
                         <div class="grid gap-4 md:grid-cols-3">
                             @if(!empty($item['id']))
-                                <input type="hidden" name="variants[{{ $idx }}][id]" value="{{ $item['id'] }}">
+                                <input type="hidden" name="variants[{{ $idx }}][id]\" value="{{ $item['id'] }}">
                             @endif
 
                             <label class="text-xs font-medium text-slate-700 dark:text-slate-300">Variant title
@@ -241,7 +338,7 @@
                                         <select name="variants[{{ $idx }}][options][{{ $attribute->id }}]" class="{{ $field }} variant-option-select">
                                             <option value="">None</option>
                                             @foreach($attribute->values as $value)
-                                                <option value="{{ $value->id }}" @selected((string)($item['options'][$attribute->id] ?? '') === (string)$value->id)>{{ $value->value }}</option>
+                                                <option value="{{ $value->id }}">{{ $value->value }}</option>
                                             @endforeach
                                         </select>
                                     </label>
@@ -258,13 +355,9 @@
             </div>
         </section>
 
-        {{-- Image and SEO Section --}}
+        {{-- SEO Section --}}
         <section class="card grid gap-4 p-5 md:grid-cols-2">
-            <h2 class="font-bold text-ink dark:text-white md:col-span-2 text-base">Image and SEO</h2>
-
-            <label class="md:col-span-2 text-xs font-medium text-slate-700 dark:text-slate-300">Product image
-                <input type="file" name="image" accept="image/*" class="mt-1 block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-950 dark:file:text-indigo-300 hover:file:bg-indigo-100">
-            </label>
+            <h2 class="font-bold text-ink dark:text-white md:col-span-2 text-base">Search engine optimization (SEO)</h2>
 
             <label class="text-xs font-medium text-slate-700 dark:text-slate-300">SEO title
                 <input name="seo_title" value="{{ old('seo_title', $product->seo_title) }}" class="{{ $field }}">
@@ -379,6 +472,74 @@ document.addEventListener('DOMContentLoaded', function () {
         setMedicine();
     }
 
+    // Thumbnail image preview
+    const thumbInput = document.getElementById('product_thumbnail_input');
+    const newThumbBox = document.getElementById('new-thumbnail-preview-box');
+    const newThumbImg = document.getElementById('new-thumbnail-preview-img');
+    const btnCancelThumb = document.getElementById('btn-cancel-thumbnail');
+    const existingThumbBox = document.getElementById('existing-thumbnail-box');
+
+    if (thumbInput) {
+        thumbInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    if (newThumbImg && newThumbBox) {
+                        newThumbImg.src = e.target.result;
+                        newThumbBox.classList.remove('hidden');
+                    }
+                    if (existingThumbBox) {
+                        existingThumbBox.classList.add('opacity-40');
+                    }
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+
+    if (btnCancelThumb) {
+        btnCancelThumb.addEventListener('click', function () {
+            if (thumbInput) thumbInput.value = '';
+            if (newThumbBox) newThumbBox.classList.add('hidden');
+            if (existingThumbBox) existingThumbBox.classList.remove('opacity-40');
+        });
+    }
+
+    // Slider images multi-preview
+    const sliderInput = document.getElementById('product_slider_input');
+    const sliderPreviews = document.getElementById('new-slider-previews');
+    if (sliderInput && sliderPreviews) {
+        sliderInput.addEventListener('change', function () {
+            sliderPreviews.innerHTML = '';
+            if (this.files) {
+                Array.from(this.files).forEach(function (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const div = document.createElement('div');
+                        div.className = 'h-20 w-20 shrink-0 rounded-lg overflow-hidden border border-indigo-300 dark:border-indigo-700 bg-indigo-50/50 dark:bg-indigo-950/30';
+                        div.innerHTML = '<img src="' + e.target.result + '" class="h-full w-full object-cover" alt="New slider preview">';
+                        sliderPreviews.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+    }
+
+    // Existing slider removal visual toggle
+    document.querySelectorAll('.slider-remove-checkbox').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            const card = this.closest('.existing-slider-item');
+            if (card) {
+                if (this.checked) {
+                    card.classList.add('opacity-30', 'ring-2', 'ring-rose-500');
+                } else {
+                    card.classList.remove('opacity-30', 'ring-2', 'ring-rose-500');
+                }
+            }
+        });
+    });
+
     // Dynamic variant cards handling
     const $container = $('#variants-container');
     const templateHtml = document.getElementById('variant-card-template').innerHTML;
@@ -393,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function () {
             $(this).find('.variant-number').text(num);
             const titleInputVal = $(this).find('.variant-title-input').val().trim();
             if (!titleInputVal) {
-                $(this).find('.variant-title-display').text('Variant ' + num);
+                $(this).find('.variant-title-display').text('Variant ' . concat(num));
             }
         });
 

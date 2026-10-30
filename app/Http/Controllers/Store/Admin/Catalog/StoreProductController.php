@@ -22,7 +22,7 @@ class StoreProductController extends Controller
     public function products(Request $request)
     {
         $products = Product::where('tenant_id', tenantId())
-            ->with(['category', 'brand', 'variants.batches'])
+            ->with(['category', 'brand', 'variants.batches', 'media'])
             ->when($request->filled('search'), fn($q) => $q->where(fn($sub) => $sub->where('name', 'like', '%' . $request->search . '%')->orWhere('generic_name', 'like', '%' . $request->search . '%')))
             ->orderByDesc('created_at')
             ->paginate(20)
@@ -33,7 +33,9 @@ class StoreProductController extends Controller
 
     public function createProduct()
     {
-        return view('store_admin.pages.catalog.products.form', $this->productFormData(new Product()));
+        $product = new Product();
+        $product->setRelation('media', collect());
+        return view('store_admin.pages.catalog.products.form', $this->productFormData($product));
     }
 
     public function storeProduct(Request $request)
@@ -77,7 +79,7 @@ class StoreProductController extends Controller
                 }
             }
 
-            $this->saveProductImage($request, $product);
+            $this->syncProductMedia($request, $product);
         });
 
         $variantCount = count($data['variants']);
@@ -100,7 +102,7 @@ class StoreProductController extends Controller
     public function updateProduct(Request $request, int $product)
     {
         $product = Product::where('tenant_id', tenantId())
-            ->with(['variants.batches', 'variants.attributeValues'])
+            ->with(['variants.batches', 'variants.attributeValues', 'media'])
             ->findOrFail($product);
 
         $data = $this->validateProduct($request, $product);
@@ -108,6 +110,33 @@ class StoreProductController extends Controller
         DB::transaction(function () use ($request, $product, $data) {
             $product->update($data['product']);
 
+            // 1. Release options_hash on any variants not submitted (removed from form) and mark them archived
+            $submittedIds = array_filter(array_column($data['variants'], 'id'));
+            $product->variants()->whereNotIn('id', $submittedIds)->get()->each(function ($unkept) {
+                $unkept->update([
+                    'status' => 'archived',
+                    'options_hash' => md5('archived_' . $unkept->id . '_' . $unkept->options_hash),
+                ]);
+            });
+
+            // 2. Also ensure existing archived variants don't block the new active options_hashes
+            $newHashes = array_column($data['variants'], 'options_hash');
+            $product->variants()->where('status', 'archived')->whereIn('options_hash', $newHashes)->get()->each(function ($conflict) {
+                $conflict->update([
+                    'options_hash' => md5('archived_' . $conflict->id . '_' . $conflict->options_hash),
+                ]);
+            });
+
+            // 3. Temporarily set distinct hashes on existing variants being updated to avoid transient unique constraint collisions
+            foreach ($data['variants'] as $vItem) {
+                if (!empty($vItem['id'])) {
+                    $product->variants()->where('id', $vItem['id'])->update([
+                        'options_hash' => md5('tmp_' . $vItem['id'] . '_' . microtime(true)),
+                    ]);
+                }
+            }
+
+            // 4. Update existing variants or create new variants
             $keptVariantIds = [];
 
             foreach ($data['variants'] as $index => $varData) {
@@ -166,10 +195,7 @@ class StoreProductController extends Controller
                 $this->syncVariantOptions($variant, $varData['options'] ?? []);
             }
 
-            // Archive variants that were removed in edit form
-            $product->variants()->whereNotIn('id', $keptVariantIds)->update(['status' => 'archived']);
-
-            $this->saveProductImage($request, $product);
+            $this->syncProductMedia($request, $product);
         });
 
         return redirect()->route('store.admin.products.index')->with('success', 'Product updated.');
@@ -203,7 +229,12 @@ class StoreProductController extends Controller
             'seo_title' => ['nullable', 'string', 'max:255'],
             'seo_description' => ['nullable', 'string', 'max:1000'],
             'specs_json' => ['nullable', 'json'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'],
+            'remove_image' => ['nullable', 'boolean'],
+            'slider_images' => ['nullable', 'array'],
+            'slider_images.*' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'],
+            'remove_slider_images' => ['nullable', 'array'],
+            'remove_slider_images.*' => ['integer'],
 
             'default_variant_index' => ['nullable'],
 
@@ -248,132 +279,109 @@ class StoreProductController extends Controller
             }
         }
 
-        $productData = collect($validated)->only([
-            'kind', 'name', 'description', 'status', 'category_id', 'brand_id',
-            'generic_name', 'requires_prescription', 'seo_title', 'seo_description'
-        ])->all();
-        $productData['slug'] = $slug;
-        $productData['requires_prescription'] = $request->boolean('requires_prescription');
-        $productData['specs'] = $specs;
+        $productData = [
+            'name' => $validated['name'],
+            'slug' => $slug,
+            'kind' => $validated['kind'],
+            'description' => $validated['description'] ?? null,
+            'status' => $validated['status'],
+            'category_id' => $validated['category_id'] ?? null,
+            'brand_id' => $validated['brand_id'] ?? null,
+            'generic_name' => $validated['kind'] === 'medicine' ? ($validated['generic_name'] ?? null) : null,
+            'requires_prescription' => $validated['kind'] === 'medicine' ? (bool)($validated['requires_prescription'] ?? false) : false,
+            'specs' => $specs,
+            'seo_title' => $validated['seo_title'] ?? null,
+            'seo_description' => $validated['seo_description'] ?? null,
+        ];
 
-        // Process variants
-        $rawVariants = $request->input('variants');
-        if (!is_array($rawVariants) || empty($rawVariants)) {
+        // Process variants payload
+        $rawVariants = $validated['variants'] ?? [];
+        if (empty($rawVariants)) {
+            $existingDefault = $product?->variants()->where('status', 'active')->where('is_default', true)->first()
+                ?? $product?->variants()->where('status', 'active')->first();
             $rawVariants = [[
-                'id' => $product?->variants()->value('id'),
-                'title' => $request->input('variant_title', 'Default'),
-                'sku' => $request->input('sku'),
-                'barcode' => $request->input('barcode'),
-                'price' => $request->input('price', 0),
-                'compare_at_price' => $request->input('compare_at_price'),
-                'mrp' => $request->input('mrp'),
-                'cost_price' => $request->input('cost_price'),
-                'weight_grams' => $request->input('weight_grams'),
-                'initial_quantity' => $request->input('initial_quantity', 0),
-                'track_inventory' => $request->boolean('track_inventory', true),
-                'options' => $request->input('options', []),
+                'id' => $existingDefault?->id,
+                'title' => $validated['variant_title'] ?? 'Default',
+                'sku' => $validated['sku'] ?? null,
+                'barcode' => $validated['barcode'] ?? null,
+                'price' => $validated['price'] ?? 0,
+                'compare_at_price' => $validated['compare_at_price'] ?? null,
+                'mrp' => $validated['mrp'] ?? null,
+                'cost_price' => $validated['cost_price'] ?? null,
+                'weight_grams' => $validated['weight_grams'] ?? null,
+                'track_inventory' => $validated['track_inventory'] ?? true,
+                'initial_quantity' => $validated['initial_quantity'] ?? 0,
+                'options' => $validated['options'] ?? [],
             ]];
         }
 
-        $defaultIndex = (int)$request->input('default_variant_index', 0);
-        $seenSkus = [];
-        $seenOptionHashes = [];
+        $defaultIndex = $request->input('default_variant_index', 0);
         $processedVariants = [];
+        $usedSkus = [];
+        $usedHashes = [];
 
         foreach ($rawVariants as $index => $item) {
-            $price = $item['price'] ?? null;
-            if ($price === null || $price === '') {
-                throw \Illuminate\Validation\ValidationException::withMessages([
-                    "variants.{$index}.price" => 'Price is required for each variant.',
-                ]);
+            $cleanOptions = [];
+            if (!empty($item['options']) && is_array($item['options'])) {
+                foreach ($item['options'] as $attrId => $valId) {
+                    if (!empty($valId)) {
+                        $cleanOptions[(int)$attrId] = (int)$valId;
+                    }
+                }
+                ksort($cleanOptions);
             }
 
             $sku = trim((string)($item['sku'] ?? ''));
-            $variantId = !empty($item['id']) ? (int)$item['id'] : null;
+            if ($sku === '') {
+                $baseSku = strtoupper(Str::slug($productData['name'], '-'));
+                $sku = count($rawVariants) > 1 ? "{$baseSku}-" . ($index + 1) : $baseSku;
+            }
 
-            if ($sku !== '') {
-                $skuUpper = strtoupper($sku);
-                if (in_array($skuUpper, $seenSkus, true)) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        "variants.{$index}.sku" => "Duplicate SKU '{$sku}' entered. Each variant must have a unique SKU.",
-                    ]);
-                }
-                $skuQuery = ProductVariant::where('tenant_id', $tenant)->where('sku', $sku);
-                if ($variantId) {
-                    $skuQuery->where('id', '!=', $variantId);
-                }
-                if ($skuQuery->exists()) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        "variants.{$index}.sku" => "The SKU '{$sku}' is already taken in your store.",
-                    ]);
-                }
-                $seenSkus[] = $skuUpper;
+            // Ensure unique SKU in this submission
+            $uniqueSku = $sku;
+            $counter = 1;
+            while (in_array($uniqueSku, $usedSkus, true)) {
+                $uniqueSku = "{$sku}-{$counter}";
+                $counter++;
+            }
+            $usedSkus[] = $uniqueSku;
+
+            // Ensure unique SKU in tenant DB
+            $existingSkuQuery = ProductVariant::where('tenant_id', $tenant)->where('sku', $uniqueSku);
+            if (!empty($item['id'])) {
+                $existingSkuQuery->where('id', '!=', $item['id']);
+            }
+            if ($existingSkuQuery->exists()) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "variants.{$index}.sku" => "The SKU '{$uniqueSku}' is already in use by another variant.",
+                ]);
+            }
+
+            // Compute unique options hash for this product's variant
+            if (!empty($cleanOptions)) {
+                $optionsHash = md5(json_encode($cleanOptions));
+            } elseif (count($rawVariants) === 1) {
+                $optionsHash = md5('default');
             } else {
-                do {
-                    $sku = strtoupper(Str::random(10));
-                } while (
-                    in_array($sku, $seenSkus, true) ||
-                    ProductVariant::where('tenant_id', $tenant)->where('sku', $sku)->exists()
-                );
-                $seenSkus[] = $sku;
+                $titleKey = Str::slug($item['title'] ?? '') ?: 'var';
+                $optionsHash = md5("v:{$titleKey}:{$uniqueSku}");
             }
 
-            // Options & hashing
-            $rawOpts = $item['options'] ?? [];
-            $cleanOptions = [];
-            foreach ($rawOpts as $attrId => $valId) {
-                if (!empty($valId)) {
-                    $attrId = (int)$attrId;
-                    $valId = (int)$valId;
-                    $valid = ProductAttributeValue::where('tenant_id', $tenant)
-                        ->where('attribute_id', $attrId)
-                        ->whereKey($valId)
-                        ->exists();
-                    if (!$valid) {
-                        throw \Illuminate\Validation\ValidationException::withMessages([
-                            "variants.{$index}.options" => 'Choose a valid value for each product option.',
-                        ]);
-                    }
-                    $cleanOptions[$attrId] = $valId;
-                }
+            if (in_array($optionsHash, $usedHashes, true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "variants.{$index}.title" => "Variant " . ($index + 1) . " has the exact same attribute combination as another variant. Each variant must have unique options.",
+                ]);
             }
+            $usedHashes[] = $optionsHash;
 
-            $sortedVals = array_values($cleanOptions);
-            sort($sortedVals);
-
-            if (!empty($sortedVals)) {
-                $optionsHash = md5(implode('-', $sortedVals));
-                if (in_array($optionsHash, $seenOptionHashes, true)) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        "variants.{$index}.title" => "Variant #" . ($index + 1) . " has identical options to another variant. Each variant must have a unique combination of attributes.",
-                    ]);
-                }
-                $seenOptionHashes[] = $optionsHash;
-            } else {
-                $optionsHash = count($rawVariants) > 1
-                    ? md5('var-' . $index . '-' . Str::slug($item['title'] ?? 'default'))
-                    : md5('default');
-                $seenOptionHashes[] = $optionsHash;
-            }
-
-            $isDefault = ($index === $defaultIndex) || (!empty($item['is_default']) && $defaultIndex === 0);
-
-            $title = trim((string)($item['title'] ?? ''));
-            if ($title === '') {
-                if (!empty($cleanOptions)) {
-                    $optNames = ProductAttributeValue::whereIn('id', array_values($cleanOptions))->pluck('value')->all();
-                    $title = implode(' / ', $optNames);
-                } else {
-                    $title = $isDefault ? 'Default' : 'Variant ' . ($index + 1);
-                }
-            }
+            $isDefault = ((string)$defaultIndex === (string)$index);
 
             $processedVariants[] = [
-                'id' => $variantId,
-                'title' => $title,
-                'sku' => $sku,
+                'id' => !empty($item['id']) ? (int)$item['id'] : null,
+                'title' => !empty($item['title']) ? trim($item['title']) : (count($rawVariants) === 1 ? 'Default' : 'Variant ' . ($index + 1)),
+                'sku' => $uniqueSku,
                 'barcode' => !empty($item['barcode']) ? trim($item['barcode']) : null,
-                'price' => (float)$price,
+                'price' => (float)($item['price'] ?? 0),
                 'compare_at_price' => !empty($item['compare_at_price']) ? (float)$item['compare_at_price'] : null,
                 'mrp' => !empty($item['mrp']) ? (float)$item['mrp'] : null,
                 'cost_price' => !empty($item['cost_price']) ? (float)$item['cost_price'] : null,
@@ -457,28 +465,76 @@ class StoreProductController extends Controller
             'reserved_delta' => 0,
             'user_id' => auth()->id(),
             'note' => $note,
+            'created_at' => now(),
         ]);
     }
 
-    private function saveProductImage(Request $request, Product $product): void
+    private function syncProductMedia(Request $request, Product $product): void
     {
-        if (!$request->hasFile('image')) return;
-        foreach ($product->media()->where('collection', 'cover')->get() as $oldMedia) {
-            Storage::disk('public')->delete($oldMedia->path);
-            $oldMedia->delete();
+        // 1. Single Thumbnail image handling
+        if ($request->hasFile('image')) {
+            foreach ($product->media()->whereIn('collection', ['thumbnail', 'cover'])->get() as $oldMedia) {
+                if (Storage::disk('public')->exists($oldMedia->path)) {
+                    Storage::disk('public')->delete($oldMedia->path);
+                }
+                $oldMedia->delete();
+            }
+            $file = $request->file('image');
+            $path = $file->store('tenants/' . tenantId() . '/products/thumbnail', 'public');
+            $product->media()->create([
+                'tenant_id' => tenantId(),
+                'model_type' => Product::class,
+                'collection' => 'thumbnail',
+                'path' => $path,
+                'mime' => $file->getMimeType(),
+                'size_bytes' => $file->getSize(),
+                'position' => 0,
+                'alt' => $product->name,
+                'created_at' => now(),
+            ]);
+        } elseif ($request->boolean('remove_image')) {
+            foreach ($product->media()->whereIn('collection', ['thumbnail', 'cover'])->get() as $oldMedia) {
+                if (Storage::disk('public')->exists($oldMedia->path)) {
+                    Storage::disk('public')->delete($oldMedia->path);
+                }
+                $oldMedia->delete();
+            }
+        } else {
+            $product->media()->whereIn('collection', ['thumbnail', 'cover'])->update(['alt' => $product->name]);
         }
-        $file = $request->file('image');
-        $path = $file->store('tenants/' . tenantId() . '/products', 'public');
-        $product->media()->create([
-            'tenant_id' => tenantId(),
-            'model_type' => Product::class,
-            'collection' => 'cover',
-            'path' => $path,
-            'mime' => $file->getMimeType(),
-            'size_bytes' => $file->getSize(),
-            'position' => 0,
-            'alt' => $product->name,
-            'created_at' => now(),
-        ]);
+
+        // 2. Remove slider images if requested
+        if ($request->filled('remove_slider_images')) {
+            $removeIds = array_filter(array_map('intval', (array)$request->input('remove_slider_images')));
+            if (!empty($removeIds)) {
+                $sliderMediaToDelete = $product->media()->where('collection', 'slider')->whereIn('id', $removeIds)->get();
+                foreach ($sliderMediaToDelete as $oldSlider) {
+                    if (Storage::disk('public')->exists($oldSlider->path)) {
+                        Storage::disk('public')->delete($oldSlider->path);
+                    }
+                    $oldSlider->delete();
+                }
+            }
+        }
+
+        // 3. Upload new slider images (multiple)
+        if ($request->hasFile('slider_images')) {
+            $currentPos = (int)($product->media()->where('collection', 'slider')->max('position') ?? 0);
+            foreach ($request->file('slider_images') as $sliderFile) {
+                $currentPos++;
+                $path = $sliderFile->store('tenants/' . tenantId() . '/products/slider', 'public');
+                $product->media()->create([
+                    'tenant_id' => tenantId(),
+                    'model_type' => Product::class,
+                    'collection' => 'slider',
+                    'path' => $path,
+                    'mime' => $sliderFile->getMimeType(),
+                    'size_bytes' => $sliderFile->getSize(),
+                    'position' => $currentPos,
+                    'alt' => $product->name . ' - Slide ' . $currentPos,
+                    'created_at' => now(),
+                ]);
+            }
+        }
     }
 }
