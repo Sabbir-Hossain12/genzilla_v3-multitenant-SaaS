@@ -143,6 +143,22 @@
             </div>
         @endcanany
 
+        @can('Store Payment Method List')
+            <a href="{{ route('store.admin.payments.index') }}"
+               class="nav-link {{ $isActive('store.admin.payments.') ? 'active' : '' }}">
+                <i class="fa-solid fa-credit-card"></i>
+                Payment Methods
+            </a>
+        @endcan
+
+        @can('Store Domain List')
+            <a href="{{ route('store.admin.domains.index') }}"
+               class="nav-link {{ $isActive('store.admin.domains.') ? 'active' : '' }}">
+                <i class="fa-solid fa-globe"></i>
+                Custom Domains
+            </a>
+        @endcan
+
         <div class="!my-4 border-t border-slate-100 dark:border-slate-800"></div>
         <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
             System</p>

@@ -66,6 +66,29 @@ class Tenant extends Model
         return $this->hasMany(TenantDomain::class, 'tenant_id');
     }
 
+    public function paymentMethods(): HasMany
+    {
+        return $this->hasMany(TenantPaymentMethod::class, 'tenant_id');
+    }
+
+    public function allowsCustomDomain(): bool
+    {
+        if ($this->activeSubscription && $this->activeSubscription->plan) {
+            return (bool) $this->activeSubscription->plan->allow_custom_domain;
+        }
+
+        if ($this->currentSubscription && $this->currentSubscription->plan) {
+            return (bool) $this->currentSubscription->plan->allow_custom_domain;
+        }
+
+        $sub = $this->subscriptions()->with('plan')->latest('id')->first();
+        if ($sub && $sub->plan) {
+            return (bool) $sub->plan->allow_custom_domain;
+        }
+
+        return false;
+    }
+
     public function categories(): HasMany { return $this->hasMany(Category::class); }
     public function brands(): HasMany { return $this->hasMany(Brand::class); }
     public function products(): HasMany { return $this->hasMany(Product::class); }

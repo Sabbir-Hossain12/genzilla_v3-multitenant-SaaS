@@ -8,9 +8,12 @@ use Spatie\Permission\PermissionRegistrar;
 
 class PermissionSeeder extends Seeder
 {
+    /**
+     * Define the permission hierarchy with explicit groups for the UI
+     */
     public const GROUPS = [
-        'Platform Admin Dashboard' => [
-            'Platform Admin Dashboard',
+        'Platform Dashboard' => [
+            'Platform Dashboard',
         ],
         'Platform Admin Management' => [
             'Platform Admin List',
@@ -21,52 +24,47 @@ class PermissionSeeder extends Seeder
         ],
         'Platform Role Management' => [
             'Platform Role List',
-            'PlatformRole Create',
+            'Platform Create Role',
             'Platform Edit Role',
-            'Delete Role',
+            'Platform Delete Role',
             'Platform Assign Permission',
         ],
         'Platform Permission Management' => [
             'Platform Permission List',
-            'Platform Create Permission',
-            'Platform Edit Permission',
-            'Platform Delete Permission',
         ],
-        'Platform Settings' => [
+        'Platform Tenant Management' => [
+            'Platform Tenant List',
+            'Platform Create Tenant',
+            'Platform Edit Tenant',
+            'Platform Delete Tenant',
+            'Platform Status Tenant',
+            'Platform Impersonate Tenant',
+        ],
+        'Platform Subscription Management' => [
+            'Platform Plan List',
+            'Platform Create Plan',
+            'Platform Edit Plan',
+            'Platform Delete Plan',
+            'Platform Assign Plan',
+            'Platform Manage Domains',
+        ],
+        'Platform General Setting' => [
             'Platform General Setting',
             'Platform Edit Setting',
         ],
-        'Platform Landing Page CMS' => [
-            'Platform Manage Hero',
-            'Platform Manage Features',
-            'Platform Manage Steps',
-            'Platform Manage Use Cases',
-            'Platform Manage Store Demos',
-            'Platform Manage Testimonials',
-            'Platform Manage Faqs',
-            'Platform Manage Matrix',
-        ],
-        'Platform Plans & Billing' => [
-            'Platform Manage Plans',
-            'Platform Manage Subscriptions',
-            'Platform Manage Invoices',
-        ],
-        'Platform Tenant Operations' => [
-            'Platform Manage Domains',
-            'Platform Manage Usages',
-        ],
-        'PlatformContent & Support' => [
-            'Platform Manage Pages',
-            'Platform Manage Blog',
-            'Platform Manage Blog Categories',
-            'Platform Manage Contacts',
-            'Platform Manage Newsletter',
+        'Platform Dynamic Page Management' => [
+            'Platform Page List',
+            'Platform Create Page',
+            'Platform Edit Page',
+            'Platform Delete Page',
         ],
     ];
 
-    /** @var array<string, array<int, string>> */
+    /**
+     * Store-level permissions assigned to store merchants & employees
+     */
     public const STOREFRONT_GROUPS = [
-        'Store Admin Dashboard' => [
+        'Store Dashboard' => [
             'Store Dashboard',
         ],
         'Store Role Management' => [
@@ -121,6 +119,16 @@ class PermissionSeeder extends Seeder
             'Store Page List', 'Store Page Create', 'Store Page Edit', 'Store Page Delete',
             'Store Slider List', 'Store Slider Create', 'Store Slider Edit', 'Store Slider Delete',
             'Store Banner List', 'Store Banner Create', 'Store Banner Edit', 'Store Banner Delete',
+        ],
+        'Store Payment Methods' => [
+            'Store Payment Method List',
+            'Store Payment Method Edit',
+        ],
+        'Store Domain Management' => [
+            'Store Domain List',
+            'Store Domain Create',
+            'Store Domain Edit',
+            'Store Domain Delete',
         ],
         'Store Settings' => [
             'Store General Setting',

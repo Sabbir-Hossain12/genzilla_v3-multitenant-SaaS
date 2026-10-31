@@ -11,4 +11,9 @@ class StoreAdminDashboardController extends Controller
     {
         return view('store_admin.pages.dashboard.dashboard');
     }
+
+    public function dashboard()
+    {
+        return $this->index();
+    }
 }
