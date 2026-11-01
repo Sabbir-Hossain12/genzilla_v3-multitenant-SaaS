@@ -105,6 +105,13 @@ class PermissionSeeder extends Seeder
             'Store Order Edit',
             'Store Order Delete',
         ],
+        'Store Prescription Management' => [
+            'Store Prescription List',
+            'Store Prescription View',
+            'Store Prescription Convert',
+            'Store Prescription Reject',
+            'Store Prescription Delete',
+        ],
         'Store Promotions' => [
             'Store Coupon List',
             'Store Coupon Create',
@@ -129,6 +136,11 @@ class PermissionSeeder extends Seeder
             'Store Domain Create',
             'Store Domain Edit',
             'Store Domain Delete',
+        ],
+        'Store Subscription & Billing' => [
+            'Store Subscription View',
+            'Store Subscription Change Plan',
+            'Store Subscription Cancel',
         ],
         'Store Settings' => [
             'Store General Setting',

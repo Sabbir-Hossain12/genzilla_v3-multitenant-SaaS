@@ -121,6 +121,7 @@ class StoreOrderController extends Controller
             'payment_status' => ['required', Rule::in(['unpaid', 'paid', 'partially_paid'])],
             'status' => ['required', Rule::in(['pending', 'confirmed', 'processing', 'shipped', 'delivered'])],
             'prescription_status' => ['nullable', Rule::in(['not_required', 'pending_review', 'approved', 'rejected'])],
+            'pharmacist_rx_notes' => ['nullable', 'string', 'max:1000'],
             'order_note' => ['nullable', 'string', 'max:1000'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.variant_id' => ['required', 'integer', Rule::exists('product_variants', 'id')->where('tenant_id', $tenantId)],
@@ -337,6 +338,8 @@ class StoreOrderController extends Controller
                 'coupon',
                 'deliveryCharge',
                 'processedBy',
+                'rxReviewedBy',
+                'prescription',
             ])
             ->findOrFail($id);
 
@@ -352,6 +355,7 @@ class StoreOrderController extends Controller
             'status' => ['nullable', Rule::in(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned'])],
             'payment_status' => ['nullable', Rule::in(['unpaid', 'paid', 'partially_paid', 'refunded', 'failed'])],
             'prescription_status' => ['nullable', Rule::in(['not_required', 'pending_review', 'approved', 'rejected'])],
+            'pharmacist_rx_notes' => ['nullable', 'string', 'max:1000'],
             'order_note' => ['nullable', 'string', 'max:1000'],
             'cancel_reason' => ['nullable', 'string', 'max:500'],
         ]);
@@ -364,9 +368,15 @@ class StoreOrderController extends Controller
                 'status' => $newStatus,
                 'payment_status' => $newPaymentStatus,
                 'prescription_status' => $validated['prescription_status'] ?? $order->prescription_status,
+                'pharmacist_rx_notes' => $validated['pharmacist_rx_notes'] ?? $order->pharmacist_rx_notes,
                 'order_note' => $validated['order_note'] ?? $order->order_note,
                 'processed_by_user_id' => auth()->id(),
             ];
+
+            if (isset($validated['prescription_status']) && $validated['prescription_status'] !== $order->prescription_status) {
+                $updates['rx_reviewed_by_user_id'] = auth()->id();
+                $updates['rx_reviewed_at'] = now();
+            }
 
             if ($newStatus === 'shipped' && !$order->shipped_at) {
                 $updates['shipped_at'] = now();

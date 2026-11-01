@@ -4,7 +4,7 @@
     <div class="mb-6 flex items-center justify-between">
         <div>
             <h1 class="text-xl font-extrabold text-ink dark:text-white">Store Settings</h1>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Manage your storefront profile, search metadata, and integrations.</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Manage your storefront profile, search metadata, pharmacy rules, and integrations.</p>
         </div>
         <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $tenant->status === 'active' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300' }}">{{ ucfirst($tenant->status) }}</span>
     </div>
@@ -16,7 +16,7 @@
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-            <button type="button" onclick="this.closest('#storeSettingsErrors').remove()" class="text-red-400 transition-colors hover:text-red-600" aria-label="Dismiss errors">&times;</button>
+            <button type="button" onclick="this.closest('#storeSettingsErrors').remove()\" class="text-red-400 transition-colors hover:text-red-600" aria-label="Dismiss errors">&times;</button>
         </div>
     @endif
 
@@ -28,6 +28,9 @@
             <div class="flex min-w-max gap-1" role="tablist" aria-label="Store settings sections">
                 <button type="button" role="tab" aria-selected="true" data-tab="general" class="store-settings-tab active rounded-t-xl border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold transition-colors">
                     <i class="fa-solid fa-store mr-2"></i>General Settings
+                </button>
+                <button type="button" role="tab" aria-selected="false" data-tab="pharmacy" class="store-settings-tab rounded-t-xl border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold transition-colors">
+                    <i class="fa-solid fa-file-prescription mr-2"></i>Pharmacy & Prescriptions
                 </button>
                 <button type="button" role="tab" aria-selected="false" data-tab="seo" class="store-settings-tab rounded-t-xl border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold transition-colors">
                     <i class="fa-solid fa-magnifying-glass mr-2"></i>SEO & Metadata
@@ -78,36 +81,81 @@
                 <div class="border-t border-slate-100 pt-7 dark:border-slate-800">
                     <div class="mb-5 flex items-center gap-2">
                         <span class="grid h-7 w-7 place-items-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300"><i class="fa-solid fa-globe text-xs"></i></span>
-                        <div><h2 class="text-sm font-bold text-ink dark:text-white">Regional preferences</h2><p class="text-xs text-slate-500 dark:text-slate-400">Currency and timezone used by your storefront.</p></div>
+                        <div><h2 class="text-sm font-bold text-ink dark:text-white">Localization</h2><p class="text-xs text-slate-500 dark:text-slate-400">Currency and regional time zone preferences.</p></div>
                     </div>
                     <div class="grid gap-5 md:grid-cols-2">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Currency code
-                            <input name="currency" required minlength="3" maxlength="3" value="{{ old('currency', $tenant->currency) }}" placeholder="USD" class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm uppercase text-ink placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200 dark:placeholder:text-slate-400">
-                            <span class="mt-1 block text-xs font-normal text-slate-400 dark:text-slate-500">Use a three-letter ISO currency code.</span>
+                            <input name="currency" required maxlength="3" value="{{ old('currency', $tenant->currency) }}" placeholder="USD" class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm uppercase text-ink placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200 dark:placeholder:text-slate-400">
+                            <span class="mt-1 block text-xs font-normal text-slate-400">3-letter ISO code (e.g. USD, BDT, EUR).</span>
                         </label>
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Timezone
-                            <input name="timezone" required value="{{ old('timezone', $tenant->timezone) }}" placeholder="UTC" list="timezone-list" class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200 dark:placeholder:text-slate-400">
-                            <datalist id="timezone-list"><option value="UTC"><option value="America/New_York"><option value="America/Los_Angeles"><option value="Europe/London"><option value="Asia/Dhaka"><option value="Asia/Kolkata"><option value="Asia/Dubai"><option value="Asia/Tokyo"><option value="Australia/Sydney"></datalist>
+                            <select name="timezone" required class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-ink focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200">
+                                @foreach (timezone_identifiers_list() as $tz)
+                                    <option value="{{ $tz }}" @selected(old('timezone', $tenant->timezone) === $tz)>{{ $tz }}</option>
+                                @endforeach
+                            </select>
                         </label>
                     </div>
                 </div>
+            </section>
 
-                <div class="grid gap-4 border-t border-slate-100 pt-7 md:grid-cols-2 dark:border-slate-800">
-                    <div class="rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-                        <h2 class="text-sm font-bold text-ink dark:text-white">Store address</h2>
-                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Domain changes are managed separately to protect store routing.</p>
-                        <dl class="mt-4 space-y-3 text-sm">
-                            <div><dt class="text-xs text-slate-400 dark:text-slate-500">Store subdomain</dt><dd class="mt-1 break-all font-medium text-slate-700 dark:text-slate-200">{{ $tenant->subdomain }}.{{ config('app.base_domain') }}</dd></div>
-                            <div><dt class="text-xs text-slate-400 dark:text-slate-500">Custom domain</dt><dd class="mt-1 break-all font-medium text-slate-700 dark:text-slate-200">{{ $tenant->custom_domain ?: 'Not configured' }}</dd></div>
-                        </dl>
+            {{-- Pharmacy & Prescriptions Panel --}}
+            <section id="store-tab-pharmacy" class="store-settings-panel hidden space-y-8" role="tabpanel" aria-hidden="true">
+                <div>
+                    <div class="mb-5 flex items-center gap-2">
+                        <span class="grid h-7 w-7 place-items-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300"><i class="fa-solid fa-file-prescription text-xs"></i></span>
+                        <div>
+                            <h2 class="text-sm font-bold text-ink dark:text-white">Rx Compliance & Checkout Rules</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Configure regulatory compliance strictness and prescription order workflows.</p>
+                        </div>
                     </div>
-                    <div class="rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-                        <h2 class="text-sm font-bold text-ink dark:text-white">Account</h2>
-                        <dl class="mt-4 space-y-3 text-sm">
-                            <div><dt class="text-xs text-slate-400 dark:text-slate-500">Subscription</dt><dd class="mt-1 capitalize text-slate-700 dark:text-slate-200">{{ str_replace('_', ' ', $tenant->subscription_status) }}</dd></div>
-                            <div><dt class="text-xs text-slate-400 dark:text-slate-500">Connected payments</dt><dd class="mt-1 text-slate-700 dark:text-slate-200">{{ $tenant->stripeOnboarded ? 'Connected' : 'Not connected' }}</dd></div>
-                        </dl>
-                        <p class="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-400 dark:border-slate-800 dark:text-slate-500">Subscription, domain verification, and payment account settings are controlled by the platform.</p>
+
+                    <div class="space-y-6">
+                        <div>
+                            <span class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Cart Checkout Rx Policy</span>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <label class="relative flex cursor-pointer flex-col rounded-2xl border p-4 transition-all focus:outline-none {{ old('rx_compliance_mode', $tenant->rx_compliance_mode ?? 'flexible') === 'flexible' ? 'border-indigo-600 bg-indigo-50/30 ring-2 ring-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-950/20' : 'border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600' }}">
+                                    <input type="radio" name="rx_compliance_mode" value="flexible" class="sr-only" @checked(old('rx_compliance_mode', $tenant->rx_compliance_mode ?? 'flexible') === 'flexible')>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="grid h-6 w-6 place-items-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"><i class="fa-solid fa-headset text-xs"></i></span>
+                                            <span class="font-bold text-sm text-slate-800 dark:text-slate-200">Flexible / Tele-Sales Mode</span>
+                                        </div>
+                                        <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Standard</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                        Customers can place orders even if they haven't uploaded an Rx photo. The order is automatically tagged with <strong>Rx Missing</strong>, allowing your call center or pharmacist team to verify via phone or WhatsApp before dispatch.
+                                    </p>
+                                </label>
+
+                                <label class="relative flex cursor-pointer flex-col rounded-2xl border p-4 transition-all focus:outline-none {{ old('rx_compliance_mode', $tenant->rx_compliance_mode) === 'strict' ? 'border-indigo-600 bg-indigo-50/30 ring-2 ring-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-950/20' : 'border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600' }}">
+                                    <input type="radio" name="rx_compliance_mode" value="strict" class="sr-only" @checked(old('rx_compliance_mode', $tenant->rx_compliance_mode) === 'strict')>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="grid h-6 w-6 place-items-center rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300"><i class="fa-solid fa-shield-halved text-xs"></i></span>
+                                            <span class="font-bold text-sm text-slate-800 dark:text-slate-200">Strict Compliance Mode</span>
+                                        </div>
+                                        <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">Strict</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                        If any cart item is flagged as <em>Prescription Required</em>, the checkout page completely blocks "Place Order" until the customer attaches a valid prescription photo.
+                                    </p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-100 pt-6 dark:border-slate-800">
+                            <span class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Direct Upload Feature</span>
+                            <label class="flex items-start gap-3 rounded-xl border border-slate-200 p-4 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600 cursor-pointer">
+                                <input type="checkbox" name="enable_direct_prescriptions" value="1" @checked(old('enable_direct_prescriptions', $tenant->enable_direct_prescriptions ?? true)) class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800">
+                                <div class="text-xs">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200 block text-sm">Enable Direct Prescription Uploads (Order Request Inbox)</span>
+                                    <span class="text-slate-500 dark:text-slate-400 mt-0.5 block leading-relaxed">
+                                        Allows storefront visitors to upload an image of doctor's handwritten slip with delivery details without manually selecting products. Requests land in your Store Admin under <strong>Prescriptions (Pending Review)</strong> for pharmacists to assemble the cart and create orders.
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -115,7 +163,7 @@
             <section id="store-tab-seo" class="store-settings-panel hidden space-y-6" role="tabpanel" aria-hidden="true">
                 <div class="mb-5 flex items-center gap-2">
                     <span class="grid h-7 w-7 place-items-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
-                    <div><h2 class="text-sm font-bold text-ink dark:text-white">Search engine settings</h2><p class="text-xs text-slate-500 dark:text-slate-400">Default metadata for your storefront pages.</p></div>
+                    <div><h2 class="text-sm font-bold text-ink dark:text-white">Search engine optimization</h2><p class="text-xs text-slate-500 dark:text-slate-400">Metadata and instructions for search engines crawling your storefront.</p></div>
                 </div>
                 <div class="grid gap-5 md:grid-cols-2">
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 md:col-span-2">Meta title

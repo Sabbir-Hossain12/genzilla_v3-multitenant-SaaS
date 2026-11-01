@@ -25,6 +25,7 @@ class Tenant extends Model
     protected $casts = [
         'theme_settings' => 'array',
         'stripeOnboarded' => 'boolean',
+        'enable_direct_prescriptions' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -64,6 +65,11 @@ class Tenant extends Model
     public function domains(): HasMany
     {
         return $this->hasMany(TenantDomain::class, 'tenant_id');
+    }
+
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(TenantPrescription::class, 'tenant_id');
     }
 
     public function paymentMethods(): HasMany

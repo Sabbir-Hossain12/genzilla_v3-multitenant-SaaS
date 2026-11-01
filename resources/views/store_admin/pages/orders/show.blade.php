@@ -237,6 +237,136 @@
     <div class="grid gap-6 lg:grid-cols-[1fr_360px] print:block">
         {{-- Left Column: Items, Breakdown & Payments --}}
         <div class="space-y-6">
+                        {{-- Prescription & Clinical Verification Card (Journey A & B) --}}
+            @if($order->has_prescription_items || $order->prescription_image || $order->prescription_status)
+                <section class="card overflow-hidden border-2 {{ $order->prescription_status === 'approved' ? 'border-emerald-200 dark:border-emerald-900/60' : ($order->prescription_status === 'rejected' ? 'border-rose-200 dark:border-rose-900/60' : 'border-amber-300 dark:border-amber-700/60') }}">
+                    <div class="border-b border-slate-100 p-4 sm:px-6 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70 dark:bg-slate-800/40">
+                        <div class="flex items-center gap-2.5">
+                            <span class="grid h-8 w-8 place-items-center rounded-xl {{ $order->prescription_status === 'approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' : ($order->prescription_status === 'rejected' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300') }}">
+                                <i class="fa-solid fa-file-prescription text-sm"></i>
+                            </span>
+                            <div>
+                                <h2 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base flex items-center gap-2">
+                                    Prescription & Clinical Verification
+                                    @if($order->is_direct_prescription)
+                                        <span class="rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300 px-2 py-0.5 text-[10px] font-bold">Direct Upload Order</span>
+                                    @else
+                                        <span class="rounded-full bg-slate-100 border border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 px-2 py-0.5 text-[10px] font-bold">Cart Checkout Attachment</span>
+                                    @endif
+                                </h2>
+                                <p class="text-xs text-slate-400">Regulatory compliance review for restricted medicines.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border {{ $order->prescription_status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800' : ($order->prescription_status === 'rejected' ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800' : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800') }}">
+                                @if($order->prescription_status === 'approved')
+                                    <i class="fa-solid fa-check mr-1 text-[10px]"></i> Approved
+                                @elseif($order->prescription_status === 'rejected')
+                                    <i class="fa-solid fa-ban mr-1 text-[10px]"></i> Rejected
+                                @else
+                                    <i class="fa-regular fa-clock mr-1 text-[10px]"></i> Pending Review
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 sm:p-6 space-y-4">
+                        <div class="grid gap-6 md:grid-cols-12 items-start">
+                            {{-- Image Column --}}
+                            <div class="md:col-span-4">
+                                @if($order->prescription_image_url)
+                                    <div class="group relative rounded-2xl border border-slate-200 bg-slate-900 p-2 overflow-hidden shadow-xs">
+                                        <img src="{{ $order->prescription_image_url }}" alt="Prescription" class="h-44 w-full rounded-xl object-contain">
+                                        <div class="mt-2 flex items-center justify-between px-1">
+                                            <a href="{{ $order->prescription_image_url }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-400 hover:underline">
+                                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> View Full Image
+                                            </a>
+                                            <span class="text-[10px] text-slate-400 font-mono">Doctor's Slip</span>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="rounded-2xl border border-dashed border-amber-300 bg-amber-50/60 p-4 text-center dark:border-amber-700 dark:bg-amber-950/20">
+                                        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl mb-1.5"></i>
+                                        <div class="text-xs font-bold text-amber-900 dark:text-amber-200">Prescription Slip Missing</div>
+                                        <p class="text-[11px] text-amber-700 dark:text-amber-300 mt-1 leading-relaxed">
+                                            Customer checked out under flexible tele-sales mode without uploading a doctor's slip.
+                                            Call <a href="tel:{{ $order->shipping_phone }}" class="font-bold underline">{{ $order->shipping_phone }}</a> to verify.
+                                        </p>
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Reviewer & Audit Details --}}
+                            <div class="md:col-span-8 space-y-3.5 text-xs">
+                                <div class="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                                    <div>
+                                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Clinical Status</span>
+                                        <span class="font-semibold text-slate-800 dark:text-slate-200 text-xs capitalize mt-0.5 block">
+                                            {{ str_replace('_', ' ', $order->prescription_status ?? 'pending_review') }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Reviewed By</span>
+                                        <span class="font-semibold text-slate-800 dark:text-slate-200 text-xs mt-0.5 block">
+                                            {{ $order->rxReviewedBy?->name ?? 'Pending Pharmacist Review' }}
+                                        </span>
+                                    </div>
+                                    @if($order->rx_reviewed_at)
+                                        <div class="col-span-2 border-t border-slate-200/60 dark:border-slate-700/60 pt-2 text-[11px] text-slate-500">
+                                            <i class="fa-regular fa-clock mr-1 text-[10px]"></i> Reviewed on {{ $order->rx_reviewed_at->format('F j, Y \a\t g:i A') }}
+                                        </div>
+                                    @endif
+                                </div>
+
+                                @if($order->pharmacist_rx_notes)
+                                    <div class="p-3 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40">
+                                        <span class="text-[10px] uppercase font-bold text-indigo-700 dark:text-indigo-300 tracking-wider block mb-1">Pharmacist Verification Notes</span>
+                                        <p class="text-slate-700 dark:text-slate-300 italic">{{ $order->pharmacist_rx_notes }}</p>
+                                    </div>
+                                @endif
+
+                                {{-- Quick Pharmacist Decision Buttons (Print:hidden) --}}
+                                @can('Store Order Edit')
+                                    <div class="pt-2 flex flex-wrap items-center gap-2 print:hidden">
+                                        @if($order->prescription_status !== 'approved')
+                                            <form method="POST" action="{{ route('store.admin.orders.status', $order) }}" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="prescription_status" value="approved">
+                                                @if($order->status === 'pending')
+                                                    <input type="hidden" name="status" value="processing">
+                                                @endif
+                                                <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-xs transition">
+                                                    <i class="fa-solid fa-check"></i> Approve Prescription
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        @if($order->prescription_status !== 'rejected')
+                                            <form method="POST" action="{{ route('store.admin.orders.status', $order) }}" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="prescription_status" value="rejected">
+                                                <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3.5 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-50 dark:border-rose-900 dark:bg-slate-800 dark:text-rose-400 dark:hover:bg-rose-950/40 shadow-xs transition" onclick="return confirm('Mark this order\'s prescription as rejected?')">
+                                                    <i class="fa-solid fa-ban"></i> Reject Prescription
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        @if($order->prescription)
+                                            <a href="{{ route('store.admin.prescriptions.show', $order->prescription) }}" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                                <i class="fa-solid fa-file-prescription text-[10px]"></i> View Original Rx Request
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endcan
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            @endif
+
             {{-- Items Card --}}
             <section class="card overflow-hidden">
                 <div class="border-b border-slate-100 p-4 sm:px-6 dark:border-slate-800 flex items-center justify-between">
@@ -293,6 +423,11 @@
                                                     <span class="mt-1 inline-flex items-center gap-1 rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                                                         <i class="fa-solid fa-file-prescription"></i> Prescription Required
                                                     </span>
+                                                @endif
+                                                @if($item->dosage_instructions)
+                                                    <div class="mt-1 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded inline-block">
+                                                        <i class="fa-solid fa-prescription mr-1"></i> Dosage: {{ $item->dosage_instructions }}
+                                                    </div>
                                                 @endif
                                             </div>
                                         </div>
@@ -494,7 +629,7 @@
                             </select>
                         </div>
 
-                        @if($order->products->contains('requires_prescription', true))
+                        @if($order->products->contains('requires_prescription', true) || $order->prescription_image || $order->prescription_status)
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Prescription Status</label>
                                 <select name="prescription_status" class="{{ $field }} p-2.5">
@@ -502,6 +637,10 @@
                                     <option value="approved" @selected($order->prescription_status === 'approved')>Approved</option>
                                     <option value="rejected" @selected($order->prescription_status === 'rejected')>Rejected</option>
                                 </select>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Pharmacist Rx Notes</label>
+                                <textarea name="pharmacist_rx_notes" rows="2" class="{{ $field }}" placeholder="Clinical notes, dosage verification, or customer follow-up notes...">{{ old('pharmacist_rx_notes', $order->pharmacist_rx_notes) }}</textarea>
                             </div>
                         @endif
 

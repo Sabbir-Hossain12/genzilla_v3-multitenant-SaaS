@@ -67,6 +67,22 @@
             </div>
         @endcanany
 
+        @can('Store Prescription List')
+            @php
+                $pendingRxCount = \App\Models\TenantPrescription::where('tenant_id', tenantId())->where('status', 'pending_review')->count();
+            @endphp
+            <a href="{{ route('store.admin.prescriptions.index') }}"
+               class="nav-link {{ $isActive('store.admin.prescriptions.') ? 'active' : '' }}">
+                <i class="fa-solid fa-file-prescription"></i>
+                <span class="flex-1">Prescriptions</span>
+                @if($pendingRxCount > 0)
+                    <span class="ml-auto inline-flex items-center justify-center rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                        {{ $pendingRxCount }}
+                    </span>
+                @endif
+            </a>
+        @endcan
+
         @can('Store Order List')
             <a href="{{ route('store.admin.orders.index') }}"
                class="nav-link {{ $isActive('store.admin.orders.') ? 'active' : '' }}">
@@ -143,25 +159,9 @@
             </div>
         @endcanany
 
-        @can('Store Payment Method List')
-            <a href="{{ route('store.admin.payments.index') }}"
-               class="nav-link {{ $isActive('store.admin.payments.') ? 'active' : '' }}">
-                <i class="fa-solid fa-credit-card"></i>
-                Payment Methods
-            </a>
-        @endcan
-
-        @can('Store Domain List')
-            <a href="{{ route('store.admin.domains.index') }}"
-               class="nav-link {{ $isActive('store.admin.domains.') ? 'active' : '' }}">
-                <i class="fa-solid fa-globe"></i>
-                Custom Domains
-            </a>
-        @endcan
-
         <div class="!my-4 border-t border-slate-100 dark:border-slate-800"></div>
         <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            System</p>
+            Settings & Security</p>
 
         @canany(['Store Admin List', 'Store Role List', 'Store Permission List'])
             <div class="nav-group">
@@ -194,6 +194,30 @@
                 </div>
             </div>
         @endcanany
+
+        @can('Store Payment Method List')
+            <a href="{{ route('store.admin.payments.index') }}"
+               class="nav-link {{ $isActive('store.admin.payments.') ? 'active' : '' }}">
+                <i class="fa-solid fa-credit-card"></i>
+                Payment Gateways
+            </a>
+        @endcan
+
+        @can('Store Domain List')
+            <a href="{{ route('store.admin.domains.index') }}"
+               class="nav-link {{ $isActive('store.admin.domains.') ? 'active' : '' }}">
+                <i class="fa-solid fa-globe"></i>
+                Custom Domain
+            </a>
+        @endcan
+
+        @can('Store Subscription View')
+            <a href="{{ route('store.admin.subscription.index') }}"
+               class="nav-link {{ $isActive('store.admin.subscription.') ? 'active' : '' }}">
+                <i class="fa-solid fa-receipt"></i>
+                Store Subscription & Billing
+            </a>
+        @endcan
 
         @can('Store General Setting')
             <a href="{{ route('store.admin.settings.index') }}"

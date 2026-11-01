@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Order extends Model
@@ -17,11 +19,13 @@ class Order extends Model
         'shipping_charge' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total' => 'decimal:2',
+        'is_direct_prescription' => 'boolean',
         'placed_at' => 'datetime',
         'payment_expires_at' => 'datetime',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'rx_reviewed_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -54,6 +58,11 @@ class Order extends Model
         return $this->belongsTo(User::class, 'processed_by_user_id');
     }
 
+    public function rxReviewedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rx_reviewed_by_user_id');
+    }
+
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
@@ -77,6 +86,29 @@ class Order extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(OrderPayment::class);
+    }
+
+    public function prescription(): HasOne
+    {
+        return $this->hasOne(TenantPrescription::class);
+    }
+
+    public function getPrescriptionImageUrlAttribute(): ?string
+    {
+        if (empty($this->prescription_image)) {
+            return null;
+        }
+
+        if (str_starts_with($this->prescription_image, 'http://') || str_starts_with($this->prescription_image, 'https://')) {
+            return $this->prescription_image;
+        }
+
+        return Storage::disk('public')->url($this->prescription_image);
+    }
+
+    public function getHasPrescriptionItemsAttribute(): bool
+    {
+        return $this->products->contains('requires_prescription', true);
     }
 
     public function getStatusBadgeClassAttribute(): string

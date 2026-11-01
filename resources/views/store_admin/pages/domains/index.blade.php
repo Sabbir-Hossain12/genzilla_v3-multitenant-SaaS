@@ -68,10 +68,10 @@
                     Custom domain connection (e.g., <code class="bg-black/30 px-1.5 py-0.5 rounded text-amber-300">yourpharmacy.com</code>) is available on our Pro and Enterprise plans. Your store is currently running on the free system subdomain.
                 </p>
                 <div class="mt-5 flex items-center gap-3">
-                    <a href="{{ route('store.admin.settings.index') }}"
+                    <a href="{{ route('store.admin.subscription.index') }}"
                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-indigo-900 hover:bg-indigo-50 font-bold text-xs shadow-md transition">
                         <span>View Plans & Upgrade</span>
-                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        <i class="fa-solid fa-arrow-right text-[10px] cursor-pointer"></i>
                     </a>
                 </div>
             </div>

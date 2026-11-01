@@ -30,6 +30,8 @@ class StoreAdminSettingController extends Controller
             'timezone' => ['required', 'timezone'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'remove_logo' => ['nullable', 'boolean'],
+            'rx_compliance_mode' => ['required', Rule::in(['strict', 'flexible'])],
+            'enable_direct_prescriptions' => ['nullable', 'boolean'],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:2000'],
             'meta_keywords' => ['nullable', 'string', 'max:2000'],
@@ -44,6 +46,7 @@ class StoreAdminSettingController extends Controller
 
         $settings = collect($validated)->except(['logo', 'remove_logo'])->all();
         $settings['currency'] = strtoupper($settings['currency']);
+        $settings['enable_direct_prescriptions'] = $request->boolean('enable_direct_prescriptions');
 
         if ($request->hasFile('logo')) {
             if ($tenant->logo_path) Storage::disk('public')->delete($tenant->logo_path);
