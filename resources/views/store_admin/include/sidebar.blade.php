@@ -44,23 +44,23 @@
                     <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
                         @can('Store Category List')
                             <a href="{{ route('store.admin.categories.index') }}"
-                               class="sub-link {{ $isActive('store.admin.categories.') ? 'active' : '' }}">Categories</a>
+                                class="sub-link {{ $isActive('store.admin.categories.') ? 'active' : '' }}">Categories</a>
                         @endcan
                         @can('Store Brand List')
                             <a href="{{ route('store.admin.brands.index') }}"
-                               class="sub-link {{ $isActive('store.admin.brands.') ? 'active' : '' }}">Brands</a>
+                                class="sub-link {{ $isActive('store.admin.brands.') ? 'active' : '' }}">Brands</a>
                         @endcan
                         @can('Store Attribute List')
                             <a href="{{ route('store.admin.attributes.index') }}"
-                               class="sub-link {{ $isActive('store.admin.attributes.') ? 'active' : '' }}">Attributes</a>
+                                class="sub-link {{ $isActive('store.admin.attributes.') ? 'active' : '' }}">Attributes</a>
                         @endcan
                         @can('Store Product List')
                             <a href="{{ route('store.admin.products.index') }}"
-                               class="sub-link {{ $isActive('store.admin.products.') ? 'active' : '' }}">Products</a>
+                                class="sub-link {{ $isActive('store.admin.products.') ? 'active' : '' }}">Products</a>
                         @endcan
                         @can('Store Inventory List')
                             <a href="{{ route('store.admin.inventory.index') }}"
-                               class="sub-link {{ $isActive('store.admin.inventory.') ? 'active' : '' }}">Inventory</a>
+                                class="sub-link {{ $isActive('store.admin.inventory.') ? 'active' : '' }}">Inventory</a>
                         @endcan
                     </div>
                 </div>
@@ -91,6 +91,14 @@
             </a>
         @endcan
 
+        @can('Store Transaction List')
+            <a href="{{ route('store.admin.transactions.index') }}"
+               class="nav-link {{ $isActive('store.admin.transactions.') ? 'active' : '' }}">
+                <i class="fa-solid fa-money-bill-transfer"></i>
+                Transactions & Payments
+            </a>
+        @endcan
+
         @can('Store Customer List')
             <a href="{{ route('store.admin.customers.index') }}"
                class="nav-link {{ $isActive('store.admin.customers.') ? 'active' : '' }}">
@@ -116,11 +124,11 @@
                     <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
                         @can('Store Coupon List')
                             <a href="{{ route('store.admin.coupons.index') }}"
-                               class="sub-link {{ $isActive('store.admin.coupons.') ? 'active' : '' }}">Coupons</a>
+                                class="sub-link {{ $isActive('store.admin.coupons.') ? 'active' : '' }}">Coupons</a>
                         @endcan
                         @can('Store Delivery Charge List')
                             <a href="{{ route('store.admin.delivery_charges.index') }}"
-                               class="sub-link {{ $isActive('store.admin.delivery_charges.') ? 'active' : '' }}">Delivery Charges</a>
+                                class="sub-link {{ $isActive('store.admin.delivery_charges.') ? 'active' : '' }}">Delivery Charges</a>
                         @endcan
                     </div>
                 </div>
@@ -144,15 +152,15 @@
                     <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
                         @can('Store Slider List')
                             <a href="{{ route('store.admin.sliders.index') }}"
-                               class="sub-link {{ $isActive('store.admin.sliders.') ? 'active' : '' }}">Hero Sliders</a>
+                                class="sub-link {{ $isActive('store.admin.sliders.') ? 'active' : '' }}">Hero Sliders</a>
                         @endcan
                         @can('Store Banner List')
                             <a href="{{ route('store.admin.banners.index') }}"
-                               class="sub-link {{ $isActive('store.admin.banners.') ? 'active' : '' }}">Promo Banners</a>
+                                class="sub-link {{ $isActive('store.admin.banners.') ? 'active' : '' }}">Promo Banners</a>
                         @endcan
                         @can('Store Page List')
                             <a href="{{ route('store.admin.pages.index') }}"
-                               class="sub-link {{ $isActive('store.admin.pages.') ? 'active' : '' }}">Custom Pages</a>
+                                class="sub-link {{ $isActive('store.admin.pages.') ? 'active' : '' }}">Custom Pages</a>
                         @endcan
                     </div>
                 </div>
@@ -180,15 +188,15 @@
                     <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
                         @can('Store Admin List')
                             <a href="{{ route('store.admin.admins.index') }}"
-                               class="sub-link {{ $isActive('store.admin.admins.') ? 'active' : '' }}">Store Admins</a>
+                                class="sub-link {{ $isActive('store.admin.admins.') ? 'active' : '' }}">Store Admins</a>
                         @endcan
                         @can('Store Role List')
                             <a href="{{ route('store.admin.role.index') }}"
-                               class="sub-link {{ $isActive('store.admin.role.') ? 'active' : '' }}">Roles</a>
+                                class="sub-link {{ $isActive('store.admin.role.') ? 'active' : '' }}">Roles</a>
                         @endcan
                         @can('Store Permission List')
                             <a href="{{ route('store.admin.permission.index') }}"
-                               class="sub-link {{ $isActive('store.admin.permission.') ? 'active' : '' }}">Permissions</a>
+                                class="sub-link {{ $isActive('store.admin.permission.') ? 'active' : '' }}">Permissions</a>
                         @endcan
                     </div>
                 </div>

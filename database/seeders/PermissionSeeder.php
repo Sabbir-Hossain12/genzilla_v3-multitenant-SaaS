@@ -105,6 +105,13 @@ class PermissionSeeder extends Seeder
             'Store Order Edit',
             'Store Order Delete',
         ],
+        'Store Transaction Management' => [
+            'Store Transaction List',
+            'Store Transaction View',
+            'Store Transaction Create',
+            'Store Transaction Refund',
+            'Store Transaction Export',
+        ],
         'Store Prescription Management' => [
             'Store Prescription List',
             'Store Prescription View',

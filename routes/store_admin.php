@@ -23,6 +23,7 @@ use App\Http\Controllers\Store\Admin\StoreAdminSettingController;
 use App\Http\Controllers\Store\Admin\StoreCatalogController;
 use App\Http\Controllers\Store\Admin\Prescription\StorePrescriptionController;
 use App\Http\Controllers\Store\Admin\Subscription\StoreSubscriptionController;
+use App\Http\Controllers\Store\Admin\Transaction\StoreTransactionController;
 
 Route::domain(config('app.base_domain'))
     ->prefix('store')->name('store.')
@@ -111,6 +112,14 @@ Route::domain(config('app.base_domain'))
             Route::patch('/orders/{order}/prescription-status', [StoreOrderController::class, 'updateStatus'])->name('admin.orders.prescription_status')->middleware('permission:Store Order Edit');
             Route::patch('/orders/{order}/cancel', [StoreOrderController::class, 'updateStatus'])->name('admin.orders.cancel')->middleware('permission:Store Order Edit');
             Route::delete('/orders/{order}', [StoreOrderController::class, 'deleteOrder'])->name('admin.orders.destroy')->middleware('permission:Store Order Delete');
+
+            //..............Transactions & Customer Payments.................//
+            Route::get('/transactions', [StoreTransactionController::class, 'index'])->name('admin.transactions.index')->middleware('permission:Store Transaction List');
+            Route::get('/transactions/export', [StoreTransactionController::class, 'export'])->name('admin.transactions.export')->middleware('permission:Store Transaction Export');
+            Route::get('/transactions/{transaction}', [StoreTransactionController::class, 'show'])->name('admin.transactions.show')->middleware('permission:Store Transaction View');
+            Route::post('/transactions', [StoreTransactionController::class, 'recordManualPayment'])->name('admin.transactions.store')->middleware('permission:Store Transaction Create');
+            Route::post('/transactions/{transaction}/refund', [StoreTransactionController::class, 'refund'])->name('admin.transactions.refund')->middleware('permission:Store Transaction Refund');
+            Route::patch('/transactions/{transaction}/status', [StoreTransactionController::class, 'updateStatus'])->name('admin.transactions.status')->middleware('permission:Store Transaction Create');
 
             //..............Prescriptions (Direct Uploads Inbox).................//
             Route::get('/prescriptions', [StorePrescriptionController::class, 'index'])->name('admin.prescriptions.index')->middleware('permission:Store Prescription List');
