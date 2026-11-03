@@ -91,7 +91,7 @@
             </a>
         @endcan
 
-        @can('Store Abandoned Checkout Management')
+        @can('Store Abandoned Checkout List')
             @php
                 $uncontactedCartsCount = \App\Models\Cart::where('tenant_id', tenantId())
                     ->whereNotNull('customer_id')
