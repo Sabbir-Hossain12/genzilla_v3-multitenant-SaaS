@@ -13,7 +13,7 @@ class StoreAdminAdminController extends Controller
 {
     private function tenantId(): int
     {
-        return (int) auth()->user()->tenant->id;
+        return (int) (session('tenant_id') ?? auth()->user()->tenant?->id ?? 0);
     }
 
     public function index(Request $request)
@@ -33,6 +33,41 @@ class StoreAdminAdminController extends Controller
             ->withQueryString();
 
         return view('store_admin.pages.admins.index', compact('admins', 'roles'));
+    }
+
+    public function admins(Request $request)
+    {
+        return $this->index($request);
+    }
+
+    public function createAdmin()
+    {
+        return $this->index(request());
+    }
+
+    public function storeAdmin(Request $request)
+    {
+        return $this->store($request);
+    }
+
+    public function editAdmin(int $admin)
+    {
+        return $this->index(request());
+    }
+
+    public function updateAdmin(Request $request, int $admin)
+    {
+        return $this->update($request, $admin);
+    }
+
+    public function deleteAdmin(int $admin)
+    {
+        return $this->destroy($admin);
+    }
+
+    public function toggleStatus(int $admin)
+    {
+        return $this->changeStatus($admin);
     }
 
     public function store(Request $request)
@@ -61,7 +96,8 @@ class StoreAdminAdminController extends Controller
     public function update(Request $request, int $admin)
     {
         $admin = $this->findAdmin($admin);
-        abort_if((int) $admin->id === (int) auth()->user()->tenant->user_id, 403);
+        $ownerId = (int) (auth()->user()->tenant?->user_id ?? 0);
+        abort_if($ownerId > 0 && (int) $admin->id === $ownerId, 403);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($admin->id)],
@@ -85,7 +121,8 @@ class StoreAdminAdminController extends Controller
     public function destroy(int $admin)
     {
         $admin = $this->findAdmin($admin);
-        if ((int) $admin->id === (int) Auth::id() || (int) $admin->id === (int) auth()->user()->tenant->user_id) {
+        $ownerId = (int) (auth()->user()->tenant?->user_id ?? 0);
+        if ((int) $admin->id === (int) Auth::id() || ($ownerId > 0 && (int) $admin->id === $ownerId)) {
             return back()->with('error', 'You cannot delete the store owner or your own account.');
         }
         $admin->delete();
@@ -96,7 +133,8 @@ class StoreAdminAdminController extends Controller
     public function changeStatus(int $admin)
     {
         $admin = $this->findAdmin($admin);
-        if ((int) $admin->id === (int) Auth::id() || (int) $admin->id === (int) auth()->user()->tenant->user_id) {
+        $ownerId = (int) (auth()->user()->tenant?->user_id ?? 0);
+        if ((int) $admin->id === (int) Auth::id() || ($ownerId > 0 && (int) $admin->id === $ownerId)) {
             return back()->with('error', 'You cannot change the store owner or your own status.');
         }
         $admin->status = $admin->status ? 0 : 1;

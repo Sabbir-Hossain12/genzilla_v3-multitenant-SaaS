@@ -179,18 +179,31 @@
             </div>
         </div>
 
-        <!-- Payment Gateways & Orders Breakdown (Span 1 col) -->
+        <!-- Distribution Breakdown: Payment Methods & Order Pipeline (Span 1 col) -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
             <div class="pb-3 border-b border-slate-100 dark:border-slate-800">
-                <h2 class="text-sm font-bold text-ink dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-wallet text-amber-500 text-xs"></i>
-                    Payment Methods Distribution
-                </h2>
-                <p class="text-xs text-slate-400 mt-0.5">Customer checkout payment preference</p>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-ink dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-amber-500 text-xs"></i>
+                        Distribution
+                    </h2>
+                    <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg text-[11px]">
+                        <button type="button" id="tabPaymentBtn" onclick="switchDistributionTab('payment')"
+                                class="px-2.5 py-1 rounded-md font-semibold text-primary bg-white dark:bg-slate-700 shadow-xs transition-all cursor-pointer">
+                            Payment
+                        </button>
+                        <button type="button" id="tabStatusBtn" onclick="switchDistributionTab('status')"
+                                class="px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-ink dark:hover:text-white transition-all cursor-pointer">
+                            Pipeline
+                        </button>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1" id="distributionSubtitle">Customer checkout payment preference</p>
             </div>
 
-            <div class="chart-container my-auto flex items-center justify-center">
+            <div class="chart-container my-auto flex items-center justify-center relative">
                 <canvas id="paymentMethodsChart"></canvas>
+                <canvas id="orderStatusesChart" style="display: none;"></canvas>
             </div>
 
             <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-around text-center text-xs">
@@ -204,7 +217,7 @@
                 </div>
                 <div class="border-l border-slate-100 dark:border-slate-800 pl-4">
                     <span class="block text-[10px] text-slate-400 uppercase font-semibold">Stock Alerts</span>
-                    <span class="font-bold text-rose-600">{{ count($lowStockVariants) }} Items</span>
+                    <span class="font-bold text-rose-600">{{ $lowStockCount ?? count($lowStockVariants) }} Items</span>
                 </div>
             </div>
         </div>
@@ -303,7 +316,7 @@
                             <div>
                                 <span class="font-bold text-xs text-ink dark:text-white block">{{ $rx->prescription_number }}</span>
                                 <span class="text-[11px] text-slate-400">
-                                    {{ $rx->customer?->name ?? 'Patient' }} &bull; {{ $rx->created_at->diffForHumans() }}
+                                    {{ $rx->customer_name ?? $rx->customer?->name ?? 'Patient' }} &bull; {{ $rx->created_at->diffForHumans() }}
                                 </span>
                             </div>
                         </div>
@@ -444,6 +457,28 @@
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+    function switchDistributionTab(tab) {
+        const paymentCanvas = document.getElementById('paymentMethodsChart');
+        const statusCanvas = document.getElementById('orderStatusesChart');
+        const paymentBtn = document.getElementById('tabPaymentBtn');
+        const statusBtn = document.getElementById('tabStatusBtn');
+        const subtitle = document.getElementById('distributionSubtitle');
+
+        if (tab === 'payment') {
+            paymentCanvas.style.display = 'block';
+            statusCanvas.style.display = 'none';
+            paymentBtn.className = 'px-2.5 py-1 rounded-md font-semibold text-primary bg-white dark:bg-slate-700 shadow-xs transition-all cursor-pointer';
+            statusBtn.className = 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-ink dark:hover:text-white transition-all cursor-pointer';
+            subtitle.innerText = 'Customer checkout payment preference';
+        } else {
+            paymentCanvas.style.display = 'none';
+            statusCanvas.style.display = 'block';
+            statusBtn.className = 'px-2.5 py-1 rounded-md font-semibold text-primary bg-white dark:bg-slate-700 shadow-xs transition-all cursor-pointer';
+            paymentBtn.className = 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-ink dark:hover:text-white transition-all cursor-pointer';
+            subtitle.innerText = 'Order lifecycle & fulfillment pipeline distribution';
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         // 1. Dual-Axis Sales & Orders Trend Line/Bar Chart
         const trendCtx = document.getElementById('salesTrendsChart');
@@ -540,6 +575,44 @@
                             '#f59e0b', // Nagad amber
                             '#10b981', // emerald
                             '#8b5cf6'  // purple
+                        ],
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 12,
+                                font: { size: 11 }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // 3. Order Status Pipeline Doughnut
+        const statusCtx = document.getElementById('orderStatusesChart');
+        if (statusCtx) {
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: {!! json_encode($statusLabels) !!},
+                    datasets: [{
+                        data: {!! json_encode($statusCounts) !!},
+                        backgroundColor: [
+                            '#10b981', // Delivered (emerald)
+                            '#3b82f6', // Processing (blue)
+                            '#f59e0b', // Pending (amber)
+                            '#6366f1', // Shipped (indigo)
+                            '#f43f5e'  // Cancelled (rose)
                         ],
                         borderWidth: 2,
                         hoverOffset: 4

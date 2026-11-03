@@ -12,7 +12,7 @@ class StoreAdminRoleController extends Controller
 {
     private function tenantId(): int
     {
-        return (int) auth()->user()->tenant->id;
+        return (int) (session('tenant_id') ?? auth()->user()->tenant?->id ?? 0);
     }
 
     private function permissions()
@@ -31,6 +31,36 @@ class StoreAdminRoleController extends Controller
         $protected = ['Store Owner'];
 
         return view('store_admin.pages.admin_role.index', compact('roles', 'protected'));
+    }
+
+    public function roles()
+    {
+        return $this->index();
+    }
+
+    public function createRole()
+    {
+        return $this->index();
+    }
+
+    public function storeRole(Request $request)
+    {
+        return $this->store($request);
+    }
+
+    public function editRole(int $role)
+    {
+        return $this->editPermissions($role);
+    }
+
+    public function updateRole(Request $request, int $role)
+    {
+        return $this->update($request, $role);
+    }
+
+    public function deleteRole(int $role)
+    {
+        return $this->destroy($role);
     }
 
     public function store(Request $request)
@@ -71,7 +101,6 @@ class StoreAdminRoleController extends Controller
         abort_if($role->name === 'Store Owner', 403);
         $permissionGroups = $this->permissions()->groupBy('group_name');
 
-//        dd($permissionGroups);
         return view('store_admin.pages.admin_role.permissions_to_role', compact('role', 'permissionGroups'));
     }
 

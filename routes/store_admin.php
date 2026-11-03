@@ -49,21 +49,24 @@ Route::domain(config('app.base_domain'))
             Route::put('/profile/password', [StoreAdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
 
             //..............Admin Management.................//
-            Route::get('/admins', [StoreAdminAdminController::class, 'admins'])->name('admin.admins.index')->middleware('permission:Store Admin List');
+            Route::get('/admins', [StoreAdminAdminController::class, 'index'])->name('admin.admins.index')->middleware('permission:Store Admin List');
             Route::get('/admins/create', [StoreAdminAdminController::class, 'createAdmin'])->name('admin.admins.create')->middleware('permission:Store Create Admin');
-            Route::post('/admins', [StoreAdminAdminController::class, 'storeAdmin'])->name('admin.admins.store')->middleware('permission:Store Create Admin');
+            Route::post('/admins', [StoreAdminAdminController::class, 'store'])->name('admin.admins.store')->middleware('permission:Store Create Admin');
             Route::get('/admins/{admin}/edit', [StoreAdminAdminController::class, 'editAdmin'])->name('admin.admins.edit')->middleware('permission:Store Edit Admin');
-            Route::put('/admins/{admin}', [StoreAdminAdminController::class, 'updateAdmin'])->name('admin.admins.update')->middleware('permission:Store Edit Admin');
-            Route::delete('/admins/{admin}', [StoreAdminAdminController::class, 'deleteAdmin'])->name('admin.admins.destroy')->middleware('permission:Store Delete Admin');
-            Route::patch('/admins/{admin}/toggle', [StoreAdminAdminController::class, 'toggleStatus'])->name('admin.admins.toggle')->middleware('permission:Store Edit Admin');
+            Route::put('/admins/{admin}', [StoreAdminAdminController::class, 'update'])->name('admin.admins.update')->middleware('permission:Store Edit Admin');
+            Route::delete('/admins/{admin}', [StoreAdminAdminController::class, 'destroy'])->name('admin.admins.destroy')->middleware('permission:Store Delete Admin');
+            Route::patch('/admins/{admin}/status', [StoreAdminAdminController::class, 'changeStatus'])->name('admin.admins.status')->middleware('permission:Store Edit Admin');
+            Route::patch('/admins/{admin}/toggle', [StoreAdminAdminController::class, 'changeStatus'])->name('admin.admins.toggle')->middleware('permission:Store Edit Admin');
 
             //..............Role Management.................//
-            Route::get('/roles', [StoreAdminRoleController::class, 'roles'])->name('admin.role.index')->middleware('permission:Store Role List');
+            Route::get('/roles', [StoreAdminRoleController::class, 'index'])->name('admin.role.index')->middleware('permission:Store Role List');
             Route::get('/roles/create', [StoreAdminRoleController::class, 'createRole'])->name('admin.role.create')->middleware('permission:Store Role Create');
-            Route::post('/roles', [StoreAdminRoleController::class, 'storeRole'])->name('admin.role.store')->middleware('permission:Store Role Create');
+            Route::post('/roles', [StoreAdminRoleController::class, 'store'])->name('admin.role.store')->middleware('permission:Store Role Create');
             Route::get('/roles/{role}/edit', [StoreAdminRoleController::class, 'editRole'])->name('admin.role.edit')->middleware('permission:Store Edit Role');
-            Route::put('/roles/{role}', [StoreAdminRoleController::class, 'updateRole'])->name('admin.role.update')->middleware('permission:Store Edit Role');
-            Route::delete('/roles/{role}', [StoreAdminRoleController::class, 'deleteRole'])->name('admin.role.destroy')->middleware('permission:Store Delete Role');
+            Route::put('/roles/{role}', [StoreAdminRoleController::class, 'update'])->name('admin.role.update')->middleware('permission:Store Edit Role');
+            Route::delete('/roles/{role}', [StoreAdminRoleController::class, 'destroy'])->name('admin.role.destroy')->middleware('permission:Store Delete Role');
+            Route::get('/roles/{role}/permissions', [StoreAdminRoleController::class, 'editPermissions'])->name('admin.role.permission.edit')->middleware('permission:Store Assign Permission');
+            Route::put('/roles/{role}/permissions', [StoreAdminRoleController::class, 'updatePermissions'])->name('admin.role.permission.update')->middleware('permission:Store Assign Permission');
 
             //..............Permission Management.................//
             Route::get('/permission', [StoreAdminPermissionController::class, 'permission'])->name('admin.permission.index')->middleware('permission:Store Permission List');

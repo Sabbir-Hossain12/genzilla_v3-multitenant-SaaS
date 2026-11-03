@@ -133,12 +133,18 @@ class StoreAdminDashboardController extends Controller
 
         // 7. Critical Inventory Reorder Watchlist (available stock <= 10)
         $variants = ProductVariant::where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->where('track_inventory', true)
+            ->whereHas('product', fn($q) => $q->whereNull('deleted_at')->where('status', 'active'))
             ->with(['product.category', 'batches'])
             ->get();
 
-        $lowStockVariants = $variants->filter(function ($variant) {
+        $allLowStockVariants = $variants->filter(function ($variant) {
             return $variant->available_stock <= 10;
-        })->sortBy('available_stock')->take(5);
+        })->sortBy('available_stock');
+
+        $lowStockCount = $allLowStockVariants->count();
+        $lowStockVariants = $allLowStockVariants->take(5);
 
         // 8. Pending Customer Reviews (latest 4)
         $recentReviews = ProductReview::where('tenant_id', $tenantId)
@@ -167,6 +173,7 @@ class StoreAdminDashboardController extends Controller
             'statusCounts',
             'recentOrders',
             'recentPrescriptions',
+            'lowStockCount',
             'lowStockVariants',
             'recentReviews'
         ));

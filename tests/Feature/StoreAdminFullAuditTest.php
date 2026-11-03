@@ -120,7 +120,8 @@ class StoreAdminFullAuditTest extends TestCase
         // 1. Create a customer
         $customer = Customer::create([
             'tenant_id' => $this->tenant->id,
-            'name' => 'Karim Rahman',
+            'first_name' => 'Karim',
+            'last_name' => 'Rahman',
             'email' => 'karim@test.com',
             'phone' => '01711122233',
         ]);
@@ -156,9 +157,13 @@ class StoreAdminFullAuditTest extends TestCase
         $rx = TenantPrescription::create([
             'tenant_id' => $this->tenant->id,
             'customer_id' => $customer->id,
+            'customer_name' => 'Karim Rahman',
+            'customer_phone' => '01711122233',
             'prescription_number' => 'RX-AUDIT-555',
-            'status' => 'pending',
-            'image_path' => 'prescriptions/test.jpg',
+            'status' => 'pending_review',
+            'prescription_image' => 'prescriptions/test.jpg',
+            'delivery_address' => 'House 1, Road 2, Gulshan',
+            'delivery_city' => 'Dhaka',
             'notes' => 'Patient needs asthma inhaler urgently',
         ]);
 
@@ -186,8 +191,10 @@ class StoreAdminFullAuditTest extends TestCase
         $variant = ProductVariant::create([
             'tenant_id' => $this->tenant->id,
             'product_id' => $product->id,
+            'title' => 'Strip of 10 Tablets',
             'sku' => 'NAPA-EXT-01',
             'price' => 25.00,
+            'options_hash' => md5('default'),
             'track_inventory' => true,
             'status' => 'active',
         ]);
@@ -214,6 +221,8 @@ class StoreAdminFullAuditTest extends TestCase
             'tenant_id' => $this->tenant->id,
             'product_id' => $product->id,
             'customer_id' => $customer->id,
+            'reviewer_name' => 'Karim Rahman',
+            'reviewer_email' => 'karim@test.com',
             'rating' => 5,
             'comment' => 'Very effective for back pain, fast delivery.',
             'status' => 'pending',
