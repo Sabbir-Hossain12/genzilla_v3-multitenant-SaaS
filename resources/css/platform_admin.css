@@ -130,7 +130,7 @@ body {
     text-slate-500 dark:text-slate-400
     hover:bg-primarylt dark:hover:bg-slate-800
     hover:text-primary dark:hover:text-primary
-    transition-colors duration-150 cursor-pointer;
+    transition-colors duration-150 cursor-pointer whitespace-nowrap;
 }
 
 .nav-link.active {
@@ -139,6 +139,7 @@ body {
 
 /* ── Slim sidebar scrollbar ── */
 #sidebar nav {
+    scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
     transition: scrollbar-color .2s;
@@ -190,7 +191,7 @@ body {
     text-slate-500 dark:text-slate-400
     hover:bg-primarylt dark:hover:bg-slate-800
     hover:text-primary dark:hover:text-primary
-    transition-colors duration-150 cursor-pointer;
+    transition-colors duration-150 cursor-pointer whitespace-nowrap;
 }
 
 .sub-link.active {

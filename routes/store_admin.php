@@ -6,6 +6,7 @@ use App\Http\Controllers\Store\Admin\Catalog\StoreBrandController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreCategoryController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreInventoryController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreProductController;
+use App\Http\Controllers\Store\Admin\Catalog\StoreProductReviewController;
 use App\Http\Controllers\Store\Admin\Content\StoreBannerController;
 use App\Http\Controllers\Store\Admin\Content\StorePageController;
 use App\Http\Controllers\Store\Admin\Content\StoreSliderController;
@@ -97,6 +98,14 @@ Route::domain(config('app.base_domain'))
             Route::get('/catalog/products/{product}/edit', [StoreProductController::class, 'editProduct'])->name('admin.products.edit')->middleware('permission:Store Product Edit');
             Route::put('/catalog/products/{product}', [StoreProductController::class, 'updateProduct'])->name('admin.products.update')->middleware('permission:Store Product Edit');
             Route::delete('/catalog/products/{product}', [StoreProductController::class, 'deleteProduct'])->name('admin.products.destroy')->middleware('permission:Store Product Delete');
+
+            //..............Catalog: Product Reviews.................//
+            Route::get('/catalog/reviews', [StoreProductReviewController::class, 'index'])->name('admin.reviews.index')->middleware('permission:Store Product Review List');
+            Route::get('/catalog/reviews/{review}', [StoreProductReviewController::class, 'show'])->name('admin.reviews.show')->middleware('permission:Store Product Review View');
+            Route::patch('/catalog/reviews/{review}/status', [StoreProductReviewController::class, 'updateStatus'])->name('admin.reviews.status')->middleware('permission:Store Product Review Approve');
+            Route::post('/catalog/reviews/{review}/reply', [StoreProductReviewController::class, 'reply'])->name('admin.reviews.reply')->middleware('permission:Store Product Review Reply');
+            Route::delete('/catalog/reviews/{review}', [StoreProductReviewController::class, 'destroy'])->name('admin.reviews.destroy')->middleware('permission:Store Product Review Delete');
+            Route::post('/catalog/reviews/bulk-action', [StoreProductReviewController::class, 'bulkAction'])->name('admin.reviews.bulk')->middleware('permission:Store Product Review Approve');
 
             //..............Inventory.................//
             Route::get('/catalog/inventory', [StoreInventoryController::class, 'inventory'])->name('admin.inventory.index')->middleware('permission:Store Inventory List');

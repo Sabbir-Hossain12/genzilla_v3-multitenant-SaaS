@@ -37,4 +37,9 @@ class StoreAdminPermissionController extends Controller
 
         return view('store_admin.pages.admin_permissions.index', compact('permissions', 'groups', 'filters'));
     }
+
+    public function permission(Request $request)
+    {
+        return $this->index($request);
+    }
 }

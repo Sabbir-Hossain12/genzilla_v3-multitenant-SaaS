@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             TenantPrescriptionSeeder::class,
             TenantTransactionSeeder::class,
             TenantAbandonedCartSeeder::class,
+            TenantProductReviewSeeder::class,
         ]);
     }
 }

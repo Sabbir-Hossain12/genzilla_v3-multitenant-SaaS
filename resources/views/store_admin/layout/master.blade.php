@@ -19,7 +19,7 @@
 <!-- ══════════════════════════════════════════════
      MAIN WRAPPER
 ══════════════════════════════════════════════ -->
-<div class="lg:pl-64 flex flex-col min-h-screen">
+<div class="lg:pl-72 flex flex-col min-h-screen">
     @include('store_admin.include.topbar')
 
     <!-- ══════ PAGE CONTENT ══════ -->

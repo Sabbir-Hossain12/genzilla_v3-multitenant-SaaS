@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -61,25 +62,38 @@ class RoleSeeder extends Seeder
 
         // Default Store Owner gets all store-level permissions
         $storeManagerPermissions = Permission::where('panel', 'store')
-            ->whereNotIn('group_name', ['Store Role Management']) // Example: restrict role changes for managers
+            ->whereNotIn('group_name', ['Store Role Management'])
             ->pluck('name')
             ->toArray();
 
         $storeMatrix = [
-            'Store Owner'   => $storePermissions,      // Only store permissions
-            'Store Manager' => $storeManagerPermissions, // Only store permissions
+            'Store Owner'   => $storePermissions,
+            'Store Manager' => $storeManagerPermissions,
         ];
 
-        foreach ($storeMatrix as $roleName => $permissions) {
-            // Note: In multi-tenancy, tenant-specific roles are usually created
-            // dynamically when a store is registered, but you can seed default
-            // templates here if needed.
-            $role = Role::firstOrCreate([
-                'name' => $roleName,
-                'guard_name' => 'web',
-                'tenant_id' => 1
-            ]);
-            $role->syncPermissions($permissions);
+        // Sync for tenant 1 and all existing tenants in database
+        $tenantIds = Tenant::pluck('id')->toArray();
+        if (empty($tenantIds)) {
+            $tenantIds = [1];
         }
+
+        foreach ($tenantIds as $tId) {
+            foreach ($storeMatrix as $roleName => $permissions) {
+                $role = Role::firstOrCreate([
+                    'name' => $roleName,
+                    'guard_name' => 'web',
+                    'tenant_id' => $tId,
+                ]);
+                $role->syncPermissions($permissions);
+            }
+        }
+
+        // Also sync any existing store roles that exist across any other tenant_id
+        foreach (Role::whereIn('name', ['Store Owner', 'Store Manager'])->get() as $role) {
+            $perms = $role->name === 'Store Owner' ? $storePermissions : $storeManagerPermissions;
+            $role->syncPermissions($perms);
+        }
+
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 }

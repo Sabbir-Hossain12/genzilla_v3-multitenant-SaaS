@@ -23,6 +23,8 @@ class Product extends Model
     public function activeVariants(): HasMany { return $this->hasMany(ProductVariant::class)->where('status', 'active')->orderBy('position'); }
     public function defaultVariant(): HasOne { return $this->hasOne(ProductVariant::class)->where('status', 'active')->where('is_default', true); }
     public function cartItems(): HasMany { return $this->hasMany(CartItem::class); }
+    public function reviews(): HasMany { return $this->hasMany(ProductReview::class); }
+    public function approvedReviews(): HasMany { return $this->hasMany(ProductReview::class)->where('status', 'approved'); }
 
     public function media(): MorphMany
     {
@@ -133,5 +135,15 @@ class Product extends Model
 
         $max = $vars->pluck('price')->filter(fn($p) => $p !== null)->max();
         return $max !== null ? (float)$max : null;
+    }
+
+    public function getAverageRatingAttribute(): float
+    {
+        return (float) round($this->approvedReviews()->avg('rating') ?? 0, 1);
+    }
+
+    public function getReviewsCountAttribute(): int
+    {
+        return (int) $this->approvedReviews()->count();
     }
 }
