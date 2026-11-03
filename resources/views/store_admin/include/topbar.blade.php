@@ -4,10 +4,17 @@
     @php
         $currentRoute = request()->route()?->getName() ?? 'store.admin.dashboard';
         $pageTitle = match (true) {
+            str_starts_with($currentRoute, 'store.admin.profile.') => 'Admin Profile',
             str_starts_with($currentRoute, 'store.admin.admins.') => 'Admin Users',
             str_starts_with($currentRoute, 'store.admin.permission.') => 'Permissions',
             str_starts_with($currentRoute, 'store.admin.role.permission.') => 'Role Permissions',
             str_starts_with($currentRoute, 'store.admin.role.') => 'Roles',
+            str_starts_with($currentRoute, 'store.admin.reports.') => 'Reports & Analytics',
+            str_starts_with($currentRoute, 'store.admin.orders.') => 'Orders',
+            str_starts_with($currentRoute, 'store.admin.prescriptions.') => 'Prescriptions',
+            str_starts_with($currentRoute, 'store.admin.products.') => 'Products',
+            str_starts_with($currentRoute, 'store.admin.inventory.') => 'Inventory',
+            str_starts_with($currentRoute, 'store.admin.customers.') => 'Customers',
             default => 'Dashboard',
         };
     @endphp
@@ -84,8 +91,8 @@
             <button type="button" id="profile-btn" onclick="toggleProfileMenu(event)"
                     aria-haspopup="true" aria-expanded="false"
                     class="cursor-pointer flex items-center gap-2 rounded-xl p-1 pr-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                <img src="https://i.pravatar.cc/40?img=68"
-                     class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" alt="Alex"/>
+                <img src="{{ auth()->user()->img_url ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=2563eb&color=fff' }}"
+                     class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40 shrink-0" alt="{{ auth()->user()->name }}"/>
                 <div class="hidden sm:block text-left">
                     <p class="text-xs font-semibold text-ink dark:text-white leading-none">{{ auth()->user()->name ?? 'Admin' }}</p>
                     <p class="text-[10px] text-slate-400">{{ auth()->user()->getRoleNames()->implode(', ') }}</p>
@@ -102,18 +109,18 @@
                     <p class="text-sm font-semibold text-ink dark:text-white truncate">{{ auth()->user()->name ?? 'Admin' }}</p>
                     <p class="text-xs text-slate-400 truncate">{{ auth()->user()->email ?? 'me@admin.com' }}</p>
                 </div>
-                <a href="#" role="menuitem"
+                <a href="{{ route('store.admin.profile.edit') }}" role="menuitem"
                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primarylt dark:hover:bg-slate-800 hover:text-primary cursor-pointer transition-colors">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
                     </svg>
-                    Profile
+                    Profile Settings
                 </a>
                 <form method="post" action="{{ route('store.admin.logout') }}">
                     @csrf
                     <button type="submit" role="menuitem"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer transition-colors">
+                            class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer transition-colors">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                             <polyline points="16 17 21 12 16 7"/>

@@ -22,6 +22,7 @@ use App\Http\Controllers\Store\Admin\StoreAdminAdminController;
 use App\Http\Controllers\Store\Admin\StoreAdminAuthController;
 use App\Http\Controllers\Store\Admin\StoreAdminDashboardController;
 use App\Http\Controllers\Store\Admin\StoreAdminPermissionController;
+use App\Http\Controllers\Store\Admin\StoreAdminProfileController;
 use App\Http\Controllers\Store\Admin\StoreAdminRoleController;
 use App\Http\Controllers\Store\Admin\StoreAdminSettingController;
 use App\Http\Controllers\Store\Admin\StoreCatalogController;
@@ -41,6 +42,11 @@ Route::domain(config('app.base_domain'))
         Route::middleware('auth.tenant')->group(function () {
             Route::post('/logout', [StoreAdminAuthController::class, 'logout'])->name('admin.logout');
             Route::get('/dashboard', [StoreAdminDashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('permission:Store Dashboard');
+
+            //..............Profile Management.................//
+            Route::get('/profile', [StoreAdminProfileController::class, 'edit'])->name('admin.profile.edit');
+            Route::put('/profile', [StoreAdminProfileController::class, 'update'])->name('admin.profile.update');
+            Route::put('/profile/password', [StoreAdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
 
             //..............Admin Management.................//
             Route::get('/admins', [StoreAdminAdminController::class, 'admins'])->name('admin.admins.index')->middleware('permission:Store Admin List');

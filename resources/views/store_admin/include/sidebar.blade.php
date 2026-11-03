@@ -114,7 +114,7 @@
             Catalog & Inventory
         </p>
 
-        @canany(['Store Product List', 'Store Category List', 'Store Brand List', 'Store Attribute List', 'Store Inventory List'])
+        @canany(['Store Product List', 'Store Category List', 'Store Brand List', 'Store Attribute List', 'Store Inventory List'])\
             <div class="nav-group">
                 @php $catalogActive = $isActive(['store.admin.products.', 'store.admin.categories.', 'store.admin.brands.', 'store.admin.attributes.', 'store.admin.inventory.']); @endphp
                 <button type="button"
@@ -324,8 +324,8 @@
         <!-- Dropdown (opens upward) -->
         <div id="side-profile-dropdown" role="menu"
              class="hidden absolute left-3 right-3 bottom-full mb-2 card shadow-lg p-1.5 z-40">
-            <a href="#" role="menuitem"
-               class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primarylt dark:hover:bg-slate-800 hover:text-primary cursor-pointer transition-colors whitespace-nowrap">
+            <a href="{{ route('store.admin.profile.edit') }}" role="menuitem"
+               class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium {{ $isActive('store.admin.profile.') ? 'bg-primarylt dark:bg-slate-800 text-primary font-semibold' : 'text-slate-600 dark:text-slate-300 hover:bg-primarylt dark:hover:bg-slate-800 hover:text-primary' }} cursor-pointer transition-colors whitespace-nowrap">
                 <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
@@ -349,8 +349,8 @@
         <button type="button" id="side-profile-btn" onclick="toggleSideProfile(event)"
                 aria-haspopup="true" aria-expanded="false"
                 class="w-full flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors text-left whitespace-nowrap">
-            <img src="https://i.pravatar.cc/40?img=68"
-                 class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30 shrink-0" alt="Admin"/>
+            <img src="{{ auth()->user()->img_url ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name ?? 'Admin') . '&background=2563eb&color=fff' }}"
+                 class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30 shrink-0" alt="{{ auth()->user()->name ?? 'Admin' }}"/>
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-ink dark:text-white truncate">{{ auth()->user()->name ?? 'Admin' }}</p>
                 <p class="text-xs text-slate-400 truncate">{{ auth()->user()->getRoleNames()->implode(', ') }}</p>
