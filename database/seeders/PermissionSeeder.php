@@ -139,6 +139,10 @@ class PermissionSeeder extends Seeder
             'Store Prescription Reject',
             'Store Prescription Delete',
         ],
+        'Store Report Management' => [
+            'Store Report List',
+            'Store Report Export',
+        ],
         'Store Promotions' => [
             'Store Coupon List',
             'Store Coupon Create',

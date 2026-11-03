@@ -14,8 +14,10 @@ use App\Http\Controllers\Store\Admin\Customer\StoreCustomerController;
 use App\Http\Controllers\Store\Admin\Domain\StoreDomainController;
 use App\Http\Controllers\Store\Admin\Order\StoreOrderController;
 use App\Http\Controllers\Store\Admin\Payment\StorePaymentMethodController;
+use App\Http\Controllers\Store\Admin\Prescription\StorePrescriptionController;
 use App\Http\Controllers\Store\Admin\Promotions\StoreCouponController;
 use App\Http\Controllers\Store\Admin\Promotions\StoreDeliveryChargeController;
+use App\Http\Controllers\Store\Admin\Report\StoreReportController;
 use App\Http\Controllers\Store\Admin\StoreAdminAdminController;
 use App\Http\Controllers\Store\Admin\StoreAdminAuthController;
 use App\Http\Controllers\Store\Admin\StoreAdminDashboardController;
@@ -23,7 +25,6 @@ use App\Http\Controllers\Store\Admin\StoreAdminPermissionController;
 use App\Http\Controllers\Store\Admin\StoreAdminRoleController;
 use App\Http\Controllers\Store\Admin\StoreAdminSettingController;
 use App\Http\Controllers\Store\Admin\StoreCatalogController;
-use App\Http\Controllers\Store\Admin\Prescription\StorePrescriptionController;
 use App\Http\Controllers\Store\Admin\Subscription\StoreSubscriptionController;
 use App\Http\Controllers\Store\Admin\Transaction\StoreTransactionController;
 
@@ -48,46 +49,40 @@ Route::domain(config('app.base_domain'))
             Route::get('/admins/{admin}/edit', [StoreAdminAdminController::class, 'editAdmin'])->name('admin.admins.edit')->middleware('permission:Store Edit Admin');
             Route::put('/admins/{admin}', [StoreAdminAdminController::class, 'updateAdmin'])->name('admin.admins.update')->middleware('permission:Store Edit Admin');
             Route::delete('/admins/{admin}', [StoreAdminAdminController::class, 'deleteAdmin'])->name('admin.admins.destroy')->middleware('permission:Store Delete Admin');
-            Route::patch('/admins/{admin}/status', [StoreAdminAdminController::class, 'statusAdmin'])->name('admin.admins.status')->middleware('permission:Store Status Admin');
+            Route::patch('/admins/{admin}/toggle', [StoreAdminAdminController::class, 'toggleStatus'])->name('admin.admins.toggle')->middleware('permission:Store Edit Admin');
 
             //..............Role Management.................//
-            Route::get('/role', [StoreAdminRoleController::class, 'role'])->name('admin.role.index')->middleware('permission:Store Role List');
-            Route::get('/role/create', [StoreAdminRoleController::class, 'createRole'])->name('admin.role.create')->middleware('permission:Store Role Create');
-            Route::post('/role', [StoreAdminRoleController::class, 'storeRole'])->name('admin.role.store')->middleware('permission:Store Role Create');
-            Route::get('/role/{role}/edit', [StoreAdminRoleController::class, 'editRole'])->name('admin.role.edit')->middleware('permission:Store Edit Role');
-            Route::put('/role/{role}', [StoreAdminRoleController::class, 'updateRole'])->name('admin.role.update')->middleware('permission:Store Edit Role');
-            Route::delete('/role/{role}', [StoreAdminRoleController::class, 'deleteRole'])->name('admin.role.destroy')->middleware('permission:Store Role Delete');
-            Route::get('/role/{role}/permission', [StoreAdminRoleController::class, 'assignPermission'])->name('admin.role.permission')->middleware('permission:Store Assign Permission');
-            Route::post('/role/{role}/permission', [StoreAdminRoleController::class, 'storePermission'])->name('admin.role.permission.store')->middleware('permission:Store Assign Permission');
+            Route::get('/roles', [StoreAdminRoleController::class, 'roles'])->name('admin.role.index')->middleware('permission:Store Role List');
+            Route::get('/roles/create', [StoreAdminRoleController::class, 'createRole'])->name('admin.role.create')->middleware('permission:Store Role Create');
+            Route::post('/roles', [StoreAdminRoleController::class, 'storeRole'])->name('admin.role.store')->middleware('permission:Store Role Create');
+            Route::get('/roles/{role}/edit', [StoreAdminRoleController::class, 'editRole'])->name('admin.role.edit')->middleware('permission:Store Edit Role');
+            Route::put('/roles/{role}', [StoreAdminRoleController::class, 'updateRole'])->name('admin.role.update')->middleware('permission:Store Edit Role');
+            Route::delete('/roles/{role}', [StoreAdminRoleController::class, 'deleteRole'])->name('admin.role.destroy')->middleware('permission:Store Delete Role');
 
             //..............Permission Management.................//
             Route::get('/permission', [StoreAdminPermissionController::class, 'permission'])->name('admin.permission.index')->middleware('permission:Store Permission List');
 
             //..............Settings Management.................//
             Route::get('/settings', [StoreAdminSettingController::class, 'index'])->name('admin.settings.index')->middleware('permission:Store General Setting');
-            Route::match(['post', 'put'], '/settings', [StoreAdminSettingController::class, 'update'])->name('admin.settings.update')->middleware('permission:Store Edit Setting');
+            Route::put('/settings', [StoreAdminSettingController::class, 'update'])->name('admin.settings.update')->middleware('permission:Store Edit Setting');
 
             //..............Catalog: Categories.................//
             Route::get('/catalog/categories', [StoreCategoryController::class, 'categories'])->name('admin.categories.index')->middleware('permission:Store Category List');
-            Route::get('/catalog/categories/create', [StoreCategoryController::class, 'createCategory'])->name('admin.categories.create')->middleware('permission:Store Category Create');
             Route::post('/catalog/categories', [StoreCategoryController::class, 'storeCategory'])->name('admin.categories.store')->middleware('permission:Store Category Create');
-            Route::get('/catalog/categories/{category}/edit', [StoreCategoryController::class, 'editCategory'])->name('admin.categories.edit')->middleware('permission:Store Category Edit');
             Route::put('/catalog/categories/{category}', [StoreCategoryController::class, 'updateCategory'])->name('admin.categories.update')->middleware('permission:Store Category Edit');
             Route::delete('/catalog/categories/{category}', [StoreCategoryController::class, 'deleteCategory'])->name('admin.categories.destroy')->middleware('permission:Store Category Delete');
+            Route::patch('/catalog/categories/{category}/toggle', [StoreCategoryController::class, 'toggleStatus'])->name('admin.categories.toggle')->middleware('permission:Store Category Edit');
 
             //..............Catalog: Brands.................//
             Route::get('/catalog/brands', [StoreBrandController::class, 'brands'])->name('admin.brands.index')->middleware('permission:Store Brand List');
-            Route::get('/catalog/brands/create', [StoreBrandController::class, 'createBrand'])->name('admin.brands.create')->middleware('permission:Store Brand Create');
             Route::post('/catalog/brands', [StoreBrandController::class, 'storeBrand'])->name('admin.brands.store')->middleware('permission:Store Brand Create');
-            Route::get('/catalog/brands/{brand}/edit', [StoreBrandController::class, 'editBrand'])->name('admin.brands.edit')->middleware('permission:Store Brand Edit');
             Route::put('/catalog/brands/{brand}', [StoreBrandController::class, 'updateBrand'])->name('admin.brands.update')->middleware('permission:Store Brand Edit');
             Route::delete('/catalog/brands/{brand}', [StoreBrandController::class, 'deleteBrand'])->name('admin.brands.destroy')->middleware('permission:Store Brand Delete');
+            Route::patch('/catalog/brands/{brand}/toggle', [StoreBrandController::class, 'toggleStatus'])->name('admin.brands.toggle')->middleware('permission:Store Brand Edit');
 
             //..............Catalog: Attributes.................//
             Route::get('/catalog/attributes', [StoreAttributeController::class, 'attributes'])->name('admin.attributes.index')->middleware('permission:Store Attribute List');
-            Route::get('/catalog/attributes/create', [StoreAttributeController::class, 'createAttribute'])->name('admin.attributes.create')->middleware('permission:Store Attribute Create');
             Route::post('/catalog/attributes', [StoreAttributeController::class, 'storeAttribute'])->name('admin.attributes.store')->middleware('permission:Store Attribute Create');
-            Route::get('/catalog/attributes/{attribute}/edit', [StoreAttributeController::class, 'editAttribute'])->name('admin.attributes.edit')->middleware('permission:Store Attribute Edit');
             Route::put('/catalog/attributes/{attribute}', [StoreAttributeController::class, 'updateAttribute'])->name('admin.attributes.update')->middleware('permission:Store Attribute Edit');
             Route::delete('/catalog/attributes/{attribute}', [StoreAttributeController::class, 'deleteAttribute'])->name('admin.attributes.destroy')->middleware('permission:Store Attribute Delete');
 
@@ -95,6 +90,7 @@ Route::domain(config('app.base_domain'))
             Route::get('/catalog/products', [StoreProductController::class, 'products'])->name('admin.products.index')->middleware('permission:Store Product List');
             Route::get('/catalog/products/create', [StoreProductController::class, 'createProduct'])->name('admin.products.create')->middleware('permission:Store Product Create');
             Route::post('/catalog/products', [StoreProductController::class, 'storeProduct'])->name('admin.products.store')->middleware('permission:Store Product Create');
+            Route::get('/catalog/products/{product}', [StoreProductController::class, 'showProduct'])->name('admin.products.show')->middleware('permission:Store Product List');
             Route::get('/catalog/products/{product}/edit', [StoreProductController::class, 'editProduct'])->name('admin.products.edit')->middleware('permission:Store Product Edit');
             Route::put('/catalog/products/{product}', [StoreProductController::class, 'updateProduct'])->name('admin.products.update')->middleware('permission:Store Product Edit');
             Route::delete('/catalog/products/{product}', [StoreProductController::class, 'deleteProduct'])->name('admin.products.destroy')->middleware('permission:Store Product Delete');
@@ -144,6 +140,11 @@ Route::domain(config('app.base_domain'))
             Route::post('/prescriptions/{prescription}/convert', [StorePrescriptionController::class, 'convertToOrder'])->name('admin.prescriptions.convert')->middleware('permission:Store Prescription Convert');
             Route::post('/prescriptions/{prescription}/reject', [StorePrescriptionController::class, 'reject'])->name('admin.prescriptions.reject')->middleware('permission:Store Prescription Reject');
             Route::delete('/prescriptions/{prescription}', [StorePrescriptionController::class, 'destroy'])->name('admin.prescriptions.destroy')->middleware('permission:Store Prescription Delete');
+
+            //..............Reports & Business Analytics.................//
+            Route::get('/reports', [StoreReportController::class, 'index'])->name('admin.reports.index')->middleware('permission:Store Report List');
+            Route::get('/reports/export/csv', [StoreReportController::class, 'exportCsv'])->name('admin.reports.export.csv')->middleware('permission:Store Report Export');
+            Route::get('/reports/export/pdf', [StoreReportController::class, 'exportPdf'])->name('admin.reports.export.pdf')->middleware('permission:Store Report Export');
 
             //..............Customers & CRM.................//
             Route::get('/customers', [StoreCustomerController::class, 'customers'])->name('admin.customers.index')->middleware('permission:Store Customer List');

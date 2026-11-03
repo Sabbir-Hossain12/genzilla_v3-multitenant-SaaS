@@ -6,18 +6,30 @@
      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 hidden lg:hidden"></div>
 <aside id="sidebar"
        class="fixed top-0 left-0 h-full w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30 flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
-    <div class="h-16 flex items-center px-5 border-b border-slate-100 dark:border-slate-800">
-        <span
-            class="font-extrabold text-lg text-ink dark:text-white tracking-tight truncate">{{ auth()->user()->tenant->store_name ?? 'Store Admin' }}</span>
+
+    <!-- Brand Header -->
+    <div class="h-16 flex items-center gap-3 px-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <div class="w-8 h-8 rounded-xl bg-primary/10 text-primary dark:bg-primary/20 flex items-center justify-center shrink-0 font-bold text-sm">
+            <i class="fa-solid fa-mortar-pestle"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+            <span class="font-extrabold text-sm text-ink dark:text-white tracking-tight truncate block">{{ auth()->user()->tenant->store_name ?? 'Store Admin' }}</span>
+            <span class="text-[10px] text-slate-400 font-medium truncate block">Pharmacy Merchant SaaS</span>
+        </div>
     </div>
-    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-        <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 whitespace-nowrap">
-            Store</p>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 overflow-y-auto px-3 py-3.5 space-y-0.5">
+
+        <!-- 1. OVERVIEW -->
+        <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 whitespace-nowrap">
+            Overview
+        </p>
+
         @can('Store Dashboard')
             <a href="{{ route('store.admin.dashboard') }}"
                class="nav-link whitespace-nowrap {{ $isActive('store.admin.dashboard') ? 'active' : '' }}">
-                <svg class="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="1.8">
+                <svg class="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <rect x="3" y="3" width="7" height="7" rx="1.5"/>
                     <rect x="14" y="3" width="7" height="7" rx="1.5"/>
                     <rect x="3" y="14" width="7" height="7" rx="1.5"/>
@@ -27,60 +39,31 @@
             </a>
         @endcan
 
-        @canany(['Store Product List', 'Store Category List', 'Store Brand List', 'Store Attribute List', 'Store Inventory List', 'Store Product Review List'])
-            <div class="nav-group">
-                @php $catalogActive = $isActive(['store.admin.products.', 'store.admin.categories.', 'store.admin.brands.', 'store.admin.attributes.', 'store.admin.inventory.']); @endphp
-                <button type="button"
-                        class="nav-link nav-toggle w-full text-left whitespace-nowrap {{ $catalogActive ? 'has-active' : '' }}"
-                        aria-expanded="{{ $catalogActive ? 'true' : 'false' }}" onclick="toggleGroup(this)">
-                    <i class="fa-solid fa-folder-open w-4 text-center shrink-0"></i>
-                    <span class="truncate">Catalog & Inventory</span>
-                    <svg class="chev ml-auto h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-200"
-                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                        <polyline points="9 18 15 12 9 6"/>
-                    </svg>
-                </button>
-                <div class="submenu {{ $catalogActive ? 'open' : '' }}">
-                    <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
-                        @can('Store Category List')
-                            <a href="{{ route('store.admin.categories.index') }}"
-                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.categories.') ? 'active' : '' }}"><span class="truncate">Categories</span></a>
-                        @endcan
-                        @can('Store Brand List')
-                            <a href="{{ route('store.admin.brands.index') }}"
-                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.brands.') ? 'active' : '' }}"><span class="truncate">Brands</span></a>
-                        @endcan
-                        @can('Store Attribute List')
-                            <a href="{{ route('store.admin.attributes.index') }}"
-                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.attributes.') ? 'active' : '' }}"><span class="truncate">Attributes</span></a>
-                        @endcan
-                        @can('Store Product List')
-                            <a href="{{ route('store.admin.products.index') }}"
-                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.products.') ? 'active' : '' }}"><span class="truncate">Products</span></a>
-                        @endcan
-                        @can('Store Product Review List')
-                            <a href="{{ route('store.admin.reviews.index') }}"
-                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.reviews.') ? 'active' : '' }}"><span class="truncate">Reviews Moderation</span></a>
-                        @endcan
-                        @can('Store Inventory List')
-                            <a href="{{ route('store.admin.inventory.index') }}"
-                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.inventory.') ? 'active' : '' }}"><span class="truncate">Inventory</span></a>
-                        @endcan
-                    </div>
-                </div>
-            </div>
-        @endcanany
+        @can('Store Report List')
+            <a href="{{ route('store.admin.reports.index') }}"
+               class="nav-link whitespace-nowrap {{ $isActive('store.admin.reports.') ? 'active' : '' }}">
+                <i class="fa-solid fa-chart-line w-4 text-center shrink-0"></i>
+                <span class="truncate">Reports & Analytics</span>
+            </a>
+        @endcan
+
+
+        <!-- 2. PHARMACY OPERATIONS & ORDERS -->
+        <div class="!my-3 border-t border-slate-100 dark:border-slate-800"></div>
+        <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 whitespace-nowrap">
+            Pharmacy & Orders
+        </p>
 
         @can('Store Prescription List')
             @php
-                $pendingRxCount = \App\Models\TenantPrescription::where('tenant_id', tenantId())->where('status', 'pending_review')->count();
+                $pendingRxCount = \App\Models\TenantPrescription::where('tenant_id', tenantId())->whereIn('status', ['pending', 'pending_review'])->count();
             @endphp
             <a href="{{ route('store.admin.prescriptions.index') }}"
                class="nav-link whitespace-nowrap {{ $isActive('store.admin.prescriptions.') ? 'active' : '' }}">
                 <i class="fa-solid fa-file-prescription w-4 text-center shrink-0"></i>
                 <span class="truncate flex-1">Prescriptions</span>
                 @if($pendingRxCount > 0)
-                    <span class="ml-auto inline-flex shrink-0 items-center justify-center rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                    <span class="ml-auto inline-flex shrink-0 items-center justify-center rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs" title="{{ $pendingRxCount }} pending review">
                         {{ $pendingRxCount }}
                     </span>
                 @endif
@@ -116,6 +99,61 @@
             </a>
         @endcan
 
+        @can('Store Transaction List')
+            <a href="{{ route('store.admin.transactions.index') }}"
+               class="nav-link whitespace-nowrap {{ $isActive('store.admin.transactions.') ? 'active' : '' }}">
+                <i class="fa-solid fa-money-bill-transfer w-4 text-center shrink-0"></i>
+                <span class="truncate">Transactions & Payments</span>
+            </a>
+        @endcan
+
+
+        <!-- 3. CATALOG & INVENTORY -->
+        <div class="!my-3 border-t border-slate-100 dark:border-slate-800"></div>
+        <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 whitespace-nowrap">
+            Catalog & Inventory
+        </p>
+
+        @canany(['Store Product List', 'Store Category List', 'Store Brand List', 'Store Attribute List', 'Store Inventory List'])
+            <div class="nav-group">
+                @php $catalogActive = $isActive(['store.admin.products.', 'store.admin.categories.', 'store.admin.brands.', 'store.admin.attributes.', 'store.admin.inventory.']); @endphp
+                <button type="button"
+                        class="nav-link nav-toggle w-full text-left whitespace-nowrap {{ $catalogActive ? 'has-active' : '' }}"
+                        aria-expanded="{{ $catalogActive ? 'true' : 'false' }}" onclick="toggleGroup(this)">
+                    <i class="fa-solid fa-boxes-stacked w-4 text-center shrink-0"></i>
+                    <span class="truncate">Product Catalog</span>
+                    <svg class="chev ml-auto h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-200"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <div class="submenu {{ $catalogActive ? 'open' : '' }}">
+                    <div class="submenu-inner space-y-0.5 pt-0.5 pb-1">
+                        @can('Store Product List')
+                            <a href="{{ route('store.admin.products.index') }}"
+                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.products.') ? 'active' : '' }}"><span class="truncate">All Products</span></a>
+                        @endcan
+                        @can('Store Inventory List')
+                            <a href="{{ route('store.admin.inventory.index') }}"
+                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.inventory.') ? 'active' : '' }}"><span class="truncate">Inventory & Batches</span></a>
+                        @endcan
+                        @can('Store Category List')
+                            <a href="{{ route('store.admin.categories.index') }}"
+                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.categories.') ? 'active' : '' }}"><span class="truncate">Categories</span></a>
+                        @endcan
+                        @can('Store Brand List')
+                            <a href="{{ route('store.admin.brands.index') }}"
+                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.brands.') ? 'active' : '' }}"><span class="truncate">Brands</span></a>
+                        @endcan
+                        @can('Store Attribute List')
+                            <a href="{{ route('store.admin.attributes.index') }}"
+                                class="sub-link whitespace-nowrap {{ $isActive('store.admin.attributes.') ? 'active' : '' }}"><span class="truncate">Attributes</span></a>
+                        @endcan
+                    </div>
+                </div>
+            </div>
+        @endcanany
+
         @can('Store Product Review List')
             @php
                 $pendingReviewsCount = \App\Models\ProductReview::where('tenant_id', tenantId())->where('status', 'pending')->count();
@@ -132,13 +170,12 @@
             </a>
         @endcan
 
-        @can('Store Transaction List')
-            <a href="{{ route('store.admin.transactions.index') }}"
-               class="nav-link whitespace-nowrap {{ $isActive('store.admin.transactions.') ? 'active' : '' }}">
-                <i class="fa-solid fa-money-bill-transfer w-4 text-center shrink-0"></i>
-                <span class="truncate">Transactions & Payments</span>
-            </a>
-        @endcan
+
+        <!-- 4. CUSTOMERS & MARKETING -->
+        <div class="!my-3 border-t border-slate-100 dark:border-slate-800"></div>
+        <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 whitespace-nowrap">
+            Customers & Marketing
+        </p>
 
         @can('Store Customer List')
             <a href="{{ route('store.admin.customers.index') }}"
@@ -208,9 +245,12 @@
             </div>
         @endcanany
 
-        <div class="!my-4 border-t border-slate-100 dark:border-slate-800"></div>
-        <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 whitespace-nowrap">
-            Settings & Security</p>
+
+        <!-- 5. SETTINGS & SECURITY -->
+        <div class="!my-3 border-t border-slate-100 dark:border-slate-800"></div>
+        <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 whitespace-nowrap">
+            Settings & Security
+        </p>
 
         @canany(['Store Admin List', 'Store Role List', 'Store Permission List'])
             <div class="nav-group">
@@ -278,8 +318,8 @@
 
     </nav>
 
-    <!-- User -->
-    <div class="p-3 border-t border-slate-100 dark:border-slate-800 relative" id="side-profile-menu">
+    <!-- User Profile Footer Menu -->
+    <div class="p-3 border-t border-slate-100 dark:border-slate-800 relative shrink-0" id="side-profile-menu">
 
         <!-- Dropdown (opens upward) -->
         <div id="side-profile-dropdown" role="menu"
@@ -310,7 +350,7 @@
                 aria-haspopup="true" aria-expanded="false"
                 class="w-full flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors text-left whitespace-nowrap">
             <img src="https://i.pravatar.cc/40?img=68"
-                 class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30 shrink-0" alt="Alex"/>
+                 class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30 shrink-0" alt="Admin"/>
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-ink dark:text-white truncate">{{ auth()->user()->name ?? 'Admin' }}</p>
                 <p class="text-xs text-slate-400 truncate">{{ auth()->user()->getRoleNames()->implode(', ') }}</p>
