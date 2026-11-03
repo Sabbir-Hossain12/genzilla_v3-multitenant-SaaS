@@ -22,6 +22,7 @@ class Product extends Model
     public function variants(): HasMany { return $this->hasMany(ProductVariant::class)->orderBy('position'); }
     public function activeVariants(): HasMany { return $this->hasMany(ProductVariant::class)->where('status', 'active')->orderBy('position'); }
     public function defaultVariant(): HasOne { return $this->hasOne(ProductVariant::class)->where('status', 'active')->where('is_default', true); }
+    public function cartItems(): HasMany { return $this->hasMany(CartItem::class); }
 
     public function media(): MorphMany
     {
@@ -103,6 +104,11 @@ class Product extends Model
                 : $this->activeVariants()->get());
 
         return $vars->contains('track_inventory', true);
+    }
+
+    public function getTrackInventoryAttribute(): bool
+    {
+        return $this->tracks_inventory;
     }
 
     public function getMinPriceAttribute(): ?float

@@ -52,9 +52,19 @@ class Customer extends Authenticatable
         return $this->hasMany(Wishlist::class, 'customer_id');
     }
 
+    public function carts(): HasMany
+    {
+        return $this->hasMany(Cart::class, 'customer_id');
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim("{$this->first_name} {$this->last_name}");
+    }
+
+    public function getNameAttribute(): string
+    {
+        return $this->full_name;
     }
 
     public function getInitialsAttribute(): string

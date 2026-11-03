@@ -91,6 +91,27 @@
             </a>
         @endcan
 
+        @can('Store Abandoned Checkout Management')
+            @php
+                $uncontactedCartsCount = \App\Models\Cart::where('tenant_id', tenantId())
+                    ->whereNotNull('customer_id')
+                    ->has('items')
+                    ->where('updated_at', '<=', now()->subHours(2))
+                    ->whereNull('recovery_contacted_at')
+                    ->count();
+            @endphp
+            <a href="{{ route('store.admin.abandoned_checkouts.index') }}"
+               class="nav-link {{ $isActive('store.admin.abandoned_checkouts.') ? 'active' : '' }}">
+                <i class="fa-solid fa-cart-arrow-down"></i>
+                <span class="flex-1">Abandoned Checkouts</span>
+                @if($uncontactedCartsCount > 0)
+                    <span class="ml-auto inline-flex items-center justify-center rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs" title="{{ $uncontactedCartsCount }} uncontacted recoverable carts">
+                        {{ $uncontactedCartsCount }}
+                    </span>
+                @endif
+            </a>
+        @endcan
+
         @can('Store Transaction List')
             <a href="{{ route('store.admin.transactions.index') }}"
                class="nav-link {{ $isActive('store.admin.transactions.') ? 'active' : '' }}">

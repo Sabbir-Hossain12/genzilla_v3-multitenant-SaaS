@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Store\Admin\Cart\StoreAbandonedCartController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreAttributeController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreBrandController;
 use App\Http\Controllers\Store\Admin\Catalog\StoreCategoryController;
@@ -54,7 +55,7 @@ Route::domain(config('app.base_domain'))
             Route::post('/role', [StoreAdminRoleController::class, 'storeRole'])->name('admin.role.store')->middleware('permission:Store Role Create');
             Route::get('/role/{role}/edit', [StoreAdminRoleController::class, 'editRole'])->name('admin.role.edit')->middleware('permission:Store Edit Role');
             Route::put('/role/{role}', [StoreAdminRoleController::class, 'updateRole'])->name('admin.role.update')->middleware('permission:Store Edit Role');
-            Route::delete('/role/{role}', [StoreAdminRoleController::class, 'deleteRole'])->name('admin.role.destroy')->middleware('permission:Store Delete Role');
+            Route::delete('/role/{role}', [StoreAdminRoleController::class, 'deleteRole'])->name('admin.role.destroy')->middleware('permission:Store Role Delete');
             Route::get('/role/{role}/permission', [StoreAdminRoleController::class, 'assignPermission'])->name('admin.role.permission')->middleware('permission:Store Assign Permission');
             Route::post('/role/{role}/permission', [StoreAdminRoleController::class, 'storePermission'])->name('admin.role.permission.store')->middleware('permission:Store Assign Permission');
 
@@ -112,6 +113,13 @@ Route::domain(config('app.base_domain'))
             Route::patch('/orders/{order}/prescription-status', [StoreOrderController::class, 'updateStatus'])->name('admin.orders.prescription_status')->middleware('permission:Store Order Edit');
             Route::patch('/orders/{order}/cancel', [StoreOrderController::class, 'updateStatus'])->name('admin.orders.cancel')->middleware('permission:Store Order Edit');
             Route::delete('/orders/{order}', [StoreOrderController::class, 'deleteOrder'])->name('admin.orders.destroy')->middleware('permission:Store Order Delete');
+
+            //..............Abandoned Checkouts (Recoverable Carts & Catalog Analytics).................//
+            Route::get('/abandoned-checkouts', [StoreAbandonedCartController::class, 'index'])->name('admin.abandoned_checkouts.index')->middleware('permission:Store Abandoned Checkout List');
+            Route::get('/abandoned-checkouts/{cart}', [StoreAbandonedCartController::class, 'show'])->name('admin.abandoned_checkouts.show')->middleware('permission:Store Abandoned Checkout View');
+            Route::post('/abandoned-checkouts/{cart}/contacted', [StoreAbandonedCartController::class, 'markContacted'])->name('admin.abandoned_checkouts.contacted')->middleware('permission:Store Abandoned Checkout Contact');
+            Route::patch('/abandoned-checkouts/{cart}/note', [StoreAbandonedCartController::class, 'updateNote'])->name('admin.abandoned_checkouts.note')->middleware('permission:Store Abandoned Checkout Contact');
+            Route::delete('/abandoned-checkouts/{cart}', [StoreAbandonedCartController::class, 'destroy'])->name('admin.abandoned_checkouts.destroy')->middleware('permission:Store Abandoned Checkout Delete');
 
             //..............Transactions & Customer Payments.................//
             Route::get('/transactions', [StoreTransactionController::class, 'index'])->name('admin.transactions.index')->middleware('permission:Store Transaction List');

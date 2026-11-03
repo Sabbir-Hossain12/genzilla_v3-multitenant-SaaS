@@ -16,6 +16,12 @@ class ProductVariant extends Model
     public function activeBatches(): HasMany { return $this->hasMany(InventoryBatch::class, 'variant_id')->where('status', 'active'); }
     public function movements(): HasMany { return $this->hasMany(StockMovement::class, 'variant_id'); }
     public function attributeValues() { return $this->belongsToMany(ProductAttributeValue::class, 'product_variant_attribute_values', 'variant_id', 'attribute_value_id')->withPivot('attribute_id', 'tenant_id'); }
+    public function cartItems(): HasMany { return $this->hasMany(CartItem::class, 'product_variant_id'); }
+
+    public function getSellingPriceAttribute(): float
+    {
+        return (float) ($this->price ?? 0);
+    }
 
     public function getStockOnHandAttribute(): int
     {

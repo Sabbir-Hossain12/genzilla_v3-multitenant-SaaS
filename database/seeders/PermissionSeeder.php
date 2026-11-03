@@ -9,70 +9,70 @@ use Spatie\Permission\PermissionRegistrar;
 class PermissionSeeder extends Seeder
 {
     /**
-     * Define the permission hierarchy with explicit groups for the UI
+     * Define Platform-Level Permissions
      */
     public const GROUPS = [
-        'Platform Dashboard' => [
-            'Platform Dashboard',
+        'Platform Admin Dashboard' => [
+            'Platform View Dashboard',
         ],
-        'Platform Admin Management' => [
-            'Platform Admin List',
-            'Platform Create Admin',
-            'Platform Edit Admin',
-            'Platform Delete Admin',
-            'Platform Status Admin',
+        'Tenant Management' => [
+            'Tenant List',
+            'Tenant Create',
+            'Tenant View',
+            'Tenant Edit',
+            'Tenant Delete',
+            'Tenant Impersonate',
         ],
-        'Platform Role Management' => [
-            'Platform Role List',
-            'Platform Create Role',
-            'Platform Edit Role',
-            'Platform Delete Role',
-            'Platform Assign Permission',
+        'Plan & Subscription Management' => [
+            'Plan List',
+            'Plan Create',
+            'Plan Edit',
+            'Plan Delete',
+            'Subscription List',
+            'Subscription Edit',
+            'Subscription Cancel',
         ],
-        'Platform Permission Management' => [
-            'Platform Permission List',
+        'Domain Management' => [
+            'Platform Domain List',
+            'Platform Domain Verify',
+            'Platform Domain Delete',
         ],
-        'Platform Tenant Management' => [
-            'Platform Tenant List',
-            'Platform Create Tenant',
-            'Platform Edit Tenant',
-            'Platform Delete Tenant',
-            'Platform Status Tenant',
-            'Platform Impersonate Tenant',
+        'Billing & Invoices' => [
+            'Platform Invoice List',
+            'Platform Invoice View',
+            'Platform Payment Gateway Settings',
         ],
-        'Platform Subscription Management' => [
-            'Platform Plan List',
-            'Platform Create Plan',
-            'Platform Edit Plan',
-            'Platform Delete Plan',
-            'Platform Assign Plan',
-            'Platform Manage Domains',
+        'Content & Support' => [
+            'Landing Page CMS',
+            'Blog Post Management',
+            'Contact Inquiries View',
+            'Newsletter Subscribers Export',
         ],
-        'Platform General Setting' => [
-            'Platform General Setting',
-            'Platform Edit Setting',
-        ],
-        'Platform Dynamic Page Management' => [
-            'Platform Page List',
-            'Platform Create Page',
-            'Platform Edit Page',
-            'Platform Delete Page',
+        'Platform Settings & Security' => [
+            'Platform General Settings',
+            'Admin List',
+            'Create Admin',
+            'Edit Admin',
+            'Delete Admin',
+            'Status Admin',
+            'Role List',
+            'Role Create',
+            'Edit Role',
+            'Delete Role',
+            'Assign Permission',
+            'Permission List',
+            'Create Permission',
+            'Edit Permission',
+            'Delete Permission',
         ],
     ];
 
     /**
-     * Store-level permissions assigned to store merchants & employees
+     * Define Merchant Store-Level Permissions
      */
     public const STOREFRONT_GROUPS = [
         'Store Dashboard' => [
             'Store Dashboard',
-        ],
-        'Store Role Management' => [
-            'Store Role List',
-            'Store Role Create',
-            'Store Edit Role',
-            'Store Delete Role',
-            'Store Assign Permission',
         ],
         'Store Admin Management' => [
             'Store Admin List',
@@ -80,6 +80,13 @@ class PermissionSeeder extends Seeder
             'Store Edit Admin',
             'Store Delete Admin',
             'Store Status Admin',
+        ],
+        'Store Role Management' => [
+            'Store Role List',
+            'Store Role Create',
+            'Store Edit Role',
+            'Store Delete Role',
+            'Store Assign Permission',
         ],
         'Store Permission Management' => [
             'Store Permission List',
@@ -104,6 +111,12 @@ class PermissionSeeder extends Seeder
             'Store Order Create',
             'Store Order Edit',
             'Store Order Delete',
+        ],
+        'Store Abandoned Checkout Management' => [
+            'Store Abandoned Checkout List',
+            'Store Abandoned Checkout View',
+            'Store Abandoned Checkout Contact',
+            'Store Abandoned Checkout Delete',
         ],
         'Store Transaction Management' => [
             'Store Transaction List',

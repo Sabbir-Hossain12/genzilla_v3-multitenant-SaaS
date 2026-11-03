@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             TenantContentSeeder::class,
             TenantPrescriptionSeeder::class,
             TenantTransactionSeeder::class,
+            TenantAbandonedCartSeeder::class,
         ]);
     }
 }
