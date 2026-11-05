@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import StoreLayout from '@/Layouts/StoreLayout.vue'
 import CategorySidebar from '@/Components/store/CategorySidebar.vue'
@@ -6,33 +7,125 @@ import BannerSlider from '@/Components/store/BannerSlider.vue'
 import ProductGrid from '@/Components/store/ProductGrid.vue'
 import CategoryTiles from '@/Components/store/CategoryTiles.vue'
 import FlashSaleHeader from '@/Components/store/FlashSaleHeader.vue'
-import { products, quickActions, promos, stats, trustBadges } from '@/data/store'
 import { addToCart } from '@/composables/store/useCart'
+
+import {
+    products as fallbackProducts,
+    quickActions as fallbackQuickActions,
+    promos as fallbackPromos,
+    stats as fallbackStats,
+    trustBadges as fallbackTrustBadges,
+    categories as fallbackCategories,
+    categoryTiles as fallbackCategoryTiles,
+    slides as fallbackSlides,
+} from '@/data/store'
+
+const props = defineProps({
+    store: {
+        type: Object,
+        default: () => ({}),
+    },
+    categories: {
+        type: Array,
+        default: () => [],
+    },
+    categoryTiles: {
+        type: Array,
+        default: () => [],
+    },
+    slides: {
+        type: Array,
+        default: () => [],
+    },
+    promos: {
+        type: Array,
+        default: () => [],
+    },
+    flashSaleProducts: {
+        type: Array,
+        default: () => [],
+    },
+    bestPicksProducts: {
+        type: Array,
+        default: () => [],
+    },
+    quickActions: {
+        type: Array,
+        default: () => [],
+    },
+    trustBadges: {
+        type: Array,
+        default: () => [],
+    },
+    stats: {
+        type: Array,
+        default: () => [],
+    },
+})
+
+// Store branding
+const storeName = computed(() => props.store?.name || 'MediMart')
+
+// Fallback-safe computed collections
+const dynamicCategories = computed(() => {
+    return props.categories?.length ? props.categories : fallbackCategories
+})
+
+const dynamicCategoryTiles = computed(() => {
+    return props.categoryTiles?.length ? props.categoryTiles : fallbackCategoryTiles
+})
+
+const dynamicSlides = computed(() => {
+    return props.slides?.length ? props.slides : fallbackSlides
+})
+
+const dynamicPromos = computed(() => {
+    return props.promos?.length ? props.promos : fallbackPromos
+})
+
+const dynamicFlashSale = computed(() => {
+    return props.flashSaleProducts?.length ? props.flashSaleProducts : fallbackProducts
+})
+
+const dynamicBestPicks = computed(() => {
+    return props.bestPicksProducts?.length ? props.bestPicksProducts : fallbackProducts
+})
+
+const dynamicQuickActions = computed(() => {
+    return props.quickActions?.length ? props.quickActions : fallbackQuickActions
+})
+
+const dynamicTrustBadges = computed(() => {
+    return props.trustBadges?.length ? props.trustBadges : fallbackTrustBadges
+})
+
+const dynamicStats = computed(() => {
+    return props.stats?.length ? props.stats : fallbackStats
+})
 </script>
 
 <template>
-    <Head title="Medicine, Beauty & Healthcare" />
+    <Head :title="`${storeName} — Online Medicine, Beauty & Healthcare`" />
 
     <StoreLayout>
         <!-- ════════════════════════════════════════
-             HERO — BANNER + SIDEBAR
+             HERO — BANNER + CATEGORY SIDEBAR
         ════════════════════════════════════════ -->
         <section class="max-w-7xl mx-auto px-4 pt-4 pb-2">
             <div class="flex gap-3">
-                <CategorySidebar />
+                <!-- Dynamic Category Sidebar -->
+                <CategorySidebar :categories="dynamicCategories" />
 
-                <!-- min-w-0: without it this flex item's automatic minimum size resolves to the
-                     carousel's min-content width (.swiper-wrapper is content-box with 3 x width:100%
-                     flex-shrink:0 slides) and the whole row balloons to the 2^25 layout clamp. -->
+                <!-- Banner Slider & Quick Actions -->
                 <div class="flex-1 min-w-0 flex flex-col gap-3">
-                    <BannerSlider />
+                    <BannerSlider :slides="dynamicSlides" />
 
-                    <!-- Quick action cards -->
+                    <!-- Quick Action Cards -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <a
-                            v-for="action in quickActions"
+                            v-for="action in dynamicQuickActions"
                             :key="action.title"
-                            href="#"
+                            :href="action.link || '#'"
                             class="bg-white border border-gray-100 rounded-xl p-4 flex items-center gap-3.5 hover:border-primary/30 hover:shadow-md transition-all group"
                         >
                             <div
@@ -52,98 +145,108 @@ import { addToCart } from '@/composables/store/useCart'
         </section>
 
         <!-- ════════════════════════════════════════
-             PROMO STRIP
+             TRUST BADGES / PROMO STRIP
         ════════════════════════════════════════ -->
         <div class="max-w-7xl mx-auto px-4 py-3">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div
-                    v-for="badge in trustBadges"
+                    v-for="badge in dynamicTrustBadges"
                     :key="badge.title"
                     class="border rounded-xl px-4 py-3 flex items-center gap-3"
                     :class="badge.wrap"
                 >
-                    <span class="text-2xl">{{ badge.icon }}</span>
-                    <div>
-                        <p class="text-[14px] font-semibold" :class="badge.titleColor">{{ badge.title }}</p>
-                        <p class="text-[13px] text-gray-500">{{ badge.subtitle }}</p>
+                    <span class="text-2xl shrink-0">{{ badge.icon }}</span>
+                    <div class="min-w-0">
+                        <p class="text-[14px] font-semibold truncate" :class="badge.titleColor">{{ badge.title }}</p>
+                        <p class="text-[13px] text-gray-500 truncate">{{ badge.subtitle }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ════════════════════════════════════════
-             FLASH SALE
+             FLASH SALE SECTION
         ════════════════════════════════════════ -->
-        <section class="max-w-7xl mx-auto px-4 py-4">
+        <section id="flash-sale" class="max-w-7xl mx-auto px-4 py-4">
             <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50">
                     <FlashSaleHeader />
-                    <a href="#" class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1">
+                    <a href="#best-picks" class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1">
                         See all
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </a>
                 </div>
 
-                <ProductGrid :products="products" @add="addToCart" />
+                <ProductGrid :products="dynamicFlashSale" @add="addToCart" />
             </div>
         </section>
 
         <!-- ════════════════════════════════════════
-             SHOP BY CATEGORY
+             SHOP BY CATEGORY ("ALL YOU NEED")
         ════════════════════════════════════════ -->
-        <section class="max-w-7xl mx-auto px-4 py-8">
+        <section id="all-categories" class="max-w-7xl mx-auto px-4 py-8">
             <div class="bg-white rounded-2xl border border-gray-100 p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-[17px] font-bold text-gray-900">All You Need</h2>
-                    <a href="#" class="text-[15px] text-primary font-semibold hover:underline">See all</a>
+                    <a href="#all-categories" class="text-[15px] text-primary font-semibold hover:underline">See all</a>
                 </div>
-                <CategoryTiles />
+                <CategoryTiles :tiles="dynamicCategoryTiles" />
             </div>
         </section>
 
         <!-- ════════════════════════════════════════
-             PROMOTIONAL BANNERS
+             PROMOTIONAL BANNERS GRID
         ════════════════════════════════════════ -->
-        <section class="max-w-7xl mx-auto px-4 py-2">
+        <section v-if="dynamicPromos.length" class="max-w-7xl mx-auto px-4 py-2">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div
-                    v-for="promo in promos"
+                    v-for="promo in dynamicPromos"
                     :key="promo.title"
-                    class="bg-gradient-to-r rounded-2xl p-7 flex items-center justify-between overflow-hidden relative"
+                    class="bg-gradient-to-r rounded-2xl p-7 flex items-center justify-between overflow-hidden relative shadow-sm"
                     :class="promo.gradient"
                 >
-                    <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-8 -mt-8"></div>
-                    <div>
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-8 -mt-8 pointer-events-none"></div>
+                    <div class="z-10 max-w-[65%]">
                         <p class="text-white/80 text-sm font-medium mb-1.5">{{ promo.eyebrow }}</p>
-                        <h3 class="text-white font-extrabold text-3xl sm:text-4xl leading-tight" v-html="promo.title"></h3>
+                        <h3 class="text-white font-extrabold text-2xl sm:text-3xl leading-tight" v-html="promo.title"></h3>
                         <p class="text-white/85 text-sm mt-1.5 mb-4">{{ promo.subtitle }}</p>
                         <a
-                            href="#"
-                            class="bg-white text-sm font-bold px-5 py-2.5 rounded-lg hover:bg-gray-50 transition-colors inline-block"
+                            :href="promo.link || '#'"
+                            class="bg-white text-sm font-bold px-5 py-2.5 rounded-lg hover:bg-gray-50 transition-colors inline-block shadow-sm"
                             :class="promo.ctaColor"
                         >{{ promo.cta }}</a>
                     </div>
-                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden relative z-10 ring-4 ring-white/20 shrink-0">
-                        <img :src="promo.image" :alt="promo.subtitle" class="w-full h-full object-cover" />
+                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden relative z-10 ring-4 ring-white/20 shrink-0 bg-white/10">
+                        <img
+                            :src="promo.image"
+                            :alt="promo.subtitle"
+                            class="w-full h-full object-cover"
+                            loading="lazy"
+                        />
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- ════════════════════════════════════════
-             BEST PICKS
+             BEST PICKS (FILTERABLE PRODUCT CATALOG)
         ════════════════════════════════════════ -->
-        <section class="max-w-7xl mx-auto px-4 py-4">
+        <section id="best-picks" class="max-w-7xl mx-auto px-4 py-4">
             <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50">
                     <h2 class="text-[17px] font-bold text-gray-900">🏆 Best Picks</h2>
-                    <a href="#" class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1">
+                    <a href="#best-picks" class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1">
                         See all
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </a>
                 </div>
 
-                <ProductGrid :products="products" filterable show-footer @add="addToCart" />
+                <ProductGrid
+                    :products="dynamicBestPicks"
+                    filterable
+                    show-footer
+                    @add="addToCart"
+                />
             </div>
         </section>
 
@@ -151,9 +254,9 @@ import { addToCart } from '@/composables/store/useCart'
              STATS BAR
         ════════════════════════════════════════ -->
         <section class="max-w-7xl mx-auto px-4 py-4">
-            <div class="bg-primary rounded-2xl px-8 py-8">
+            <div class="bg-primary rounded-2xl px-8 py-8 shadow-sm">
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-                    <div v-for="stat in stats" :key="stat.label">
+                    <div v-for="stat in dynamicStats" :key="stat.label">
                         <p class="text-white font-extrabold text-3xl sm:text-4xl">{{ stat.value }}</p>
                         <p class="text-white/70 text-[14px] mt-0.5">{{ stat.label }}</p>
                     </div>
@@ -165,11 +268,11 @@ import { addToCart } from '@/composables/store/useCart'
              APP DOWNLOAD BANNER
         ════════════════════════════════════════ -->
         <section class="max-w-7xl mx-auto px-4 py-4">
-            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl px-8 sm:px-12 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl px-8 sm:px-12 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
                 <div>
                     <p class="text-white/60 text-sm font-semibold uppercase tracking-widest mb-3">Download App</p>
                     <h3 class="text-white font-extrabold text-3xl sm:text-4xl mb-2">Order Medicine<br>Anytime, Anywhere</h3>
-                    <p class="text-white/70 text-base mb-6">Join 1M+ Bangladeshis who trust MediMart</p>
+                    <p class="text-white/70 text-base mb-6">Join 1M+ customers who trust {{ storeName }}</p>
                     <div class="flex gap-3">
                         <a href="#" class="bg-white text-gray-900 font-semibold text-base px-5 py-3 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2">
                             <span class="text-xl">🤖</span> Google Play
@@ -179,7 +282,7 @@ import { addToCart } from '@/composables/store/useCart'
                         </a>
                     </div>
                 </div>
-                <div class="text-9xl opacity-90 hidden sm:block">📱</div>
+                <div class="text-9xl opacity-90 hidden sm:block select-none">📱</div>
             </div>
         </section>
     </StoreLayout>

@@ -1,11 +1,25 @@
 <script setup>
+import { computed } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, Navigation, Pagination, A11y, EffectFade } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/effect-fade'
-import { slides } from '@/data/store'
+import { slides as fallbackSlides } from '@/data/store'
+
+const props = defineProps({
+    slides: {
+        type: Array,
+        default: () => [],
+    },
+})
+
+const displaySlides = computed(() => {
+    return props.slides && props.slides.length > 0
+        ? props.slides
+        : fallbackSlides
+})
 
 const modules = [Autoplay, Navigation, Pagination, A11y, EffectFade]
 
@@ -47,8 +61,14 @@ const resume = () => swiperInstance?.autoplay?.resume()
             :a11y="{ prevSlideMessage: 'Previous banner', nextSlideMessage: 'Next banner' }"
             @swiper="onSwiper"
         >
-            <SwiperSlide v-for="(slide, i) in slides" :key="i">
-                <img :src="slide.src" :alt="slide.alt" class="w-full h-full object-cover" />
+            <SwiperSlide v-for="(slide, i) in displaySlides" :key="slide.id ?? i">
+                <a :href="slide.link || '#'" class="block w-full h-full relative">
+                    <img
+                        :src="slide.src || slide.image"
+                        :alt="slide.alt || slide.title || 'Promotional banner'"
+                        class="w-full h-full object-cover"
+                    />
+                </a>
             </SwiperSlide>
         </Swiper>
     </div>

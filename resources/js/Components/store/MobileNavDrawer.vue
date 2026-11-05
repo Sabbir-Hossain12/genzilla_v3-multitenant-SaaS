@@ -1,16 +1,41 @@
 <script setup>
-import { categories, moreLinks } from '@/data/store'
+import { computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
+import { categories as fallbackCategories, moreLinks } from '@/data/store'
 import { navOpen, closeMobileNav, openLoginModal } from '@/composables/store/useStoreUi'
+
+const page = usePage()
+const store = computed(() => page.props.store || {})
+const storeName = computed(() => store.value.name || 'MediMart')
+const storeLogo = computed(() => store.value.logo_url)
+const storePhone = computed(() => store.value.phone || '09610-016778')
+
+const categories = computed(() => {
+    return page.props.categories && page.props.categories.length > 0
+        ? page.props.categories
+        : fallbackCategories
+})
 
 function goToLogin() {
     closeMobileNav()
     openLoginModal()
 }
 
+function getChildName(child) {
+    return typeof child === 'object' && child !== null ? child.name : child
+}
+
+function getChildKey(child, idx) {
+    if (typeof child === 'object' && child !== null) {
+        return child.id ?? child.slug ?? child.name ?? idx
+    }
+    return child ?? idx
+}
+
 const quickLinks = [
-    { icon: '📋', label: 'Upload Rx' },
-    { icon: '📦', label: 'Track Order' },
-    { icon: '🎧', label: 'Help' },
+    { icon: '📋', label: 'Upload Rx', href: '#upload-prescription' },
+    { icon: '📦', label: 'Track Order', href: '#track-order' },
+    { icon: '🎧', label: 'Help', href: '#help' },
 ]
 </script>
 
@@ -19,13 +44,21 @@ const quickLinks = [
         <aside id="mobilenav-drawer">
             <!-- Header -->
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-                <a href="#" class="flex items-center gap-2">
-                    <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <span class="text-xl font-extrabold text-primary">Medi<span class="text-accent">Mart</span></span>
+                <a href="/" class="flex items-center gap-2">
+                    <img
+                        v-if="storeLogo"
+                        :src="storeLogo"
+                        :alt="storeName"
+                        class="h-8 w-auto max-w-[140px] object-contain rounded-lg"
+                    />
+                    <template v-else>
+                        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-extrabold text-primary">{{ storeName }}</span>
+                    </template>
                 </a>
                 <button
                     type="button"
@@ -59,7 +92,7 @@ const quickLinks = [
                     <a
                         v-for="link in quickLinks"
                         :key="link.label"
-                        href="#"
+                        :href="link.href"
                         class="flex flex-col items-center gap-1.5 py-2 rounded-xl hover:bg-gray-50 transition-colors"
                     >
                         <span class="text-2xl">{{ link.icon }}</span>
@@ -71,19 +104,19 @@ const quickLinks = [
                 <div class="px-2 py-2">
                     <p class="px-3 pt-2 pb-1 text-[12px] font-bold text-gray-400 uppercase tracking-wider">Shop by Category</p>
 
-                    <details v-for="cat in categories" :key="cat.name" class="group border-b border-gray-50">
+                    <details v-for="cat in categories" :key="cat.slug || cat.name" class="group border-b border-gray-50">
                         <summary class="flex items-center gap-3 px-3 py-3.5 cursor-pointer">
-                            <span class="text-lg">{{ cat.icon }}</span>
+                            <span class="text-lg">{{ cat.icon || '🏷️' }}</span>
                             <span class="flex-1 text-[14.5px] font-medium text-gray-800">{{ cat.name }}</span>
                             <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </summary>
-                        <div class="pb-3 pl-11 pr-3 space-y-0.5">
+                        <div v-if="cat.children && cat.children.length > 0" class="pb-3 pl-11 pr-3 space-y-0.5">
                             <a
-                                v-for="child in cat.children"
-                                :key="child"
+                                v-for="(child, idx) in cat.children"
+                                :key="getChildKey(child, idx)"
                                 href="#"
-                                class="block py-2 text-[14px] text-gray-600 hover:text-primary"
-                            >{{ child }}</a>
+                                class="block py-2 text-[14px] text-gray-600 hover:text-primary truncate"
+                            >{{ getChildName(child) }}</a>
                         </div>
                     </details>
                 </div>
@@ -102,10 +135,10 @@ const quickLinks = [
 
             <!-- Footer -->
             <div class="px-5 py-4 border-t border-gray-100 shrink-0">
-                <p class="text-[12.5px] text-gray-400 flex items-center gap-2">
+                <a :href="`tel:${storePhone}`" class="text-[12.5px] text-gray-500 flex items-center gap-2 hover:text-primary">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    09610-016778
-                </p>
+                    {{ storePhone }}
+                </a>
             </div>
         </aside>
     </div>
