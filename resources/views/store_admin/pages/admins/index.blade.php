@@ -1,7 +1,30 @@
 @extends('store_admin.layout.master')
 
 @section('contents')
+    @php
+        $tenantObj = tenant() ?? \App\Models\Tenant::find((int)(session('tenant_id') ?? auth()->user()->tenant?->id ?? 0));
+        $reachedStaffLimit = $tenantObj && $tenantObj->hasReachedStaffLimit();
+    @endphp
     <div class="space-y-6">
+        @if(session('error'))
+            <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex items-center justify-between gap-3">
+                <span>{{ session('error') }}</span>
+                <a href="{{ route('store.admin.subscription.index') }}" class="font-bold underline text-xs shrink-0">Upgrade Plan &rarr;</a>
+            </div>
+        @endif
+
+        @if($reachedStaffLimit)
+            <div class="rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-900 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                    <span>Your current plan (<strong>{{ $tenantObj->currentPlan()?->name }}</strong>) allows up to {{ $tenantObj->maxStaff() }} staff account(s). You have reached this limit ({{ $tenantObj->currentStaffCount() }}/{{ $tenantObj->maxStaff() }}).</span>
+                </div>
+                <a href="{{ route('store.admin.subscription.index') }}" class="font-semibold text-indigo-700 hover:text-indigo-800 underline text-xs shrink-0">
+                    Upgrade Subscription &rarr;
+                </a>
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 <ul class="list-disc list-inside space-y-1">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
@@ -13,9 +36,20 @@
                 <p class="text-sm text-slate-500 mt-0.5">Manage staff accounts and their access to this store.</p>
             </div>
             @can('Store Create Admin')
-                <button type="button" onclick="openModal('createAdminModal')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm">
-                    <i class="fa-solid fa-plus text-xs"></i> Create Admin
-                </button>
+                @if($reachedStaffLimit)
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                            <i class="fa-solid fa-lock text-[10px]"></i> Staff Limit Reached ({{ $tenantObj->currentStaffCount() }}/{{ $tenantObj->maxStaff() }})
+                        </span>
+                        <a href="{{ route('store.admin.subscription.index') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Upgrade to Add Staff
+                        </a>
+                    </div>
+                @else
+                    <button type="button" onclick="openModal('createAdminModal')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm">
+                        <i class="fa-solid fa-plus text-xs"></i> Create Admin
+                    </button>
+                @endif
             @endcan
         </div>
 

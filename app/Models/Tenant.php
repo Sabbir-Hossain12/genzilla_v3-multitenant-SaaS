@@ -15,6 +15,7 @@ use Database\Seeders\PermissionSeeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
+use Illuminate\Http\Request;
 
 class Tenant extends Model
 {
@@ -98,6 +99,287 @@ class Tenant extends Model
         }
 
         return false;
+    }
+
+    /**
+     * Resolve the current platform subscription plan for the tenant.
+     */
+    public function currentPlan(): ?PlatformPlan
+    {
+        return $this->activeSubscription?->plan
+            ?? $this->currentSubscription?->plan
+            ?? $this->subscriptions()->with('plan')->latest('id')->first()?->plan;
+    }
+
+    /**
+     * Check if the tenant has an active or trialing subscription.
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return in_array($this->subscription_status, ['active', 'trialing'], true);
+    }
+
+    /**
+     * Get maximum allowed products from plan.
+     */
+    public function maxProducts(): int
+    {
+        return (int) ($this->currentPlan()?->max_products ?? 50);
+    }
+
+    /**
+     * Get current products count.
+     */
+    public function currentProductsCount(): int
+    {
+        return (int) $this->products()->count();
+    }
+
+    /**
+     * Check if tenant has reached the product limit.
+     */
+    public function hasReachedProductLimit(): bool
+    {
+        return $this->currentProductsCount() >= $this->maxProducts();
+    }
+
+    /**
+     * Check if tenant can create more products.
+     */
+    public function canCreateProduct(): bool
+    {
+        return $this->hasActiveSubscription() && !$this->hasReachedProductLimit();
+    }
+
+    /**
+     * Get maximum allowed staff accounts from plan.
+     */
+    public function maxStaff(): int
+    {
+        return (int) ($this->currentPlan()?->max_staff_accounts ?? 1);
+    }
+
+    /**
+     * Get current staff accounts count.
+     */
+    public function currentStaffCount(): int
+    {
+        $staffCount = User::whereHas('roles', function ($q) {
+            $q->where('roles.tenant_id', $this->id);
+        })->count();
+
+        return max(1, $staffCount);
+    }
+
+    /**
+     * Check if tenant has reached the staff account limit.
+     */
+    public function hasReachedStaffLimit(): bool
+    {
+        return $this->currentStaffCount() >= $this->maxStaff();
+    }
+
+    /**
+     * Check if tenant can create more staff accounts.
+     */
+    public function canCreateStaff(): bool
+    {
+        return $this->hasActiveSubscription() && !$this->hasReachedStaffLimit();
+    }
+
+    /**
+     * Get maximum allowed storage in megabytes.
+     */
+    public function maxStorageMB(): int
+    {
+        return (int) ($this->currentPlan()?->max_storage_mb ?? 100);
+    }
+
+    /**
+     * Get maximum allowed storage in bytes.
+     */
+    public function maxStorageBytes(): int
+    {
+        return $this->maxStorageMB() * 1024 * 1024;
+    }
+
+    /**
+     * Calculate current storage used in bytes.
+     */
+    public function storageUsedBytes(): int
+    {
+        $storageBytes = 0;
+        $tenantStoragePath = storage_path('app/public/tenants/' . $this->id);
+
+        if (file_exists($tenantStoragePath)) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($tenantStoragePath, \FilesystemIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $storageBytes += $file->getSize();
+                }
+            }
+        }
+
+        return $storageBytes;
+    }
+
+    /**
+     * Calculate current storage used in megabytes.
+     */
+    public function storageUsedMB(): float
+    {
+        return round($this->storageUsedBytes() / (1024 * 1024), 2);
+    }
+
+    /**
+     * Storage percentage used.
+     */
+    public function storagePercent(): int
+    {
+        $max = max(1, $this->maxStorageBytes());
+        return min(100, (int) round(($this->storageUsedBytes() / $max) * 100));
+    }
+
+    /**
+     * Check if tenant can upload a given number of bytes without exceeding quota.
+     */
+    public function canUploadBytes(int $bytes): bool
+    {
+        return ($this->storageUsedBytes() + $bytes) <= $this->maxStorageBytes();
+    }
+
+    /**
+     * Get maximum single file size in megabytes.
+     */
+    public function maxFileSizeMB(): int
+    {
+        return (int) ($this->currentPlan()?->max_digital_file_size_mb ?? 10);
+    }
+
+    /**
+     * Get maximum single file size in kilobytes (for Laravel validation rules).
+     */
+    public function maxFileSizeKilobytes(): int
+    {
+        return $this->maxFileSizeMB() * 1024;
+    }
+
+    /**
+     * Get maximum single file size in bytes.
+     */
+    public function maxFileSizeBytes(): int
+    {
+        return $this->maxFileSizeMB() * 1024 * 1024;
+    }
+
+    /**
+     * Validate an incoming request's files against plan file size and storage quota limits.
+     * Returns an error message string if a limit is exceeded, or null if allowed.
+     */
+    public function validateUploadQuota(\Illuminate\Http\Request $request, array $fileKeys = ['image', 'image_file', 'slider_images']): ?string
+    {
+        if (!$this->hasActiveSubscription()) {
+            return 'Your store subscription is not currently active. Please review your billing in Store Subscription & Billing.';
+        }
+
+        $maxSingleBytes = $this->maxFileSizeBytes();
+        $maxSingleMB = $this->maxFileSizeMB();
+        $planName = $this->currentPlan()?->name ?? 'Current';
+
+        $totalIncomingBytes = 0;
+
+        foreach ($fileKeys as $key) {
+            if ($request->hasFile($key)) {
+                $fileOrArray = $request->file($key);
+                $files = is_array($fileOrArray) ? $fileOrArray : [$fileOrArray];
+
+                foreach ($files as $file) {
+                    if (!$file instanceof \Illuminate\Http\UploadedFile) {
+                        continue;
+                    }
+
+                    $fileSize = $file->getSize();
+
+                    // Check single file size limit
+                    if ($fileSize > $maxSingleBytes) {
+                        $actualMB = round($fileSize / (1024 * 1024), 2);
+                        return "The file '{$file->getClientOriginalName()}' is {$actualMB}MB, which exceeds the {$maxSingleMB}MB limit allowed on your {$planName} plan. Please upload a smaller file or upgrade your plan.";
+                    }
+
+                    $totalIncomingBytes += $fileSize;
+                }
+            }
+        }
+
+        // Check total storage quota limit
+        if ($totalIncomingBytes > 0 && !$this->canUploadBytes($totalIncomingBytes)) {
+            $usedMB = $this->storageUsedMB();
+            $maxMB = $this->maxStorageMB();
+            $incomingMB = round($totalIncomingBytes / (1024 * 1024), 2);
+            return "Storage quota exceeded for your {$planName} plan ({$usedMB}MB used of {$maxMB}MB limit). Uploading {$incomingMB}MB more would exceed your quota. Please remove existing files or upgrade your plan.";
+        }
+
+        return null;
+    }
+
+    /**
+     * Throw a ValidationException if product catalog limit is reached.
+     */
+    public function ensureCanCreateProduct(): void
+    {
+        if (!$this->canCreateProduct()) {
+            $planName = $this->currentPlan()?->name ?? 'Current';
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'name' => "Product catalog limit reached ({$this->currentProductsCount()}/{$this->maxProducts()}) for your {$planName} plan. Please upgrade your subscription to add more products."
+            ]);
+        }
+    }
+
+    /**
+     * Throw a ValidationException if staff account limit is reached.
+     */
+    public function ensureCanCreateStaff(): void
+    {
+        if (!$this->canCreateStaff()) {
+            $planName = $this->currentPlan()?->name ?? 'Current';
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'email' => "Staff account limit reached ({$this->currentStaffCount()}/{$this->maxStaff()}) for your {$planName} plan. Please upgrade your subscription to add more staff members."
+            ]);
+        }
+    }
+
+    /**
+     * Throw a ValidationException if file size or storage limit is exceeded.
+     */
+    public function ensureCanUpload(\Illuminate\Http\Request $request, array $fileKeys = ['image', 'image_file', 'slider_images']): void
+    {
+        if ($error = $this->validateUploadQuota($request, $fileKeys)) {
+            $firstKey = $fileKeys[0] ?? 'image';
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                $firstKey => $error,
+            ]);
+        }
+    }
+
+    /**
+     * Synchronize and save current usage metrics in tenant_usages table.
+     */
+    public function syncUsage(): TenantUsage
+    {
+        $storageBytes = $this->storageUsedBytes();
+        $staffCount = $this->currentStaffCount();
+        $productsCount = $this->currentProductsCount();
+
+        return TenantUsage::updateOrCreate(
+            ['tenant_id' => $this->id],
+            [
+                'storage_used_bytes' => $storageBytes,
+                'staff_accounts_count' => $staffCount,
+                'products_count' => $productsCount,
+            ]
+        );
     }
 
     public function categories(): HasMany { return $this->hasMany(Category::class); }

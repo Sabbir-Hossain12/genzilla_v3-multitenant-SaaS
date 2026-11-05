@@ -33,6 +33,12 @@ class StoreProductController extends Controller
 
     public function createProduct()
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        if ($tenant && !$tenant->canCreateProduct()) {
+            return redirect()->route('store.admin.products.index')
+                ->with('error', "Product catalog limit reached ({$tenant->currentProductsCount()}/{$tenant->maxProducts()}) for your {$tenant->currentPlan()?->name} plan. Please upgrade your subscription to add more products.");
+        }
+
         $product = new Product();
         $product->setRelation('media', collect());
         return view('store_admin.pages.catalog.products.form', $this->productFormData($product));
@@ -40,6 +46,10 @@ class StoreProductController extends Controller
 
     public function storeProduct(Request $request)
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $tenant?->ensureCanCreateProduct();
+        $tenant?->ensureCanUpload($request, ['image', 'slider_images']);
+
         $data = $this->validateProduct($request);
 
         DB::transaction(function () use ($request, $data) {
@@ -82,6 +92,8 @@ class StoreProductController extends Controller
             $this->syncProductMedia($request, $product);
         });
 
+        $tenant?->syncUsage();
+
         $variantCount = count($data['variants']);
         $msg = $variantCount > 1
             ? "Product created with {$variantCount} variants."
@@ -101,6 +113,9 @@ class StoreProductController extends Controller
 
     public function updateProduct(Request $request, int $product)
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $tenant?->ensureCanUpload($request, ['image', 'slider_images']);
+
         $product = Product::where('tenant_id', tenantId())
             ->with(['variants.batches', 'variants.attributeValues', 'media'])
             ->findOrFail($product);
@@ -198,16 +213,22 @@ class StoreProductController extends Controller
             $this->syncProductMedia($request, $product);
         });
 
+        $tenant?->syncUsage();
+
         return redirect()->route('store.admin.products.index')->with('success', 'Product updated.');
     }
 
     public function deleteProduct(int $product)
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+
         DB::transaction(function () use ($product) {
             $product = Product::where('tenant_id', tenantId())->findOrFail($product);
             $product->variants()->update(['status' => 'archived']);
             $product->delete();
         });
+
+        $tenant?->syncUsage();
 
         return back()->with('success', 'Product archived from the catalog.');
     }
@@ -215,6 +236,8 @@ class StoreProductController extends Controller
     private function validateProduct(Request $request, ?Product $product = null): array
     {
         $tenant = tenantId();
+        $tenantModel = tenant() ?? \App\Models\Tenant::find($tenant);
+        $maxKb = $tenantModel ? $tenantModel->maxFileSizeKilobytes() : 5120;
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:200'],
@@ -229,10 +252,10 @@ class StoreProductController extends Controller
             'seo_title' => ['nullable', 'string', 'max:255'],
             'seo_description' => ['nullable', 'string', 'max:1000'],
             'specs_json' => ['nullable', 'json'],
-            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'],
+            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'remove_image' => ['nullable', 'boolean'],
             'slider_images' => ['nullable', 'array'],
-            'slider_images.*' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'],
+            'slider_images.*' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'remove_slider_images' => ['nullable', 'array'],
             'remove_slider_images.*' => ['integer'],
 

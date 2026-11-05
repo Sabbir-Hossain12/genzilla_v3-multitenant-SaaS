@@ -198,7 +198,8 @@
                                         </label>
                                     </div>
                                 @endif
-                                <div class="text-[11px] text-slate-400">AVIF, WEBP, PNG, JPG, GIF, SVG (up to 5MB)</div>
+                                @php($maxFileSizeMB = tenant()?->maxFileSizeMB() ?? 10)
+                                <div class="text-[11px] text-slate-400">AVIF, WEBP, PNG, JPG, GIF, SVG (up to {{ $maxFileSizeMB }}MB)</div>
                             </div>
                         </div>
                     </div>
@@ -234,7 +235,7 @@
                                 <input type="file" name="slider_images[]" id="product_slider_input" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/svg+xml,.avif" class="hidden">
                             </label>
                         </div>
-                        <div class="text-[11px] text-slate-400">AVIF, WEBP, PNG, JPG, GIF, SVG (up to 5MB each).</div>
+                        <div class="text-[11px] text-slate-400">AVIF, WEBP, PNG, JPG, GIF, SVG (up to {{ $maxFileSizeMB }}MB each).</div>
                     </div>
                 </div>
             </div>

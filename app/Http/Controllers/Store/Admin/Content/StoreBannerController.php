@@ -56,6 +56,9 @@ class StoreBannerController extends Controller
     public function storeBanner(Request $request)
     {
         $tenantId = tenantId();
+        $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
+        $tenant?->ensureCanUpload($request, ['image', 'image_file']);
+        $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 10240;
 
         $validated = $request->validate([
             'name' => ['nullable', 'string', 'max:150'],
@@ -67,8 +70,8 @@ class StoreBannerController extends Controller
             'cta_color' => ['nullable', 'string', 'max:100'],
             'gradient' => ['nullable', 'string', 'max:255'],
             'position' => ['required', 'string', 'max:50'],
-            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:10240'],
-            'image_file' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:10240'],
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
+            'image_file' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'image_url' => ['nullable', 'string', 'max:1000'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'status' => ['nullable', 'boolean'],
@@ -114,12 +117,17 @@ class StoreBannerController extends Controller
             ]);
         }
 
+        $tenant?->syncUsage();
+
         return redirect()->route('store.admin.banners.index')->with('success', "Banner '{$banner->title}' created successfully.");
     }
 
     public function updateBanner(Request $request, int $id)
     {
         $tenantId = tenantId();
+        $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
+        $tenant?->ensureCanUpload($request, ['image', 'image_file']);
+        $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 10240;
         $banner = Banner::where('tenant_id', $tenantId)->findOrFail($id);
 
         $validated = $request->validate([
@@ -132,8 +140,8 @@ class StoreBannerController extends Controller
             'cta_color' => ['nullable', 'string', 'max:100'],
             'gradient' => ['nullable', 'string', 'max:255'],
             'position' => ['required', 'string', 'max:50'],
-            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:10240'],
-            'image_file' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:10240'],
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
+            'image_file' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'image_url' => ['nullable', 'string', 'max:1000'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'status' => ['nullable', 'boolean'],
@@ -184,6 +192,8 @@ class StoreBannerController extends Controller
             ]);
         }
 
+        $tenant?->syncUsage();
+
         return redirect()->route('store.admin.banners.index')->with('success', "Banner '{$banner->title}' updated successfully.");
     }
 
@@ -197,6 +207,9 @@ class StoreBannerController extends Controller
 
         $banner->media()->delete();
         $banner->delete();
+
+        $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
+        $tenant?->syncUsage();
 
         return redirect()->route('store.admin.banners.index')->with('success', 'Banner deleted successfully.');
     }

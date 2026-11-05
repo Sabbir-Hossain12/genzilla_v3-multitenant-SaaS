@@ -23,11 +23,15 @@ class StoreBrandController extends Controller
 
     public function storeBrand(Request $request)
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $tenant?->ensureCanUpload($request, ['image']);
+        $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 5120;
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
             'slug' => ['nullable', 'string', 'max:180', Rule::unique('brands', 'slug')->where('tenant_id', tenantId())],
             'status' => ['nullable', 'boolean'],
-            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'],
+            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:1000'],
             'h1_heading' => ['nullable', 'string', 'max:255'],
@@ -60,17 +64,23 @@ class StoreBrandController extends Controller
             ]);
         }
 
+        $tenant?->syncUsage();
+
         return back()->with('success', 'Brand created.');
     }
 
     public function updateBrand(Request $request, int $brand)
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $tenant?->ensureCanUpload($request, ['image']);
+        $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 5120;
+
         $row = Brand::where('tenant_id', tenantId())->findOrFail($brand);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
             'slug' => ['nullable', 'string', 'max:180', Rule::unique('brands', 'slug')->where('tenant_id', tenantId())->ignore($row->id)],
             'status' => ['nullable', 'boolean'],
-            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'],
+            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'remove_image' => ['nullable', 'boolean'],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:1000'],
@@ -123,6 +133,9 @@ class StoreBrandController extends Controller
 
         unset($data['remove_image']);
         $row->update($data);
+
+        $tenant?->syncUsage();
+
         return back()->with('success', 'Brand updated.');
     }
 
@@ -139,6 +152,10 @@ class StoreBrandController extends Controller
             $oldMedia->delete();
         }
         $row->delete();
+
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $tenant?->syncUsage();
+
         return back()->with('success', 'Brand deleted.');
     }
 }

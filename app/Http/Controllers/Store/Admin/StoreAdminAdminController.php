@@ -42,6 +42,11 @@ class StoreAdminAdminController extends Controller
 
     public function createAdmin()
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find($this->tenantId());
+        if ($tenant && !$tenant->canCreateStaff()) {
+            return redirect()->route('store.admin.admins.index')
+                ->with('error', "Staff account limit reached ({$tenant->currentStaffCount()}/{$tenant->maxStaff()}) for your {$tenant->currentPlan()?->name} plan. Please upgrade your subscription to add more staff members.");
+        }
         return $this->index(request());
     }
 
@@ -72,6 +77,9 @@ class StoreAdminAdminController extends Controller
 
     public function store(Request $request)
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find($this->tenantId());
+        $tenant?->ensureCanCreateStaff();
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
@@ -89,6 +97,8 @@ class StoreAdminAdminController extends Controller
             'status' => 1,
         ]);
         $admin->assignRole($role);
+
+        $tenant?->syncUsage();
 
         return back()->with('success', 'Store admin created successfully.');
     }
@@ -126,6 +136,9 @@ class StoreAdminAdminController extends Controller
             return back()->with('error', 'You cannot delete the store owner or your own account.');
         }
         $admin->delete();
+
+        $tenant = tenant() ?? \App\Models\Tenant::find($this->tenantId());
+        $tenant?->syncUsage();
 
         return back()->with('success', 'Store admin deleted successfully.');
     }

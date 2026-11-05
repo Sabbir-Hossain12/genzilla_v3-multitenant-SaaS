@@ -43,12 +43,15 @@ class StoreSliderController extends Controller
     public function storeSlider(Request $request)
     {
         $tenantId = tenantId();
+        $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
+        $tenant?->ensureCanUpload($request, ['image', 'image_file']);
+        $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 10240;
 
         $validated = $request->validate([
             'title' => ['nullable', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:255'],
-            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:10240'],
-            'image_file' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:10240'],
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
+            'image_file' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'image_url' => ['nullable', 'string', 'max:1000'],
             'alt' => ['nullable', 'string', 'max:255'],
             'link' => ['nullable', 'string', 'max:500'],
@@ -93,19 +96,24 @@ class StoreSliderController extends Controller
             ]);
         }
 
+        $tenant?->syncUsage();
+
         return redirect()->route('store.admin.sliders.index')->with('success', 'Slide banner created successfully.');
     }
 
     public function updateSlider(Request $request, int $id)
     {
         $tenantId = tenantId();
+        $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
+        $tenant?->ensureCanUpload($request, ['image', 'image_file']);
+        $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 10240;
         $slider = Slider::where('tenant_id', $tenantId)->findOrFail($id);
 
         $validated = $request->validate([
             'title' => ['nullable', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:255'],
-            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:10240'],
-            'image_file' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:10240'],
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
+            'image_file' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'image_url' => ['nullable', 'string', 'max:1000'],
             'alt' => ['nullable', 'string', 'max:255'],
             'link' => ['nullable', 'string', 'max:500'],
@@ -155,6 +163,8 @@ class StoreSliderController extends Controller
             ]);
         }
 
+        $tenant?->syncUsage();
+
         return redirect()->route('store.admin.sliders.index')->with('success', 'Slide banner updated successfully.');
     }
 
@@ -168,6 +178,9 @@ class StoreSliderController extends Controller
 
         $slider->media()->delete();
         $slider->delete();
+
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $tenant?->syncUsage();
 
         return redirect()->route('store.admin.sliders.index')->with('success', 'Slide banner deleted successfully.');
     }

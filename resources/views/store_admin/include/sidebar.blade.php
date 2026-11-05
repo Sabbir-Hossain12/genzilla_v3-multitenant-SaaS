@@ -318,6 +318,74 @@
 
     </nav>
 
+    <!-- Plan Usage Widget -->
+    @php
+        $sidebarTenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $sidebarPlan = $sidebarTenant?->currentPlan();
+        $prodCount = $sidebarTenant ? $sidebarTenant->currentProductsCount() : 0;
+        $maxProds = $sidebarTenant ? $sidebarTenant->maxProducts() : 0;
+        $prodPct = $maxProds > 0 ? min(100, (int) round(($prodCount / $maxProds) * 100)) : 0;
+
+        $staffCount = $sidebarTenant ? $sidebarTenant->currentStaffCount() : 0;
+        $maxStaff = $sidebarTenant ? $sidebarTenant->maxStaff() : 0;
+        $staffPct = $maxStaff > 0 ? min(100, (int) round(($staffCount / $maxStaff) * 100)) : 0;
+
+        $usedMB = $sidebarTenant ? $sidebarTenant->storageUsedMB() : 0;
+        $maxMB = $sidebarTenant ? $sidebarTenant->maxStorageMB() : 0;
+        $storagePct = $sidebarTenant ? $sidebarTenant->storagePercent() : 0;
+    @endphp
+
+    @if($sidebarTenant && $sidebarPlan)
+        <div class="px-3 py-2.5 mx-3 mb-2 rounded-xl bg-slate-50 border border-slate-200/80 dark:bg-slate-800/60 dark:border-slate-700/60 shrink-0">
+            <div class="flex items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300 text-[10px] font-bold">
+                        <i class="fa-solid fa-crown text-[9px]"></i>
+                    </span>
+                    <span class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{{ $sidebarPlan->name }} Plan</span>
+                </div>
+                <a href="{{ route('store.admin.subscription.index') }}" class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline shrink-0">
+                    Upgrade
+                </a>
+            </div>
+
+            <div class="space-y-1.5">
+                <!-- Products -->
+                <div>
+                    <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">
+                        <span>Products</span>
+                        <span class="font-medium {{ $prodCount >= $maxProds ? 'text-rose-600 font-bold' : '' }}">{{ $prodCount }}/{{ $maxProds }}</span>
+                    </div>
+                    <div class="w-full h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-300 {{ $prodCount >= $maxProds ? 'bg-rose-500' : ($prodPct > 80 ? 'bg-amber-500' : 'bg-indigo-600') }}" style="width: {{ $prodPct }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Staff -->
+                <div>
+                    <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">
+                        <span>Staff</span>
+                        <span class="font-medium {{ $staffCount >= $maxStaff ? 'text-amber-600 font-bold' : '' }}">{{ $staffCount }}/{{ $maxStaff }}</span>
+                    </div>
+                    <div class="w-full h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-300 {{ $staffCount >= $maxStaff ? 'bg-amber-500' : 'bg-indigo-600' }}" style="width: {{ $staffPct }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Storage -->
+                <div>
+                    <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">
+                        <span>Storage</span>
+                        <span class="font-medium {{ $storagePct >= 95 ? 'text-rose-600 font-bold' : '' }}">{{ $usedMB }}MB / {{ $maxMB }}MB</span>
+                    </div>
+                    <div class="w-full h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-300 {{ $storagePct >= 95 ? 'bg-rose-500' : ($storagePct > 80 ? 'bg-amber-500' : 'bg-indigo-600') }}" style="width: {{ $storagePct }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- User Profile Footer Menu -->
     <div class="p-3 border-t border-slate-100 dark:border-slate-800 relative shrink-0" id="side-profile-menu">
 

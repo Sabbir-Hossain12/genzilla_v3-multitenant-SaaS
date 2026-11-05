@@ -25,13 +25,17 @@ class StoreCategoryController extends Controller
 
     public function storeCategory(Request $request)
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $tenant?->ensureCanUpload($request, ['image']);
+        $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 5120;
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
             'slug' => ['nullable', 'string', 'max:180', Rule::unique('categories', 'slug')->where('tenant_id', tenantId())],
             'parent_id' => ['nullable', Rule::exists('categories', 'id')->where('tenant_id', tenantId())],
             'position' => ['nullable', 'integer', 'min:0'],
             'status' => ['nullable', 'boolean'],
-            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'],
+            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:1000'],
             'h1_heading' => ['nullable', 'string', 'max:255'],
@@ -64,11 +68,17 @@ class StoreCategoryController extends Controller
             ]);
         }
 
+        $tenant?->syncUsage();
+
         return back()->with('success', 'Category created.');
     }
 
     public function updateCategory(Request $request, int $category)
     {
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $tenant?->ensureCanUpload($request, ['image']);
+        $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 5120;
+
         $row = Category::where('tenant_id', tenantId())->findOrFail($category);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
@@ -76,7 +86,7 @@ class StoreCategoryController extends Controller
             'parent_id' => ['nullable', Rule::exists('categories', 'id')->where('tenant_id', tenantId()), Rule::notIn([$row->id])],
             'position' => ['nullable', 'integer', 'min:0'],
             'status' => ['nullable', 'boolean'],
-            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:5120'],
+            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,webp,avif', 'max:' . $maxKb],
             'remove_image' => ['nullable', 'boolean'],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:1000'],
@@ -129,6 +139,9 @@ class StoreCategoryController extends Controller
 
         unset($data['remove_image']);
         $row->update($data);
+
+        $tenant?->syncUsage();
+
         return back()->with('success', 'Category updated.');
     }
 
@@ -145,6 +158,10 @@ class StoreCategoryController extends Controller
             $oldMedia->delete();
         }
         $row->delete();
+
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
+        $tenant?->syncUsage();
+
         return back()->with('success', 'Category deleted.');
     }
 }
