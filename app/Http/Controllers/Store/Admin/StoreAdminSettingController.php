@@ -22,13 +22,16 @@ class StoreAdminSettingController extends Controller
         $tenant = auth()->user()->tenant;
         abort_unless($tenant, 404);
 
+        $tenant->ensureCanUpload($request, ['logo']);
+        $maxKb = $tenant->maxFileSizeKilobytes();
+
         $validated = $request->validate([
             'store_name' => ['required', 'string', 'max:255'],
             'support_email' => ['nullable', 'email', 'max:255'],
             'support_phone' => ['nullable', 'string', 'max:50'],
             'currency' => ['required', 'string', 'regex:/^[A-Za-z]{3}$/'],
             'timezone' => ['required', 'timezone'],
-            'logo' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp,avif,svg', 'max:' . $maxKb],
             'remove_logo' => ['nullable', 'boolean'],
             'rx_compliance_mode' => ['required', Rule::in(['strict', 'flexible'])],
             'enable_direct_prescriptions' => ['nullable', 'boolean'],
@@ -49,14 +52,35 @@ class StoreAdminSettingController extends Controller
         $settings['enable_direct_prescriptions'] = $request->boolean('enable_direct_prescriptions');
 
         if ($request->hasFile('logo')) {
-            if ($tenant->logo_path) Storage::disk('public')->delete($tenant->logo_path);
-            $settings['logo_path'] = $request->file('logo')->store('tenants/'.$tenant->id.'/branding', 'public');
+            if ($tenant->logo_path && Storage::disk('public')->exists($tenant->logo_path)) {
+                Storage::disk('public')->delete($tenant->logo_path);
+            }
+            $logoFile = $request->file('logo');
+            $settings['logo_path'] = $logoFile->store('tenants/' . $tenant->id . '/branding', 'public');
+
+            $tenant->media()->where('collection', 'branding')->delete();
+            $tenant->media()->create([
+                'tenant_id' => $tenant->id,
+                'model_type' => \App\Models\Tenant::class,
+                'model_id' => $tenant->id,
+                'collection' => 'branding',
+                'path' => $settings['logo_path'],
+                'mime' => $logoFile->getMimeType(),
+                'size_bytes' => $logoFile->getSize(),
+                'position' => 0,
+                'alt' => $tenant->store_name . ' Logo',
+                'created_at' => now(),
+            ]);
         } elseif ($request->boolean('remove_logo')) {
-            if ($tenant->logo_path) Storage::disk('public')->delete($tenant->logo_path);
+            if ($tenant->logo_path && Storage::disk('public')->exists($tenant->logo_path)) {
+                Storage::disk('public')->delete($tenant->logo_path);
+            }
             $settings['logo_path'] = null;
+            $tenant->media()->where('collection', 'branding')->delete();
         }
 
         $tenant->fill($settings)->save();
+        $tenant->syncUsage();
 
         return redirect()->route('store.admin.settings.index')->with('success', 'Store settings saved.');
     }

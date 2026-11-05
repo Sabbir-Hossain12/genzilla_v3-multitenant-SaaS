@@ -56,7 +56,7 @@ class StoreBannerController extends Controller
     public function storeBanner(Request $request)
     {
         $tenantId = tenantId();
-        $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
         $tenant?->ensureCanUpload($request, ['image', 'image_file']);
         $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 10240;
 
@@ -125,7 +125,7 @@ class StoreBannerController extends Controller
     public function updateBanner(Request $request, int $id)
     {
         $tenantId = tenantId();
-        $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
         $tenant?->ensureCanUpload($request, ['image', 'image_file']);
         $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 10240;
         $banner = Banner::where('tenant_id', $tenantId)->findOrFail($id);
@@ -208,7 +208,7 @@ class StoreBannerController extends Controller
         $banner->media()->delete();
         $banner->delete();
 
-        $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
+        $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
         $tenant?->syncUsage();
 
         return redirect()->route('store.admin.banners.index')->with('success', 'Banner deleted successfully.');

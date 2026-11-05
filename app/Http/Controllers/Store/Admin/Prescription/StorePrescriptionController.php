@@ -326,6 +326,9 @@ class StorePrescriptionController extends Controller
 
         $prescription->delete();
 
+        $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
+        $tenant?->syncUsage();
+
         return redirect()->route('store.admin.prescriptions.index')
             ->with('success', 'Prescription deleted successfully.');
     }

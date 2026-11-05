@@ -206,9 +206,29 @@ class Tenant extends Model
     /**
      * Calculate current storage used in bytes.
      */
+    /**
+     * All media items belonging to this tenant.
+     */
+    public function media(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Media::class, 'tenant_id');
+    }
+
+    /**
+     * Calculate total bytes recorded in the media table for this tenant.
+     */
+    public function mediaStorageBytes(): int
+    {
+        return (int) $this->media()->sum('size_bytes');
+    }
+
+    /**
+     * Calculate current storage used in bytes.
+     * Evaluates both physical disk directory and media database table.
+     */
     public function storageUsedBytes(): int
     {
-        $storageBytes = 0;
+        $diskBytes = 0;
         $tenantStoragePath = storage_path('app/public/tenants/' . $this->id);
 
         if (file_exists($tenantStoragePath)) {
@@ -217,12 +237,53 @@ class Tenant extends Model
             );
             foreach ($iterator as $file) {
                 if ($file->isFile()) {
-                    $storageBytes += $file->getSize();
+                    $diskBytes += $file->getSize();
                 }
             }
         }
 
-        return $storageBytes;
+        return max($diskBytes, $this->mediaStorageBytes());
+    }
+
+    /**
+     * Reconcile and clean unreferenced orphaned files in this tenant's directory.
+     */
+    public function cleanOrphanFiles(): array
+    {
+        $validPaths = collect();
+        $validPaths = $validPaths->merge($this->media()->pluck('path'));
+        if ($this->logo_path) {
+            $validPaths->push($this->logo_path);
+        }
+        $validPaths = $validPaths->merge(\App\Models\Order::where('tenant_id', $this->id)->whereNotNull('prescription_image')->pluck('prescription_image'));
+        $validPaths = $validPaths->merge(\App\Models\TenantPrescription::where('tenant_id', $this->id)->whereNotNull('prescription_image')->pluck('prescription_image'));
+
+        $validSet = array_flip($validPaths->filter()->all());
+
+        $tenantDir = storage_path('app/public/tenants/' . $this->id);
+        $deleted = [];
+
+        if (file_exists($tenantDir)) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($tenantDir, \FilesystemIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $fullPath = $file->getPathname();
+                    $relPath = str_replace(storage_path('app/public/'), '', $fullPath);
+                    $relPath = str_replace('\\', '/', $relPath);
+                    if (!isset($validSet[$relPath])) {
+                        $size = $file->getSize();
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($relPath);
+                        $deleted[] = ['path' => $relPath, 'size_bytes' => $size];
+                    }
+                }
+            }
+        }
+
+        $this->syncUsage();
+
+        return $deleted;
     }
 
     /**
