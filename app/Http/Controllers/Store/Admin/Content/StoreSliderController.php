@@ -101,9 +101,11 @@ class StoreSliderController extends Controller
         return redirect()->route('store.admin.sliders.index')->with('success', 'Slide banner created successfully.');
     }
 
-    public function updateSlider(Request $request, int $id)
+    public function updateSlider(Request $request, $slider)
     {
         $tenantId = tenantId();
+        $id = $slider instanceof Slider ? $slider->id : (int) $slider;
+
         $tenant = tenant() ?? \App\Models\Tenant::find($tenantId);
         $tenant?->ensureCanUpload($request, ['image', 'image_file']);
         $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 10240;
@@ -168,8 +170,9 @@ class StoreSliderController extends Controller
         return redirect()->route('store.admin.sliders.index')->with('success', 'Slide banner updated successfully.');
     }
 
-    public function deleteSlider(int $id)
+    public function deleteSlider($slider)
     {
+        $id = $slider instanceof Slider ? $slider->id : (int) $slider;
         $slider = Slider::where('tenant_id', tenantId())->findOrFail($id);
 
         if ($slider->image && !str_starts_with($slider->image, 'http')) {
@@ -185,8 +188,9 @@ class StoreSliderController extends Controller
         return redirect()->route('store.admin.sliders.index')->with('success', 'Slide banner deleted successfully.');
     }
 
-    public function toggleStatus(int $id)
+    public function toggleStatus($slider)
     {
+        $id = $slider instanceof Slider ? $slider->id : (int) $slider;
         $slider = Slider::where('tenant_id', tenantId())->findOrFail($id);
         $slider->status = !$slider->status;
         $slider->save();

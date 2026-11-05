@@ -122,9 +122,10 @@ class StoreBannerController extends Controller
         return redirect()->route('store.admin.banners.index')->with('success', "Banner '{$banner->title}' created successfully.");
     }
 
-    public function updateBanner(Request $request, int $id)
+    public function updateBanner(Request $request, $banner)
     {
         $tenantId = tenantId();
+        $id = $banner instanceof Banner ? $banner->id : (int) $banner;
         $tenant = tenant() ?? \App\Models\Tenant::find(tenantId());
         $tenant?->ensureCanUpload($request, ['image', 'image_file']);
         $maxKb = $tenant ? $tenant->maxFileSizeKilobytes() : 10240;
@@ -197,8 +198,9 @@ class StoreBannerController extends Controller
         return redirect()->route('store.admin.banners.index')->with('success', "Banner '{$banner->title}' updated successfully.");
     }
 
-    public function deleteBanner(int $id)
+    public function deleteBanner($banner)
     {
+        $id = $banner instanceof Banner ? $banner->id : (int) $banner;
         $banner = Banner::where('tenant_id', tenantId())->findOrFail($id);
 
         if ($banner->image && !str_starts_with($banner->image, 'http')) {
@@ -214,8 +216,9 @@ class StoreBannerController extends Controller
         return redirect()->route('store.admin.banners.index')->with('success', 'Banner deleted successfully.');
     }
 
-    public function toggleStatus(int $id)
+    public function toggleStatus($banner)
     {
+        $id = $banner instanceof Banner ? $banner->id : (int) $banner;
         $banner = Banner::where('tenant_id', tenantId())->findOrFail($id);
         $banner->status = !$banner->status;
         $banner->save();

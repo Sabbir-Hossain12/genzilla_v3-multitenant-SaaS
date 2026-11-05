@@ -388,7 +388,7 @@
 
     function openEditBannerModal(banner, imageUrl) {
         bForm.reset();
-        bForm.action = "{{ url('store/admin/banners') }}/" + banner.id;
+        bForm.action = "{{ route('store.admin.banners.update', ':id') }}".replace(':id', banner.id);
         bFormMethod.value = "PUT";
         bModalTitle.textContent = "Edit Promo Banner";
         bSubmitBtnText.textContent = "Update Banner";

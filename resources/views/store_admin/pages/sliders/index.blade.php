@@ -334,7 +334,7 @@
 
     function openEditModal(slider, imageUrl) {
         form.reset();
-        form.action = "{{ url('store/admin/sliders') }}/" + slider.id;
+        form.action = "{{ route('store.admin.sliders.update', ':id') }}".replace(':id', slider.id);
         formMethod.value = "PUT";
         modalTitle.textContent = "Edit Hero Slide";
         submitBtnText.textContent = "Update Slide";

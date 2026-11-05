@@ -204,6 +204,12 @@ Route::domain(config('app.base_domain'))
             Route::delete('/content/banners/{banner}', [StoreBannerController::class, 'deleteBanner'])->name('admin.banners.destroy')->middleware('permission:Store Banner Delete');
             Route::patch('/content/banners/{banner}/toggle', [StoreBannerController::class, 'toggleStatus'])->name('admin.banners.toggle')->middleware('permission:Store Banner Edit');
 
+            // Legacy & Direct Aliases for Sliders / Banners
+            Route::match(['put', 'post'], '/admin/sliders/{slider}', [StoreSliderController::class, 'updateSlider'])->middleware('permission:Store Slider Edit');
+            Route::match(['put', 'post'], '/sliders/{slider}', [StoreSliderController::class, 'updateSlider'])->middleware('permission:Store Slider Edit');
+            Route::match(['put', 'post'], '/admin/banners/{banner}', [StoreBannerController::class, 'updateBanner'])->middleware('permission:Store Banner Edit');
+            Route::match(['put', 'post'], '/banners/{banner}', [StoreBannerController::class, 'updateBanner'])->middleware('permission:Store Banner Edit');
+
             //..............Payment Methods & Gateways.................//
             Route::get('/payments/methods', [StorePaymentMethodController::class, 'paymentMethods'])->name('admin.payments.index')->middleware('permission:Store Payment Method List');
             Route::put('/payments/methods/{payment_method}', [StorePaymentMethodController::class, 'updatePaymentMethod'])->name('admin.payments.update')->middleware('permission:Store Payment Method Edit');

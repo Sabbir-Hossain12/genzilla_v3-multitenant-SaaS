@@ -249,6 +249,57 @@ class StoreContentManagementTest extends TestCase
         $this->assertDatabaseMissing('sliders', ['id' => $slider->id]);
     }
 
+    public function test_slider_can_be_updated_via_route_and_alias(): void
+    {
+        $slider = Slider::create([
+            'tenant_id' => $this->tenant->id,
+            'title' => 'Original Slider Title',
+            'subtitle' => 'Original Subtitle',
+            'image' => 'https://example.com/original.jpg',
+            'status' => true,
+            'sort_order' => 1,
+        ]);
+
+        // Standard PUT route
+        $response = $this->actingAsContentMerchant()
+            ->put(route('store.admin.sliders.update', $slider), [
+                'title' => 'Updated Slider Title',
+                'subtitle' => 'Updated Subtitle',
+                'image_url' => 'https://example.com/updated.jpg',
+                'button_text' => 'Learn More',
+                'link' => '/updated-link',
+                'sort_order' => 3,
+                'status' => 1,
+            ]);
+
+        $response->assertRedirect(route('store.admin.sliders.index'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('sliders', [
+            'id' => $slider->id,
+            'title' => 'Updated Slider Title',
+            'subtitle' => 'Updated Subtitle',
+            'image' => 'https://example.com/updated.jpg',
+            'button_text' => 'Learn More',
+            'sort_order' => 3,
+        ]);
+
+        // Fallback/Legacy alias route /store/admin/sliders/{id}
+        $aliasResponse = $this->actingAsContentMerchant()
+            ->put('/store/admin/sliders/' . $slider->id, [
+                'title' => 'Updated Slider Via Alias',
+                'subtitle' => 'Updated via Alias',
+                'image_url' => 'https://example.com/alias.jpg',
+                'status' => 1,
+            ]);
+
+        $aliasResponse->assertRedirect(route('store.admin.sliders.index'));
+        $this->assertDatabaseHas('sliders', [
+            'id' => $slider->id,
+            'title' => 'Updated Slider Via Alias',
+        ]);
+    }
+
     public function test_banner_can_be_created_with_custom_theme(): void
     {
         $response = $this->actingAsContentMerchant()
