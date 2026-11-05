@@ -103,30 +103,30 @@ class StoreSubscriptionController extends Controller
             }
         }
 
-        $usage = TenantUsage::firstOrCreate(['tenant_id' => $tenantId], [
-            'storage_used_bytes' => $storageBytes,
-            'staff_accounts_count' => 1,
-            'products_count' => 0,
-        ]);
-
-        if ($storageBytes > 0 && $usage->storage_used_bytes !== $storageBytes) {
-            $usage->update(['storage_used_bytes' => $storageBytes]);
+        // Staff count
+        $staffCount = User::whereHas('roles', function ($q) use ($tenantId) {
+            $q->where('tenant_id', $tenantId);
+        })->count();
+        if ($staffCount === 0) {
+            $staffCount = 1;
         }
 
-        // Staff Accounts Calculation
-        $staffCount = User::query()
-            ->where(function ($query) use ($tenantId, $tenant) {
-                $query->whereHas('roles', fn ($q) => $q->where('roles.tenant_id', $tenantId))
-                    ->orWhere('id', $tenant->user_id);
-            })
-            ->distinct()
-            ->count();
+        // Products count
+        $productsCount = Product::where('tenant_id', $tenantId)->count();
+
+        // Update / sync usage metrics
+        $usage = $tenant->usage ?: TenantUsage::firstOrCreate(['tenant_id' => $tenantId], [
+            'storage_used_bytes' => $storageBytes,
+            'staff_accounts_count' => $staffCount,
+            'products_count' => $productsCount,
+        ]);
+
+        if ($usage->storage_used_bytes !== $storageBytes) {
+            $usage->update(['storage_used_bytes' => $storageBytes]);
+        }
         if ($usage->staff_accounts_count !== $staffCount) {
             $usage->update(['staff_accounts_count' => $staffCount]);
         }
-
-        // Products Count Calculation
-        $productsCount = Product::where('tenant_id', $tenantId)->count();
         if ($usage->products_count !== $productsCount) {
             $usage->update(['products_count' => $productsCount]);
         }
@@ -161,7 +161,7 @@ class StoreSubscriptionController extends Controller
 
         // 6. Invoices / Billing History
         $invoices = TenantInvoice::where('tenant_id', $tenantId)
-            ->with('subscription.plan')
+            ->with(['plan', 'subscription.plan'])
             ->latest()
             ->paginate(10);
 
@@ -265,7 +265,7 @@ class StoreSubscriptionController extends Controller
     {
         $tenantId = $this->tenantId();
         $invoice = TenantInvoice::where('tenant_id', $tenantId)
-            ->with(['tenant', 'subscription.plan'])
+            ->with(['tenant', 'plan', 'subscription.plan'])
             ->findOrFail($id);
 
         if (request()->wantsJson() || request()->ajax()) {
@@ -274,8 +274,8 @@ class StoreSubscriptionController extends Controller
                 'created_at' => $invoice->created_at ? $invoice->created_at->format('M d, Y') : '-',
                 'period_start' => $invoice->billing_period_start ? $invoice->billing_period_start->format('M d, Y') : null,
                 'period_end' => $invoice->billing_period_end ? $invoice->billing_period_end->format('M d, Y') : null,
-                'plan_name' => $invoice->subscription?->plan?->name ?? 'Subscription Plan',
-                'billing_interval' => ucfirst($invoice->subscription?->billing_interval ?? 'Monthly'),
+                'plan_name' => $invoice->plan_title,
+                'billing_interval' => ucfirst($invoice->cycle),
                 'subtotal' => number_format((float) $invoice->subtotal, 2),
                 'tax' => number_format((float) $invoice->tax, 2),
                 'total' => number_format((float) $invoice->total, 2),

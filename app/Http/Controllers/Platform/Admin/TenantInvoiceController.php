@@ -10,13 +10,13 @@ class TenantInvoiceController extends Controller
 {
     public function index()
     {
-        $invoices = TenantInvoice::with(['tenant', 'subscription.plan'])->latest()->get();
+        $invoices = TenantInvoice::with(['tenant', 'plan', 'subscription.plan'])->latest()->get();
         return view('platform_admin.pages.invoices.index', compact('invoices'));
     }
 
     public function show(TenantInvoice $invoice)
     {
-        $invoice->load(['tenant', 'subscription.plan']);
+        $invoice->load(['tenant', 'plan', 'subscription.plan']);
         return view('platform_admin.pages.invoices.show', compact('invoice'));
     }
 

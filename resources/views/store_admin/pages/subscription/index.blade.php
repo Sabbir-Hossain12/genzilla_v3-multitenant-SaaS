@@ -604,9 +604,9 @@
                                 <code>{{ $inv->invoice_number }}</code>
                             </td>
                             <td class="py-4 px-4 font-semibold text-slate-800 dark:text-slate-200">
-                                {{ $inv->subscription?->plan?->name ?? 'Pharmacy Subscription' }}
+                                {{ $inv->plan_title }}
                                 <span class="text-xs text-slate-400 block font-normal capitalize">
-                                    {{ $inv->subscription?->billing_interval ?? 'Monthly' }} Cycle
+                                    {{ ucfirst($inv->cycle) }} Cycle
                                 </span>
                             </td>
                             <td class="py-4 px-4 text-xs text-slate-500 dark:text-slate-400">

@@ -13,7 +13,10 @@ class TenantSubscriptionController extends Controller
 {
     public function index()
     {
-        $subscriptions = TenantSubscription::with(['tenant', 'plan', 'invoices'])->latest()->get();
+        $subscriptions = TenantSubscription::with(['tenant', 'plan', 'invoices'])
+            ->where('subscription_status', '!=', 'superseded')
+            ->latest()
+            ->get();
         $tenants = Tenant::orderBy('store_name')->get();
         $plans = PlatformPlan::where('status', 1)->get();
 
@@ -42,7 +45,7 @@ class TenantSubscriptionController extends Controller
             'tenant_mode' => 'required|in:new,existing',
             'plan_id' => 'required|exists:platform_plans,id',
             'billing_interval' => 'required|in:monthly,yearly',
-            'subscription_status' => 'required|in:trialing,active,past_due,expired,cancelled,superseded',
+            'subscription_status' => 'required|in:trialing,active,past_due,expired,cancelled',
             'trial_ends_at' => 'nullable|date',
             'current_period_starts_at' => 'nullable|date',
             'current_period_ends_at' => 'nullable|date',
@@ -124,7 +127,7 @@ class TenantSubscriptionController extends Controller
         $validated = $request->validate([
             'plan_id' => 'required|exists:platform_plans,id',
             'billing_interval' => 'required|in:monthly,yearly',
-            'subscription_status' => 'required|in:trialing,active,past_due,expired,cancelled,superseded',
+            'subscription_status' => 'required|in:trialing,active,past_due,expired,cancelled',
             'trial_ends_at' => 'nullable|date',
             'current_period_starts_at' => 'nullable|date',
             'current_period_ends_at' => 'nullable|date',

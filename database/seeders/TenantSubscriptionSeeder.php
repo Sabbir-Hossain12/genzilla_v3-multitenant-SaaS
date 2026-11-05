@@ -123,6 +123,10 @@ class TenantSubscriptionSeeder extends Seeder
             TenantInvoice::create([
                 'tenant_id' => $tenant->id,
                 'platform_subscription_id' => $subscription->id,
+                'plan_id' => $subscription->plan_id,
+                'plan_name' => 'Starter',
+                'billing_interval' => 'monthly',
+                'description' => 'Initial 14-Day Free Manual Trial',
                 'invoice_number' => 'INV-' . strtoupper(Str::random(8)),
                 'stripe_invoice_id' => null,
                 'hosted_invoice_url' => null,

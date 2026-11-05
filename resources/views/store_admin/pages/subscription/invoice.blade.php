@@ -52,7 +52,7 @@
                         Subscription Cycle
                     @endif
                 </p>
-                <p class="text-slate-500 dark:text-slate-400 mt-0.5 capitalize">Cycle: {{ $invoice->subscription?->billing_interval ?? 'Monthly' }}</p>
+                <p class="text-slate-500 dark:text-slate-400 mt-0.5 capitalize">Cycle: {{ ucfirst($invoice->cycle) }}</p>
             </div>
         </div>
 
@@ -70,14 +70,14 @@
                     <tr>
                         <td class="py-4">
                             <p class="font-bold text-ink dark:text-white text-sm">
-                                {{ $invoice->subscription?->plan?->name ?? 'Pharmacy SaaS Plan' }}
+                                {{ $invoice->plan_title }}
                             </p>
                             <p class="text-slate-400 text-xs mt-0.5">
-                                High-performance multi-tenant pharmacy platform with catalog, inventory, and domain tools.
+                                {{ $invoice->description ?? 'Multi-tenant pharmacy platform subscription.' }}
                             </p>
                         </td>
                         <td class="py-4 text-center capitalize font-semibold text-slate-600 dark:text-slate-300">
-                            {{ $invoice->subscription?->billing_interval ?? 'Monthly' }}
+                            {{ ucfirst($invoice->cycle) }}
                         </td>
                         <td class="py-4 text-right font-extrabold text-ink dark:text-white text-sm">
                             ${{ number_format($invoice->subtotal, 2) }}

@@ -114,7 +114,7 @@
             Catalog & Inventory
         </p>
 
-        @canany(['Store Product List', 'Store Category List', 'Store Brand List', 'Store Attribute List', 'Store Inventory List'])\
+        @canany(['Store Product List', 'Store Category List', 'Store Brand List', 'Store Attribute List', 'Store Inventory List'])
             <div class="nav-group">
                 @php $catalogActive = $isActive(['store.admin.products.', 'store.admin.categories.', 'store.admin.brands.', 'store.admin.attributes.', 'store.admin.inventory.']); @endphp
                 <button type="button"

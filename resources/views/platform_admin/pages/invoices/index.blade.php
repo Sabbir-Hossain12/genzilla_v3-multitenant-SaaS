@@ -42,7 +42,7 @@
                             </td>
                             <td class="px-4 py-3.5 w-36 truncate">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                    {{ $inv->subscription->plan->name ?? 'Subscription' }}
+                                    {{ $inv->plan_title }}
                                 </span>
                             </td>
                             <td class="px-4 py-3.5 w-32 font-bold text-emerald-600 whitespace-nowrap">
@@ -50,7 +50,7 @@
                             </td>
                             <td class="px-4 py-3.5 text-center w-28">
                                 @switch($inv->status)
-                                    @case('paid')
+                                     @case('paid')
                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                             Paid

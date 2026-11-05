@@ -22,9 +22,9 @@
             </div>
             <div class="col-sm-6 text-sm-end">
                 <h5>Billed To:</h5>
-                <h6 class="fw-bold">{{ $invoice->tenant->name ?? 'Merchant Store' }}</h6>
+                <h6 class="fw-bold">{{ $invoice->tenant->store_name ?? $invoice->tenant->name ?? 'Merchant Store' }}</h6>
                 <p class="text-muted mb-1">Subdomain: {{ $invoice->tenant->subdomain ?? 'N/A' }}</p>
-                <p class="text-muted mb-1">Email: {{ $invoice->tenant->email ?? 'N/A' }}</p>
+                <p class="text-muted mb-1">Email: {{ $invoice->tenant->support_email ?? $invoice->tenant->email ?? 'N/A' }}</p>
             </div>
         </div>
 
@@ -40,8 +40,11 @@
                 <tbody>
                     <tr>
                         <td>
-                            <strong>{{ $invoice->subscription->plan->name ?? 'Subscription Plan' }}</strong>
-                            <span class="badge bg-info text-capitalize ms-1">{{ $invoice->subscription->billing_interval ?? 'Monthly' }}</span>
+                            <strong>{{ $invoice->plan_title }}</strong>
+                            <span class="badge bg-info text-capitalize ms-1">{{ ucfirst($invoice->cycle) }}</span>
+                            @if($invoice->description)
+                                <div class="text-muted small mt-1">{{ $invoice->description }}</div>
+                            @endif
                         </td>
                         <td>
                             {{ $invoice->billing_period_start ? $invoice->billing_period_start->format('M d, Y') : '-' }} to {{ $invoice->billing_period_end ? $invoice->billing_period_end->format('M d, Y') : '-' }}

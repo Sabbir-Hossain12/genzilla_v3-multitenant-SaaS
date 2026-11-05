@@ -38,6 +38,11 @@ class Tenant extends Model
         return $this->hasMany(TenantSubscription::class, 'tenant_id');
     }
 
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(TenantSubscription::class, 'tenant_id')->latestOfMany();
+    }
+
     public function activeSubscription(): HasOne
     {
         return $this->hasOne(TenantSubscription::class, 'tenant_id')->ofMany([
@@ -230,7 +235,7 @@ class Tenant extends Model
             ]);
 
             // ------------------------------------------------------------------
-            // 4. Create Tenant Subscription
+            // 4. Create Tenant Subscription (Single record per Tenant)
             // ------------------------------------------------------------------
             $start = $periodStart ? $periodStart->copy() : now();
             if ($subscriptionStatus === 'trialing') {
@@ -259,18 +264,21 @@ class Tenant extends Model
             ]);
 
             // ------------------------------------------------------------------
-            // 5. Create Initial Settled Invoice
+            // 5. Create Initial Settled Invoice (Billing & Onboarding Record)
             // ------------------------------------------------------------------
             $invoice = null;
             if ($createInvoice) {
                 if ($subscriptionStatus === 'trialing') {
                     $amount = 0.00;
+                    $description = "Initial Trial Subscription: {$plan->name} (14-Day Free Trial)";
                 } elseif ($customInvoiceAmount !== null) {
                     $amount = $customInvoiceAmount;
+                    $description = "Initial Manual Subscription: {$plan->name} (" . ucfirst($billingInterval) . ")";
                 } else {
                     $amount = $billingInterval === 'yearly'
                         ? (float) $plan->yearly_price
                         : (float) $plan->monthly_price;
+                    $description = "Initial Subscription: {$plan->name} (" . ucfirst($billingInterval) . ")";
                 }
 
                 do {
@@ -280,6 +288,10 @@ class Tenant extends Model
                 $invoice = TenantInvoice::create([
                     'tenant_id' => $tenant->id,
                     'platform_subscription_id' => $subscription->id,
+                    'plan_id' => $plan->id,
+                    'plan_name' => $plan->name,
+                    'billing_interval' => $billingInterval,
+                    'description' => $description,
                     'invoice_number' => $invoiceNumber,
                     'stripe_invoice_id' => null,
                     'hosted_invoice_url' => null,
@@ -317,7 +329,9 @@ class Tenant extends Model
     }
 
     /**
-     * Assign a manual subscription to an existing tenant following the TenantSubscriptionSeeder sequence.
+     * Assign / Upgrade manual subscription to an existing tenant.
+     * Maintains ONE subscription record per tenant (updated in place) and registers every
+     * plan assignment, upgrade, or renewal in tenant_invoices as an immutable billing record.
      */
     public function assignManualSubscription(
         PlatformPlan $plan,
@@ -368,25 +382,43 @@ class Tenant extends Model
                 );
             }
 
-            // Supersede existing active or trialing subscriptions
-            $this->subscriptions()
-                ->whereIn('subscription_status', ['active', 'trialing'])
-                ->update(['subscription_status' => 'superseded']);
+            // ------------------------------------------------------------------
+            // 4. Resolve Existing Subscription or Create One (1 Subscription Record per Tenant)
+            // ------------------------------------------------------------------
+            $subscription = $this->currentSubscription
+                ?? $this->activeSubscription
+                ?? $this->subscriptions()->latest('id')->first();
 
-            // ------------------------------------------------------------------
-            // 4. Create Tenant Subscription
-            // ------------------------------------------------------------------
-            $subscription = TenantSubscription::create([
-                'tenant_id' => $this->id,
-                'plan_id' => $plan->id,
-                'billing_interval' => $billingInterval,
-                'trial_ends_at' => $trial,
-                'current_period_starts_at' => $start,
-                'current_period_ends_at' => $end,
-                'canceled_at' => $subscriptionStatus === 'cancelled' ? now() : null,
-                'source' => 'manual',
-                'subscription_status' => $subscriptionStatus,
-            ]);
+            $isPlanChange = false;
+            $oldPlanName = null;
+
+            if ($subscription) {
+                $isPlanChange = ($subscription->plan_id !== $plan->id || $subscription->billing_interval !== $billingInterval);
+                $oldPlanName = $subscription->plan?->name ?? 'Previous Plan';
+
+                $subscription->update([
+                    'plan_id' => $plan->id,
+                    'billing_interval' => $billingInterval,
+                    'trial_ends_at' => $trial,
+                    'current_period_starts_at' => $start,
+                    'current_period_ends_at' => $end,
+                    'canceled_at' => $subscriptionStatus === 'cancelled' ? now() : null,
+                    'source' => 'manual',
+                    'subscription_status' => $subscriptionStatus,
+                ]);
+            } else {
+                $subscription = TenantSubscription::create([
+                    'tenant_id' => $this->id,
+                    'plan_id' => $plan->id,
+                    'billing_interval' => $billingInterval,
+                    'trial_ends_at' => $trial,
+                    'current_period_starts_at' => $start,
+                    'current_period_ends_at' => $end,
+                    'canceled_at' => $subscriptionStatus === 'cancelled' ? now() : null,
+                    'source' => 'manual',
+                    'subscription_status' => $subscriptionStatus,
+                ]);
+            }
 
             // Sync subscription FK back to tenant table
             $tenantStatus = in_array($subscriptionStatus, ['trialing', 'active', 'past_due', 'expired', 'cancelled'])
@@ -399,17 +431,24 @@ class Tenant extends Model
             ]);
 
             // ------------------------------------------------------------------
-            // 5. Create Initial Settled Invoice
+            // 5. Create Settled Invoice (Billing & Upgrade Ledger)
             // ------------------------------------------------------------------
             if ($createInvoice) {
                 if ($subscriptionStatus === 'trialing') {
                     $amount = 0.00;
+                    $description = "Trial Subscription: {$plan->name} (14-Day Free Trial)";
                 } elseif ($customInvoiceAmount !== null) {
                     $amount = $customInvoiceAmount;
+                    $description = $isPlanChange
+                        ? "Plan Upgrade/Change: {$oldPlanName} → {$plan->name} (" . ucfirst($billingInterval) . ")"
+                        : "Manual Subscription: {$plan->name} (" . ucfirst($billingInterval) . ")";
                 } else {
                     $amount = $billingInterval === 'yearly'
                         ? (float) $plan->yearly_price
                         : (float) $plan->monthly_price;
+                    $description = $isPlanChange
+                        ? "Plan Upgrade/Change: {$oldPlanName} → {$plan->name} (" . ucfirst($billingInterval) . ")"
+                        : "Subscription Plan: {$plan->name} (" . ucfirst($billingInterval) . ")";
                 }
 
                 do {
@@ -419,6 +458,10 @@ class Tenant extends Model
                 TenantInvoice::create([
                     'tenant_id' => $this->id,
                     'platform_subscription_id' => $subscription->id,
+                    'plan_id' => $plan->id,
+                    'plan_name' => $plan->name,
+                    'billing_interval' => $billingInterval,
+                    'description' => $description,
                     'invoice_number' => $invoiceNumber,
                     'stripe_invoice_id' => null,
                     'hosted_invoice_url' => null,
@@ -451,7 +494,7 @@ class Tenant extends Model
     }
 
     /**
-     * Update a manual subscription following the TenantSubscriptionSeeder sequence.
+     * Update an existing manual subscription directly and issue an invoice if requested.
      */
     public function updateManualSubscription(
         TenantSubscription $subscription,
@@ -506,7 +549,7 @@ class Tenant extends Model
             }
 
             // ------------------------------------------------------------------
-            // 4. Update Tenant Subscription
+            // 4. Update Tenant Subscription (Single record in place)
             // ------------------------------------------------------------------
             $subscription->update([
                 'plan_id' => $plan->id,
@@ -534,12 +577,15 @@ class Tenant extends Model
             if ($createInvoice) {
                 if ($subscriptionStatus === 'trialing') {
                     $amount = 0.00;
+                    $description = "Subscription Update: {$plan->name} (Trialing)";
                 } elseif ($customInvoiceAmount !== null) {
                     $amount = $customInvoiceAmount;
+                    $description = "Subscription Update: {$plan->name} (" . ucfirst($billingInterval) . ")";
                 } else {
                     $amount = $billingInterval === 'yearly'
                         ? (float) $plan->yearly_price
                         : (float) $plan->monthly_price;
+                    $description = "Subscription Update: {$plan->name} (" . ucfirst($billingInterval) . ")";
                 }
 
                 do {
@@ -549,6 +595,10 @@ class Tenant extends Model
                 TenantInvoice::create([
                     'tenant_id' => $this->id,
                     'platform_subscription_id' => $subscription->id,
+                    'plan_id' => $plan->id,
+                    'plan_name' => $plan->name,
+                    'billing_interval' => $billingInterval,
+                    'description' => $description,
                     'invoice_number' => $invoiceNumber,
                     'stripe_invoice_id' => null,
                     'hosted_invoice_url' => null,

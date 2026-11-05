@@ -32,4 +32,24 @@ class TenantInvoice extends Model
     {
         return $this->belongsTo(TenantSubscription::class, 'platform_subscription_id');
     }
+
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(PlatformPlan::class, 'plan_id');
+    }
+
+    public function getPlanTitleAttribute(): string
+    {
+        return $this->plan_name
+            ?? $this->plan?->name
+            ?? $this->subscription?->plan?->name
+            ?? 'Pharmacy SaaS Plan';
+    }
+
+    public function getCycleAttribute(): string
+    {
+        return $this->billing_interval
+            ?? $this->subscription?->billing_interval
+            ?? 'monthly';
+    }
 }
