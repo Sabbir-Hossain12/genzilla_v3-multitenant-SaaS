@@ -193,15 +193,15 @@ const categories = computed(() => {
             <!-- Category nav strip -->
             <div class="flex items-center border-t border-gray-100">
                 <div class="flex items-center gap-0 overflow-x-auto no-scrollbar">
-                    <a
-                        href="#all-categories"
-                        class="flex items-center gap-2 px-5 py-3.5 text-[15px] font-semibold text-white bg-primary whitespace-nowrap shrink-0"
-                    >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        All Categories
-                    </a>
+<!--                    <a-->
+<!--                        href="#all-categories"-->
+<!--                        class="flex items-center gap-2 px-5 py-3.5 text-[15px] font-semibold text-white bg-primary whitespace-nowrap shrink-0"-->
+<!--                    >-->
+<!--                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">-->
+<!--                            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>-->
+<!--                        </svg>-->
+<!--                        All Categories-->
+<!--                    </a>-->
 
                     <a
                         v-for="cat in categories"

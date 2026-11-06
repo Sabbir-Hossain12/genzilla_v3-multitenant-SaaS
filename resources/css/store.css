@@ -38,50 +38,106 @@
     height: 100%;
 }
 
-/* Swiper's own arrows are restyled to match the prototype's 32px white pills.
-   The defaults (44px, 4px offset, colour from --swiper-theme-color) are reset here
-   because the Vue wrapper adds .swiper-button-prev/next itself. */
+/* Swiper's own arrows restyled with mobile-first responsive sizing */
 #hero-banner .swiper-button-prev,
 #hero-banner .swiper-button-next {
-    --swiper-navigation-size: 32px;
-    --swiper-navigation-sides-offset: 12px;
-    width: 32px;
-    height: 32px;
-    margin-top: -16px;
-    background: rgba(255, 255, 255, .8);
+    --swiper-navigation-size: 28px;
+    --swiper-navigation-sides-offset: 8px;
+    width: 28px;
+    height: 28px;
+    margin-top: -14px;
+    background: rgba(255, 255, 255, .85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border-radius: 9999px;
     color: #374151;
     box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
-    transition: background .2s ease;
+    transition: background-color .2s ease, box-shadow .2s ease, transform .15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#hero-banner .swiper-button-prev {
+    left: 8px;
+    right: auto;
+}
+
+#hero-banner .swiper-button-next {
+    right: 8px;
+    left: auto;
 }
 
 #hero-banner .swiper-button-prev:hover,
 #hero-banner .swiper-button-next:hover {
     background: #fff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .1), 0 2px 4px -2px rgba(0, 0, 0, .1);
+    transform: scale(1.05);
 }
 
-/* Swiper v14 draws the arrow glyph in ::after; swap in a chevron. */
+/* Swiper v14 injects an <svg> arrow by default; suppress it so only our clean chevron renders */
+#hero-banner .swiper-button-prev svg,
+#hero-banner .swiper-button-next svg {
+    display: none !important;
+}
+
+/* Swiper clean chevron arrows via ::after */
 #hero-banner .swiper-button-prev::after,
 #hero-banner .swiper-button-next::after {
     content: '';
-    width: 14px;
-    height: 14px;
+    display: block;
+    width: 13px;
+    height: 13px;
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+    flex-shrink: 0;
 }
 
 #hero-banner .swiper-button-prev::after {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E");
+    margin-right: 1px;
 }
 
 #hero-banner .swiper-button-next::after {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
+    margin-left: 1px;
+}
+
+@media (min-width: 640px) {
+    #hero-banner .swiper-button-prev,
+    #hero-banner .swiper-button-next {
+        --swiper-navigation-size: 32px;
+        --swiper-navigation-sides-offset: 12px;
+        width: 32px;
+        height: 32px;
+        margin-top: -16px;
+    }
+
+    #hero-banner .swiper-button-prev {
+        left: 12px;
+    }
+
+    #hero-banner .swiper-button-next {
+        right: 12px;
+    }
+
+    #hero-banner .swiper-button-prev::after,
+    #hero-banner .swiper-button-next::after {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 /* Pagination bullets mimic the previous w-1.5 -> w-5 pill morph. */
 #hero-banner .swiper-pagination {
-    bottom: 12px;
+    bottom: 8px;
+}
+
+@media (min-width: 640px) {
+    #hero-banner .swiper-pagination {
+        bottom: 12px;
+    }
 }
 
 #hero-banner .swiper-pagination-bullet {

@@ -25,8 +25,9 @@ const modules = [Autoplay, Navigation, Pagination, A11y, EffectFade]
 
 // Let Swiper render + own its arrows: passing prevEl/nextEl selectors makes the
 // Vue wrapper skip its own buttons and inject swiper-button-* classes onto
-// ours, which fights the custom sizing. See the #hero-banner nav rules in store.css.
-const navigation = { enabled: true, hideOnClick: false }
+// ours, which fights the custom sizing. addIcons: false prevents Swiper 14
+// from injecting its bulky default SVG icons.
+const navigation = { enabled: true, hideOnClick: false, addIcons: false }
 const pagination = { clickable: true }
 const autoplay = { delay: 4500, disableOnInteraction: false }
 
@@ -45,7 +46,7 @@ const resume = () => swiperInstance?.autoplay?.resume()
 <template>
     <div
         id="hero-banner"
-        class="relative rounded-2xl overflow-hidden h-72 sm:h-[26rem]"
+        class="relative rounded-xl sm:rounded-2xl overflow-hidden w-full aspect-[2.2/1] sm:aspect-[2.4/1] md:aspect-auto md:h-80 lg:h-[26rem] bg-gray-100"
         @mouseenter="pause"
         @mouseleave="resume"
     >
@@ -66,7 +67,9 @@ const resume = () => swiperInstance?.autoplay?.resume()
                     <img
                         :src="slide.src || slide.image"
                         :alt="slide.alt || slide.title || 'Promotional banner'"
-                        class="w-full h-full object-cover"
+                        class="w-full h-full object-cover object-center"
+                        :loading="i === 0 ? 'eager' : 'lazy'"
+                        :fetchpriority="i === 0 ? 'high' : 'auto'"
                     />
                 </a>
             </SwiperSlide>
