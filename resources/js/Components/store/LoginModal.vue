@@ -1,6 +1,10 @@
 <script setup>
 import { ref, computed, watch, onBeforeUnmount, nextTick } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import { loginOpen, closeLoginModal } from '@/composables/store/useStoreUi'
+
+const page = usePage()
+const storeName = computed(() => page.props.store?.name || 'MediMart')
 
 const step = ref('phone')          // 'phone' | 'otp'
 const phone = ref('')
@@ -65,8 +69,9 @@ function onOtpKeydown(index, event) {
 
 function submitOtp() {
     if (!otpComplete.value) return
-    // No backend yet — the prototype simply closes the modal.
+    // Prototype: close modal and emit toast feedback
     closeLoginModal()
+    window.dispatchEvent(new CustomEvent('medimart:toast', { detail: '✨ Logged in successfully!' }))
 }
 
 function onBackdropClick(event) {
@@ -105,7 +110,7 @@ onBeforeUnmount(() => clearInterval(resendTimer))
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
-                <h2 class="text-2xl font-extrabold text-gray-900">Welcome to MediMart</h2>
+                <h2 class="text-2xl font-extrabold text-gray-900">Welcome to {{ storeName }}</h2>
                 <p class="text-[15px] text-gray-500 mt-1.5">Login or create an account to continue</p>
             </div>
 
@@ -133,12 +138,12 @@ onBeforeUnmount(() => clearInterval(resendTimer))
 
                 <button
                     type="button"
-                    class="w-full mt-5 bg-primary hover:bg-primary2 text-white font-bold text-[15px] py-3.5 rounded-xl transition-colors"
+                    class="w-full mt-5 bg-primary hover:bg-primary2 text-white font-bold text-[15px] py-3.5 rounded-xl transition-colors cursor-pointer"
                     @click="submitPhone"
                 >Continue</button>
 
                 <p class="text-[12px] text-gray-400 text-center mt-4 leading-relaxed">
-                    By continuing, you agree to MediMart's
+                    By continuing, you agree to {{ storeName }}'s
                     <a href="#" class="text-primary hover:underline">Terms of Service</a> &amp;
                     <a href="#" class="text-primary hover:underline">Privacy Policy</a>
                 </p>
@@ -193,7 +198,7 @@ onBeforeUnmount(() => clearInterval(resendTimer))
 
                 <button
                     type="button"
-                    class="w-full mt-6 bg-primary hover:bg-primary2 text-white font-bold text-[15px] py-3.5 rounded-xl transition-colors"
+                    class="w-full mt-6 bg-primary hover:bg-primary2 text-white font-bold text-[15px] py-3.5 rounded-xl transition-colors cursor-pointer"
                     @click="submitOtp"
                 >Verify &amp; Continue</button>
 

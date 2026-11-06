@@ -207,6 +207,13 @@
 /* login modal */
 #login-modal {
     display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    background: rgba(0, 0, 0, .5);
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
 }
 
 #login-modal.open {
@@ -327,6 +334,13 @@
 /* ── modal open/close + entrance animation ── */
 #checkout-modal {
     display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    background: rgba(0, 0, 0, .5);
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
 }
 
 #checkout-modal.open {
