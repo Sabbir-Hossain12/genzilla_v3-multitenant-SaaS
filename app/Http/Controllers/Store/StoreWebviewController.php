@@ -45,6 +45,7 @@ class StoreWebviewController extends Controller
             }])
             ->orderBy('position')
             ->orderBy('name')
+            ->limit(8)
             ->get()
             ->map(function (Category $cat) {
                 return [
