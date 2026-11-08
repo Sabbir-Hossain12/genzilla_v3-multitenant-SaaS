@@ -602,4 +602,86 @@ class StoreWebviewController extends Controller
             'coupons' => $coupons,
         ]);
     }
+
+    /**
+     * Live search products for storefront header search bar.
+     */
+    public function searchProducts(Request $request)
+    {
+        $query = trim((string) $request->input('q', ''));
+        if (mb_strlen($query) < 1) {
+            return response()->json([
+                'products' => [],
+                'total' => 0,
+                'query' => '',
+            ]);
+        }
+
+        $tenant = tenant() ?? Tenant::first();
+        $tenantId = $tenant?->id ?? 1;
+
+        $products = Product::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('generic_name', 'like', "%{$query}%")
+                  ->orWhere('slug', 'like', "%{$query}%")
+                  ->orWhereHas('brand', function ($bq) use ($query) {
+                      $bq->where('name', 'like', "%{$query}%");
+                  })
+                  ->orWhereHas('category', function ($cq) use ($query) {
+                      $cq->where('name', 'like', "%{$query}%");
+                  })
+                  ->orWhereHas('variants', function ($vq) use ($query) {
+                      $vq->where('sku', 'like', "%{$query}%")
+                         ->orWhere('barcode', 'like', "%{$query}%");
+                  });
+            })
+            ->with([
+                'category.parent',
+                'brand',
+                'defaultVariant',
+                'activeVariants',
+                'media',
+            ])
+            ->take(8)
+            ->get();
+
+        $formatted = $products->map(function (Product $p) {
+            $variant = $p->defaultVariant ?? $p->activeVariants->first() ?? $p->variants->first();
+            $price = (float) ($variant?->price ?? 0);
+            $original = (float) ($variant?->compare_at_price ?? $variant?->mrp ?? $price);
+
+            $badge = $p->specs['badge'] ?? null;
+            if (!$badge && $original > $price && $original > 0) {
+                $discountPercent = (int) round((($original - $price) / $original) * 100);
+                if ($discountPercent > 0) {
+                    $badge = $discountPercent . '% OFF';
+                }
+            }
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'slug' => $p->slug,
+                'brand' => $p->brand?->name ?? null,
+                'generic_name' => $p->generic_name ?? null,
+                'category' => $p->category?->name ?? 'General',
+                'price' => $price,
+                'original' => $original > $price ? $original : $price,
+                'badge' => $badge,
+                'image' => $p->thumbnail_url,
+                'requires_prescription' => (bool) $p->requires_prescription,
+                'is_in_stock' => $variant ? $variant->is_in_stock : true,
+            ];
+        })->values()->all();
+
+        return response()->json([
+            'products' => $formatted,
+            'total' => count($formatted),
+            'query' => $query,
+        ]);
+    }
 }
+

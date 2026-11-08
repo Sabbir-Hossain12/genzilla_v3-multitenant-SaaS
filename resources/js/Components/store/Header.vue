@@ -1,9 +1,11 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
+import axios from 'axios'
 import { openCartDrawer, openLoginModal, openMobileNav } from '@/composables/store/useStoreUi'
-import { cartCount } from '@/composables/store/useCart'
+import { cartCount, addToCart } from '@/composables/store/useCart'
 import { categories as fallbackCategories } from '@/data/store'
+import SearchListing from '@/Components/store/SearchListing.vue'
 
 const page = usePage()
 const store = computed(() => page.props.store || {})
@@ -12,6 +14,8 @@ const storeLogo = computed(() => store.value.logo_url)
 const storePhone = computed(() => store.value.phone || '09610-016778')
 const storeEmail = computed(() => store.value.email || 'support@medimart.com')
 const customer = computed(() => page.props.auth?.customer)
+
+const currencySymbol = computed(() => (store.value?.currency === 'USD' ? '$' : '৳'))
 
 const categories = computed(() => {
     return page.props.categories && page.props.categories.length > 0
@@ -26,6 +30,122 @@ function handleAccountClick() {
         openLoginModal()
     }
 }
+
+// ══════════════════════════════════════════
+// DYNAMIC LIVE SEARCH STATE & HANDLERS
+// ══════════════════════════════════════════
+const searchQuery = ref('')
+const searchLoading = ref(false)
+const searchResults = ref([])
+const isSearchOpen = ref(false)
+const hasSearched = ref(false)
+const activeIndex = ref(-1)
+
+const desktopSearchRef = ref(null)
+const mobileSearchRef = ref(null)
+
+let debounceTimer = null
+
+function performSearch() {
+    clearTimeout(debounceTimer)
+    const q = searchQuery.value.trim()
+    if (!q) {
+        searchResults.value = []
+        isSearchOpen.value = false
+        hasSearched.value = false
+        searchLoading.value = false
+        activeIndex.value = -1
+        return
+    }
+
+    isSearchOpen.value = true
+    searchLoading.value = true
+    activeIndex.value = -1
+
+    debounceTimer = setTimeout(() => {
+        axios.get('/api/search/products', { params: { q } })
+            .then((res) => {
+                searchResults.value = res.data.products || []
+                hasSearched.value = true
+            })
+            .catch(() => {
+                searchResults.value = []
+                hasSearched.value = true
+            })
+            .finally(() => {
+                searchLoading.value = false
+            })
+    }, 250)
+}
+
+function onSearchFocus() {
+    if (searchQuery.value.trim().length > 0) {
+        isSearchOpen.value = true
+    }
+}
+
+function clearSearch() {
+    searchQuery.value = ''
+    searchResults.value = []
+    isSearchOpen.value = false
+    hasSearched.value = false
+    activeIndex.value = -1
+}
+
+function closeSearch() {
+    isSearchOpen.value = false
+    activeIndex.value = -1
+}
+
+function navigateResults(direction) {
+    if (!isSearchOpen.value || searchResults.value.length === 0) return
+    const max = searchResults.value.length - 1
+    let next = activeIndex.value + direction
+    if (next < 0) next = max
+    if (next > max) next = 0
+    activeIndex.value = next
+}
+
+function selectActiveResult() {
+    if (activeIndex.value >= 0 && searchResults.value[activeIndex.value]) {
+        handleProductClick(searchResults.value[activeIndex.value])
+    } else if (searchResults.value.length > 0) {
+        handleProductClick(searchResults.value[0])
+    }
+}
+
+function handleQuickAdd(product) {
+    addToCart(product)
+    window.dispatchEvent(new CustomEvent('medimart:toast', {
+        detail: `🛒 Added ${product.name} to cart!`
+    }))
+}
+
+function handleProductClick(product) {
+    addToCart(product)
+    openCartDrawer()
+    closeSearch()
+    window.dispatchEvent(new CustomEvent('medimart:toast', {
+        detail: `🛒 Added ${product.name} to cart!`
+    }))
+}
+
+function handleClickOutside(event) {
+    const isInsideDesktop = desktopSearchRef.value && desktopSearchRef.value.contains(event.target)
+    const isInsideMobile = mobileSearchRef.value && mobileSearchRef.value.contains(event.target)
+    if (!isInsideDesktop && !isInsideMobile) {
+        closeSearch()
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside)
+    clearTimeout(debounceTimer)
+})
 </script>
 
 <template>
@@ -74,7 +194,7 @@ function handleAccountClick() {
                 <div class="flex items-center gap-1 xs:gap-1.5 sm:gap-3 shrink-0">
                     <button
                         type="button"
-                        class="lg:hidden p-1 sm:p-2 -ml-1 text-gray-700 hover:text-primary transition-colors shrink-0"
+                        class="lg:hidden p-1 sm:p-2 -ml-1 text-gray-700 hover:text-primary transition-colors shrink-0 cursor-pointer"
                         aria-label="Open mobile menu"
                         @click="openMobileNav"
                     >
@@ -104,24 +224,66 @@ function handleAccountClick() {
                     </a>
                 </div>
 
-                <!-- Desktop Search -->
-                <div class="hidden lg:flex flex-1 max-w-xl">
+                <!-- Desktop Search (Fluid & Interactive with Dropdown) -->
+                <div class="hidden lg:flex flex-1 max-w-xl" ref="desktopSearchRef">
                     <div class="relative flex w-full">
-                        <input
-                            type="text"
-                            placeholder="Search medicines, health products, brands..."
-                            class="flex-1 border border-gray-200 rounded-l-xl px-4 py-3.5 text-sm focus:outline-none focus:border-primary transition-colors"
-                        />
+                        <div class="relative flex-1 flex items-center min-w-0">
+                            <input
+                                v-model="searchQuery"
+                                type="text"
+                                placeholder="Search medicines, health products, brands..."
+                                @input="performSearch"
+                                @focus="onSearchFocus"
+                                @keydown.esc="closeSearch"
+                                @keydown.down.prevent="navigateResults(1)"
+                                @keydown.up.prevent="navigateResults(-1)"
+                                @keydown.enter.prevent="selectActiveResult"
+                                class="w-full border border-gray-200 rounded-l-xl pl-4 pr-10 py-3.5 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all bg-white"
+                            />
+                            <!-- Spinner or Clear button -->
+                            <div class="absolute right-3 flex items-center">
+                                <svg v-if="searchLoading" class="animate-spin h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <button
+                                    v-else-if="searchQuery"
+                                    type="button"
+                                    @click="clearSearch"
+                                    class="text-gray-400 hover:text-gray-600 p-1 cursor-pointer rounded-full transition-colors"
+                                    title="Clear search"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
                         <button
                             type="button"
+                            @click="performSearch"
                             aria-label="Search products"
-                            class="bg-primary hover:bg-primary2 text-white px-6 py-3.5 rounded-r-xl transition-colors"
+                            class="bg-primary hover:bg-primary2 text-white px-6 py-3.5 rounded-r-xl transition-colors cursor-pointer shrink-0 flex items-center justify-center shadow-xs"
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                 <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                                 <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
                         </button>
+
+                        <!-- Dynamic Search Dropdown (Desktop) -->
+                        <SearchListing
+                            v-if="isSearchOpen"
+                            :results="searchResults"
+                            :loading="searchLoading"
+                            :query="searchQuery"
+                            :has-searched="hasSearched"
+                            :currency-symbol="currencySymbol"
+                            :active-index="activeIndex"
+                            @select="handleProductClick"
+                            @add="handleQuickAdd"
+                            @close="closeSearch"
+                            @hover="idx => activeIndex = idx"
+                        />
                     </div>
                 </div>
 
@@ -190,18 +352,45 @@ function handleAccountClick() {
                 </div>
             </div>
 
-            <!-- Search (mobile/tablet, below main row) -->
-            <div class="lg:hidden pb-3">
+            <!-- Search (mobile/tablet, below main row with screen responsiveness) -->
+            <div class="lg:hidden pb-3 relative" ref="mobileSearchRef">
                 <div class="relative flex w-full">
-                    <input
-                        type="text"
-                        placeholder="Search medicines, brands & more..."
-                        class="flex-1 min-w-0 border border-gray-200 rounded-l-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors"
-                    />
+                    <div class="relative flex-1 flex items-center min-w-0">
+                        <input
+                            v-model="searchQuery"
+                            type="text"
+                            placeholder="Search medicines, brands & more..."
+                            @input="performSearch"
+                            @focus="onSearchFocus"
+                            @keydown.esc="closeSearch"
+                            @keydown.down.prevent="navigateResults(1)"
+                            @keydown.up.prevent="navigateResults(-1)"
+                            @keydown.enter.prevent="selectActiveResult"
+                            class="w-full min-w-0 border border-gray-200 rounded-l-xl pl-3.5 pr-8 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all bg-white"
+                        />
+                        <!-- Spinner or Clear button -->
+                        <div class="absolute right-2.5 flex items-center">
+                            <svg v-if="searchLoading" class="animate-spin h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <button
+                                v-else-if="searchQuery"
+                                type="button"
+                                @click="clearSearch"
+                                class="text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer rounded-full transition-colors"
+                                title="Clear search"
+                            >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
                     <button
                         type="button"
+                        @click="performSearch"
                         aria-label="Search"
-                        class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0 cursor-pointer"
+                        class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0 cursor-pointer shadow-xs flex items-center justify-center"
                     >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                             <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
@@ -209,6 +398,21 @@ function handleAccountClick() {
                         </svg>
                     </button>
                 </div>
+
+                <!-- Dynamic Search Dropdown (Mobile) -->
+                <SearchListing
+                    v-if="isSearchOpen"
+                    :results="searchResults"
+                    :loading="searchLoading"
+                    :query="searchQuery"
+                    :has-searched="hasSearched"
+                    :currency-symbol="currencySymbol"
+                    :active-index="activeIndex"
+                    @select="handleProductClick"
+                    @add="handleQuickAdd"
+                    @close="closeSearch"
+                    @hover="idx => activeIndex = idx"
+                />
             </div>
 
             <!-- Category nav strip -->

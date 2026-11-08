@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['web','tenant.identify','store.status'])->group(function () {
     Route::get('/', [StoreWebviewController::class, 'index'])->name('store.home');
     Route::get('/dashboard', [StoreWebviewController::class, 'dashboard'])->name('store.dashboard');
+    Route::get('/api/search/products', [StoreWebviewController::class, 'searchProducts'])->name('store.search.products');
 
     // Customer Authentication & Account API routes
     Route::prefix('customer/auth')->group(function () {

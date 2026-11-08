@@ -57,7 +57,7 @@ class Product extends Model
         }
         return Str::startsWith($thumb->path, ['http://', 'https://'])
             ? $thumb->path
-            : asset('storage/' . $thumb->path);
+            : '/storage/' . ltrim($thumb->path, '/');
     }
 
     public function getCoverImageUrlAttribute(): ?string
