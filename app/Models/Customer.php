@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class Customer extends Authenticatable
 {
@@ -72,6 +73,19 @@ class Customer extends Authenticatable
         $f = mb_substr($this->first_name, 0, 1);
         $l = mb_substr($this->last_name ?? '', 0, 1);
         return strtoupper($f . $l) ?: 'C';
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (empty($this->avatar)) {
+            return null;
+        }
+
+        if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
+            return $this->avatar;
+        }
+
+        return Storage::disk('public')->url($this->avatar);
     }
 
     public function getStatusBadgeClassAttribute(): string

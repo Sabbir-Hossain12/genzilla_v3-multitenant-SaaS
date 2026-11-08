@@ -5,12 +5,19 @@ namespace App\Http\Controllers\Store;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\Coupon;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
 use App\Models\Order;
+use App\Models\OrderPayment;
+use App\Models\OrderProduct;
 use App\Models\Product;
 use App\Models\Slider;
 use App\Models\Tenant;
+use App\Models\TenantPrescription;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -272,6 +279,7 @@ class StoreWebviewController extends Controller
         $storePhone = $tenant?->support_phone ?: ($tenant?->phone ?? '09610-016778');
         $storeEmail = $tenant?->support_email ?: ($tenant?->email ?? 'support@medimart.com');
 
+        // Customer determination: authenticated guard customer or tenant primary customer fallback
         $customer = auth('customer')->user()
             ?? Customer::where('tenant_id', $tenantId)->with(['addresses'])->first();
 
@@ -282,107 +290,316 @@ class StoreWebviewController extends Controller
             'last_name' => $customer?->last_name ?: 'Hossain',
             'phone' => $customer?->phone ?: '+880 1926241906',
             'email' => $customer?->email ?: 'sabbir@example.com',
-            'membership' => '🏅 Gold Member',
-            'avatar' => 'https://loremflickr.com/200/200/portrait,man?lock=501',
+            'status' => $customer?->status ?: 'active',
+            'membership' => '🏅 Verified Member',
+            'avatar' => $customer?->avatar_url ?: 'https://loremflickr.com/200/200/portrait,man?lock=501',
+            'joined_date' => $customer?->created_at ? $customer->created_at->format('M Y') : 'Oct 2026',
         ];
 
-        // Orders
-        $orders = [];
+        // 1. Orders: Scoped to tenant and customer
+        $ordersQuery = Order::where('tenant_id', $tenantId);
         if ($customer) {
-            $orders = Order::where('tenant_id', $tenantId)
-                ->where('customer_id', $customer->id)
-                ->latest('id')
-                ->take(15)
-                ->get()
-                ->map(function (Order $order) {
-                    $statusMap = [
-                        'pending' => ['label' => 'Processing', 'color' => 'text-amber-600 bg-amber-50'],
-                        'processing' => ['label' => 'Processing', 'color' => 'text-blue-600 bg-blue-50'],
-                        'shipped' => ['label' => 'Out for Delivery', 'color' => 'text-blue-600 bg-blue-50'],
-                        'delivered' => ['label' => 'Delivered', 'color' => 'text-green-600 bg-green-50'],
-                        'cancelled' => ['label' => 'Cancelled', 'color' => 'text-red-500 bg-red-50'],
-                    ];
-                    $meta = $statusMap[strtolower($order->status)] ?? ['label' => ucfirst($order->status), 'color' => 'text-gray-600 bg-gray-50'];
-                    $itemCount = $order->products()->count();
+            $ordersQuery->where(function ($q) use ($customer) {
+                $q->where('customer_id', $customer->id)
+                  ->orWhere('shipping_phone', $customer->phone);
+            });
+        }
+        $orders = $ordersQuery->with(['products', 'payments'])
+            ->latest('id')
+            ->take(25)
+            ->get()
+            ->map(function (Order $order) {
+                $statusMap = [
+                    'pending' => ['label' => 'Pending Review', 'color' => 'text-amber-700 bg-amber-50 border border-amber-200/60'],
+                    'processing' => ['label' => 'Processing', 'color' => 'text-blue-700 bg-blue-50 border border-blue-200/60'],
+                    'shipped' => ['label' => 'Out for Delivery', 'color' => 'text-indigo-700 bg-indigo-50 border border-indigo-200/60'],
+                    'delivered' => ['label' => 'Delivered', 'color' => 'text-emerald-700 bg-emerald-50 border border-emerald-200/60'],
+                    'cancelled' => ['label' => 'Cancelled', 'color' => 'text-rose-700 bg-rose-50 border border-rose-200/60'],
+                ];
+                $meta = $statusMap[strtolower($order->status)] ?? ['label' => ucfirst($order->status), 'color' => 'text-gray-700 bg-gray-50 border border-gray-200'];
+
+                $paymentStatusMap = [
+                    'paid' => ['label' => 'Paid', 'color' => 'text-emerald-700 bg-emerald-50 border border-emerald-200'],
+                    'unpaid' => ['label' => 'Unpaid', 'color' => 'text-amber-700 bg-amber-50 border border-amber-200'],
+                    'partially_paid' => ['label' => 'Partially Paid', 'color' => 'text-blue-700 bg-blue-50 border border-blue-200'],
+                    'refunded' => ['label' => 'Refunded', 'color' => 'text-purple-700 bg-purple-50 border border-purple-200'],
+                ];
+                $pMeta = $paymentStatusMap[strtolower($order->payment_status)] ?? ['label' => ucfirst($order->payment_status), 'color' => 'text-gray-700 bg-gray-50 border border-gray-200'];
+
+                $items = $order->products->map(function (OrderProduct $op) {
                     return [
-                        'id' => $order->order_number ?: ('MM-' . $order->id),
-                        'date' => $order->placed_at ? $order->placed_at->format('M d, Y') : $order->created_at->format('M d, Y'),
-                        'items' => $itemCount > 0 ? $itemCount : 2,
-                        'total' => (float) $order->total,
-                        'status' => $meta['label'],
-                        'color' => $meta['color'],
+                        'id' => $op->id,
+                        'name' => $op->product_name,
+                        'variant' => $op->variant_title,
+                        'sku' => $op->sku,
+                        'quantity' => (int) $op->quantity,
+                        'unit_price' => (float) $op->unit_price,
+                        'line_total' => (float) $op->line_total,
+                        'requires_prescription' => (bool) $op->requires_prescription,
+                        'dosage_instructions' => $op->dosage_instructions,
+                    ];
+                })->values()->all();
+
+                $payments = $order->payments->map(function (OrderPayment $opay) {
+                    return [
+                        'id' => $opay->id,
+                        'transaction_id' => $opay->transaction_id ?: ('TXN-' . $opay->id),
+                        'method' => strtoupper($opay->payment_method),
+                        'amount' => (float) $opay->amount,
+                        'status' => ucfirst($opay->status),
+                        'type' => ucfirst($opay->type),
+                        'paid_at' => $opay->paid_at ? $opay->paid_at->format('M d, Y h:i A') : $opay->created_at->format('M d, Y h:i A'),
+                    ];
+                })->values()->all();
+
+                $rxImage = null;
+                if (!empty($order->prescription_image)) {
+                    $rxImage = str_starts_with($order->prescription_image, 'http')
+                        ? $order->prescription_image
+                        : Storage::disk('public')->url($order->prescription_image);
+                }
+
+                return [
+                    'id' => $order->order_number ?: ('ORD-' . $order->id),
+                    'raw_id' => $order->id,
+                    'date' => $order->placed_at ? $order->placed_at->format('M d, Y') : $order->created_at->format('M d, Y'),
+                    'items_count' => $order->products->sum('quantity') ?: max(1, count($items)),
+                    'subtotal' => (float) $order->subtotal,
+                    'discount_amount' => (float) $order->discount_amount,
+                    'shipping_charge' => (float) $order->shipping_charge,
+                    'tax_amount' => (float) $order->tax_amount,
+                    'total' => (float) $order->total,
+                    'status' => $meta['label'],
+                    'raw_status' => $order->status,
+                    'color' => $meta['color'],
+                    'payment_status' => $pMeta['label'],
+                    'payment_color' => $pMeta['color'],
+                    'payment_method' => strtoupper($order->payment_method),
+                    'prescription_status' => $order->prescription_status,
+                    'prescription_image' => $rxImage,
+                    'pharmacist_rx_notes' => $order->pharmacist_rx_notes,
+                    'shipping' => [
+                        'name' => $order->shipping_name,
+                        'phone' => $order->shipping_phone,
+                        'email' => $order->shipping_email,
+                        'address' => $order->shipping_address,
+                        'city' => $order->shipping_city,
+                        'postcode' => $order->shipping_postcode,
+                        'method' => $order->shipping_method,
+                        'note' => $order->order_note,
+                    ],
+                    'items' => $items,
+                    'payments' => $payments,
+                ];
+            })
+            ->values()
+            ->all();
+
+        // 2. Prescriptions: Aligned with TenantPrescription database table & Store Admin Rx Module
+        $prescriptionsQuery = TenantPrescription::where('tenant_id', $tenantId);
+        if ($customer) {
+            $prescriptionsQuery->where(function ($q) use ($customer) {
+                $q->where('customer_id', $customer->id)
+                  ->orWhere('customer_phone', $customer->phone);
+            });
+        }
+        $prescriptions = $prescriptionsQuery->with('order')
+            ->latest('id')
+            ->get()
+            ->map(function (TenantPrescription $rx) {
+                $statusMap = [
+                    'pending_review' => [
+                        'label' => 'Under Pharmacist Review',
+                        'color' => 'text-amber-700 bg-amber-50 border border-amber-200',
+                        'badge' => 'Pending Review',
+                    ],
+                    'converted_to_order' => [
+                        'label' => 'Approved & Converted to Order',
+                        'color' => 'text-emerald-700 bg-emerald-50 border border-emerald-200',
+                        'badge' => 'Approved',
+                    ],
+                    'rejected' => [
+                        'label' => 'Declined / Invalid Rx',
+                        'color' => 'text-rose-700 bg-rose-50 border border-rose-200',
+                        'badge' => 'Declined',
+                    ],
+                ];
+                $meta = $statusMap[$rx->status] ?? [
+                    'label' => ucfirst(str_replace('_', ' ', $rx->status)),
+                    'color' => 'text-gray-700 bg-gray-50 border border-gray-200',
+                    'badge' => ucfirst($rx->status),
+                ];
+
+                $imageUrl = null;
+                if (!empty($rx->prescription_image)) {
+                    $imageUrl = str_starts_with($rx->prescription_image, 'http')
+                        ? $rx->prescription_image
+                        : Storage::disk('public')->url($rx->prescription_image);
+                }
+
+                return [
+                    'id' => $rx->id,
+                    'prescription_number' => $rx->prescription_number,
+                    'status' => $rx->status,
+                    'status_label' => $meta['label'],
+                    'status_badge' => $meta['badge'],
+                    'color' => $meta['color'],
+                    'image_url' => $imageUrl,
+                    'customer_name' => $rx->customer_name,
+                    'customer_phone' => $rx->customer_phone,
+                    'delivery_address' => $rx->delivery_address,
+                    'patient_notes' => $rx->patient_notes,
+                    'pharmacist_notes' => $rx->pharmacist_notes,
+                    'rejection_reason' => $rx->rejection_reason,
+                    'order_id' => $rx->order_id,
+                    'order_number' => $rx->order?->order_number,
+                    'date' => $rx->created_at ? $rx->created_at->format('M d, Y') : null,
+                    'reviewed_date' => $rx->reviewed_at ? $rx->reviewed_at->format('M d, Y') : null,
+                ];
+            })
+            ->values()
+            ->all();
+
+        // 3. Saved Addresses: Dynamic from customer_addresses table
+        $addresses = [];
+        if ($customer) {
+            $addresses = CustomerAddress::where('tenant_id', $tenantId)
+                ->where('customer_id', $customer->id)
+                ->orderByDesc('is_default')
+                ->latest('id')
+                ->get()
+                ->map(function (CustomerAddress $addr) {
+                    return [
+                        'id' => $addr->id,
+                        'title' => $addr->title ?: 'Home',
+                        'first_name' => $addr->first_name,
+                        'last_name' => $addr->last_name,
+                        'name' => $addr->full_name,
+                        'phone' => $addr->phone,
+                        'address_1' => $addr->address_1,
+                        'address_2' => $addr->address_2,
+                        'state_district' => $addr->state_district,
+                        'zip' => $addr->zip,
+                        'country' => $addr->country,
+                        'is_default' => (bool) $addr->is_default,
+                        'formatted' => $addr->formatted_address,
                     ];
                 })
                 ->values()
                 ->all();
         }
 
-        if (empty($orders)) {
-            $orders = [
-                ['id' => 'MM-58213', 'date' => 'Sep 20, 2026', 'items' => 3, 'total' => 2529, 'status' => 'Out for Delivery', 'color' => 'text-blue-600 bg-blue-50'],
-                ['id' => 'MM-58109', 'date' => 'Sep 12, 2026', 'items' => 1, 'total' => 799,  'status' => 'Delivered', 'color' => 'text-green-600 bg-green-50'],
-                ['id' => 'MM-57988', 'date' => 'Sep 02, 2026', 'items' => 2, 'total' => 1440, 'status' => 'Delivered', 'color' => 'text-green-600 bg-green-50'],
-                ['id' => 'MM-57820', 'date' => 'Aug 24, 2026', 'items' => 1, 'total' => 360,  'status' => 'Cancelled', 'color' => 'text-red-500 bg-red-50'],
-                ['id' => 'MM-57705', 'date' => 'Aug 15, 2026', 'items' => 4, 'total' => 3120, 'status' => 'Delivered', 'color' => 'text-green-600 bg-green-50'],
-            ];
+        // 4. Saved Wishlist: Dynamic from wishlists table & catalog
+        $wishlist = [];
+        if ($customer) {
+            $wishlist = Wishlist::where('tenant_id', $tenantId)
+                ->where('customer_id', $customer->id)
+                ->with('product')
+                ->latest('id')
+                ->get()
+                ->filter(fn($w) => $w->product !== null)
+                ->map(function (Wishlist $w) {
+                    return [
+                        'id' => $w->id,
+                        'product_id' => $w->product_id,
+                        'name' => $w->product->name,
+                        'slug' => $w->product->slug,
+                        'price' => (float) $w->product->price,
+                        'img' => $w->product->image_url ?? $w->product->featured_image ?? 'https://via.placeholder.com/300',
+                    ];
+                })
+                ->values()
+                ->all();
         }
 
-        // Addresses
-        $addresses = [];
-        if ($customer && $customer->addresses()->exists()) {
-            $addresses = $customer->addresses->map(function ($addr) use ($customerData) {
-                return [
-                    'id' => $addr->id,
-                    'title' => $addr->title ?: 'Home',
-                    'is_default' => (bool) $addr->is_default,
-                    'name' => $addr->first_name ? trim("{$addr->first_name} {$addr->last_name}") : $customerData['name'],
-                    'phone' => $addr->phone ?: $customerData['phone'],
-                    'address' => trim("{$addr->address_1}, {$addr->address_2}, {$addr->state_district} {$addr->zip}"),
-                ];
-            })->values()->all();
+        if (empty($wishlist)) {
+            $wishlist = Product::where('tenant_id', $tenantId)
+                ->where('status', 'active')
+                ->take(4)
+                ->get()
+                ->map(fn($p) => [
+                    'id' => $p->id,
+                    'product_id' => $p->id,
+                    'name' => $p->name,
+                    'slug' => $p->slug,
+                    'price' => (float) $p->price,
+                    'img' => $p->image_url ?? $p->featured_image ?? 'https://via.placeholder.com/300',
+                ])
+                ->values()
+                ->all();
         }
 
-        if (empty($addresses)) {
-            $addresses = [
-                [
-                    'id' => 1,
-                    'title' => 'Home',
-                    'is_default' => true,
-                    'name' => $customerData['name'],
-                    'phone' => $customerData['phone'],
-                    'address' => '549 Ashkona, Apartment: Bhuiyan Manjil, near Baytul mahfuj jame moshjid, Dhaka 1230, Dakshin Khan, Dhaka',
-                ],
-                [
-                    'id' => 2,
-                    'title' => 'Office',
-                    'is_default' => false,
-                    'name' => $customerData['name'],
-                    'phone' => $customerData['phone'],
-                    'address' => 'Level 6, Rupayan Trade Centre, Kawran Bazar, Dhaka 1215',
-                ],
-            ];
+        // 5. Transactions / Payments: Dynamic from order_payments table & Store Admin Transaction module
+        $transactions = [];
+        if ($customer) {
+            $transactions = OrderPayment::where('tenant_id', $tenantId)
+                ->whereHas('order', function ($q) use ($customer) {
+                    $q->where('customer_id', $customer->id)
+                      ->orWhere('shipping_phone', $customer->phone);
+                })
+                ->with('order')
+                ->latest('id')
+                ->take(15)
+                ->get()
+                ->map(function (OrderPayment $p) {
+                    $isRefund = ($p->type === 'refund');
+                    return [
+                        'id' => $p->id,
+                        'transaction_id' => $p->transaction_id ?: ('TXN-' . $p->id),
+                        'order_number' => $p->order?->order_number ?: ('ORD-' . $p->order_id),
+                        'desc' => ($isRefund ? 'Refund for Order #' : 'Payment for Order #') . ($p->order?->order_number ?: $p->order_id),
+                        'method' => strtoupper($p->payment_method),
+                        'type' => ucfirst($p->type),
+                        'amount' => (float) $p->amount,
+                        'positive' => $isRefund,
+                        'status' => ucfirst($p->status),
+                        'status_color' => match($p->status) {
+                            'successful' => 'text-emerald-700 bg-emerald-50 border border-emerald-200',
+                            'pending' => 'text-amber-700 bg-amber-50 border border-amber-200',
+                            'failed' => 'text-rose-700 bg-rose-50 border border-rose-200',
+                            'refunded' => 'text-purple-700 bg-purple-50 border border-purple-200',
+                            default => 'text-gray-700 bg-gray-50 border border-gray-200',
+                        },
+                        'date' => $p->paid_at ? $p->paid_at->format('M d, Y') : $p->created_at->format('M d, Y'),
+                    ];
+                })
+                ->values()
+                ->all();
         }
 
-        // Wishlist
-        $wishlist = [
-            ['id' => 1, 'name' => 'Himalaya Vitamin C Orange Face Serum 30ml', 'price' => 350, 'img' => 'https://loremflickr.com/300/300/vitaminc,serum?lock=104'],
-            ['id' => 2, 'name' => 'COSRX Salicylic Acid Daily Cleanser 150ml', 'price' => 1145, 'img' => 'https://loremflickr.com/300/300/facewash,cleanser?lock=105'],
-            ['id' => 3, 'name' => 'Bioderma Sebium Purifying Gel 200ml', 'price' => 1645, 'img' => 'https://loremflickr.com/300/300/skincare,gel?lock=107'],
-            ['id' => 4, 'name' => 'Skin Cafe Hair Fall Biotin Shampoo 250ml', 'price' => 360, 'img' => 'https://loremflickr.com/300/300/shampoo,haircare?lock=112'],
-        ];
+        // 6. Active Store Coupons: Dynamic from coupons table
+        $coupons = Coupon::where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+            })
+            ->latest('id')
+            ->take(6)
+            ->get()
+            ->map(fn(Coupon $c) => [
+                'id' => $c->id,
+                'code' => $c->code,
+                'type' => $c->type,
+                'value' => (float) $c->value,
+                'min_order_amount' => (float) $c->min_order_amount,
+                'max_discount_amount' => (float) $c->max_discount_amount,
+                'expires' => $c->expires_at ? $c->expires_at->format('M d, Y') : 'Ongoing',
+            ])
+            ->values()
+            ->all();
 
-        // Transactions
-        $transactions = [
-            ['id' => 1, 'desc' => 'Cashback from order #MM-58109', 'date' => 'Sep 12, 2026', 'amount' => 15, 'positive' => true],
-            ['id' => 2, 'desc' => 'Applied on order #MM-58213', 'date' => 'Sep 20, 2026', 'amount' => -10, 'positive' => false],
-            ['id' => 3, 'desc' => 'Cashback from order #MM-57988', 'date' => 'Sep 02, 2026', 'amount' => 20, 'positive' => true],
-            ['id' => 4, 'desc' => 'Referral bonus — Friend joined', 'date' => 'Aug 28, 2026', 'amount' => 50, 'positive' => true],
-        ];
+        // 7. Computed Customer Stats
+        $activeRxCount = count(array_filter($prescriptions, fn($rx) => $rx['status'] === 'pending_review' || $rx['status'] === 'converted_to_order'));
+        $totalSpent = round(array_sum(array_column($orders, 'total')), 2);
 
         $stats = [
             'total_orders' => count($orders),
-            'wallet_balance' => 320.00,
+            'total_spent' => $totalSpent,
+            'active_prescriptions' => $activeRxCount,
             'wishlist_count' => count($wishlist),
+            'saved_addresses_count' => count($addresses),
+            'coupons_count' => count($coupons),
+            'wallet_balance' => 320.00,
             'reward_points' => 1240,
         ];
 
@@ -397,13 +614,16 @@ class StoreWebviewController extends Controller
                 'email' => $storeEmail,
                 'currency' => $tenant?->currency ?? 'BDT',
                 'timezone' => $tenant?->timezone ?? 'UTC',
+                'enable_direct_prescriptions' => (bool) ($tenant?->enable_direct_prescriptions ?? true),
             ],
             'customer' => $customerData,
             'stats' => $stats,
             'orders' => $orders,
+            'prescriptions' => $prescriptions,
             'addresses' => $addresses,
             'wishlist' => $wishlist,
             'transactions' => $transactions,
+            'coupons' => $coupons,
         ]);
     }
 }

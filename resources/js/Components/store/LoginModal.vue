@@ -7,7 +7,7 @@ import { loginOpen, closeLoginModal } from '@/composables/store/useStoreUi'
 const page = usePage()
 const storeName = computed(() => page.props.store?.name || 'MediMart')
 
-// Steps: 'phone' | 'password' (existing) | 'otp' (new) | 'set-password' (new complete)
+// Steps: 'phone' | 'password' (existing) | 'otp' | 'reset-password' (existing forgot pw) | 'set-password' (new complete)
 const step = ref('phone')
 const phone = ref('')
 const phoneError = ref('')
@@ -16,10 +16,18 @@ const loading = ref(false)
 
 // Existing customer data
 const existingCustomer = ref(null)
+const isForgotPassword = ref(false)
 
 // Password step
 const password = ref('')
 const showPassword = ref(false)
+
+// Reset password step (for existing customer who forgot password)
+const resetForm = ref({
+    password: '',
+    passwordConfirmation: '',
+})
+const showResetPassword = ref(false)
 
 // OTP step
 const otp = ref(['', '', '', ''])
@@ -58,6 +66,7 @@ function showPhoneStep() {
     otp.value = ['', '', '', '']
     loading.value = false
     existingCustomer.value = null
+    isForgotPassword.value = false
 }
 
 function submitPhone() {
@@ -71,6 +80,7 @@ function submitPhone() {
     phoneError.value = ''
     generalError.value = ''
     loading.value = true
+    isForgotPassword.value = false
 
     axios.post('/customer/auth/check-phone', { phone: raw })
         .then((res) => {
@@ -120,9 +130,11 @@ function submitPassword() {
         })
 }
 
-function loginWithOtp() {
-    // Allows existing customer to verify with OTP
+function startForgotPassword() {
+    // Existing customer forgot password -> initiate OTP flow to set new password
+    isForgotPassword.value = true
     generalError.value = ''
+    otp.value = ['', '', '', '']
     step.value = 'otp'
     startResendTimer()
     nextTick(() => otpBoxes.value[0]?.focus())
@@ -158,15 +170,15 @@ function submitOtp() {
         phone: phone.value.trim(),
         otp: otpCode.value,
     })
-        .then((res) => {
+        .then(() => {
             loading.value = false
             if (existingCustomer.value) {
-                // If existing customer verified OTP (forgot password / instant login)
-                closeLoginModal()
-                window.dispatchEvent(new CustomEvent('medimart:toast', { detail: '✨ Phone verified and logged in!' }))
-                router.visit('/dashboard')
+                // Existing customer: Prompt to set a new password!
+                step.value = 'reset-password'
+                resetForm.value.password = ''
+                resetForm.value.passwordConfirmation = ''
             } else {
-                // New customer -> proceed to set password screen
+                // New customer -> proceed to create account screen
                 step.value = 'set-password'
                 registerForm.value.firstName = ''
                 registerForm.value.lastName = ''
@@ -178,6 +190,55 @@ function submitOtp() {
         .catch((err) => {
             loading.value = false
             generalError.value = err.response?.data?.message || 'Invalid code. Use 1234 for demo.'
+        })
+}
+
+function submitResetPassword() {
+    if (!resetForm.value.password || resetForm.value.password.length < 6) {
+        generalError.value = 'New password must be at least 6 characters.'
+        return
+    }
+    if (resetForm.value.password !== resetForm.value.passwordConfirmation) {
+        generalError.value = 'Passwords do not match.'
+        return
+    }
+
+    loading.value = true
+    generalError.value = ''
+
+    axios.post('/customer/auth/reset-password', {
+        phone: phone.value.trim(),
+        password: resetForm.value.password,
+        password_confirmation: resetForm.value.passwordConfirmation,
+    })
+        .then((res) => {
+            loading.value = false
+            closeLoginModal()
+            window.dispatchEvent(new CustomEvent('medimart:toast', { detail: '🔐 Password reset successfully! Logged in.' }))
+            router.visit('/dashboard')
+        })
+        .catch((err) => {
+            loading.value = false
+            generalError.value = err.response?.data?.message || 'Failed to reset password. Please try again.'
+        })
+}
+
+function skipAndLoginDirectly() {
+    loading.value = true
+    generalError.value = ''
+
+    axios.post('/customer/auth/login-with-otp', {
+        phone: phone.value.trim(),
+    })
+        .then((res) => {
+            loading.value = false
+            closeLoginModal()
+            window.dispatchEvent(new CustomEvent('medimart:toast', { detail: '✨ Logged in successfully!' }))
+            router.visit('/dashboard')
+        })
+        .catch((err) => {
+            loading.value = false
+            generalError.value = err.response?.data?.message || 'Login failed.'
         })
 }
 
@@ -267,8 +328,14 @@ onBeforeUnmount(() => clearInterval(resendTimer))
                     <p class="text-[14.5px] text-gray-500 mt-1.5">Please enter your password to continue</p>
                 </template>
                 <template v-else-if="step === 'otp'">
-                    <h2 class="text-2xl font-extrabold text-gray-900">Verify Number</h2>
-                    <p class="text-[14.5px] text-gray-500 mt-1.5">We sent a 4-digit code to verify your phone</p>
+                    <h2 class="text-2xl font-extrabold text-gray-900">{{ existingCustomer ? 'Reset Password' : 'Verify Number' }}</h2>
+                    <p class="text-[14.5px] text-gray-500 mt-1.5">
+                        {{ existingCustomer ? 'We sent a 4-digit code to reset your password' : 'We sent a 4-digit code to verify your phone' }}
+                    </p>
+                </template>
+                <template v-else-if="step === 'reset-password'">
+                    <h2 class="text-2xl font-extrabold text-gray-900">Set New Password</h2>
+                    <p class="text-[14.5px] text-gray-500 mt-1.5">Create a new password for your account</p>
                 </template>
                 <template v-else-if="step === 'set-password'">
                     <h2 class="text-2xl font-extrabold text-gray-900">Create Account</h2>
@@ -384,9 +451,9 @@ onBeforeUnmount(() => clearInterval(resendTimer))
                     <button
                         type="button"
                         class="text-[13px] text-primary font-semibold hover:underline cursor-pointer"
-                        @click="loginWithOtp"
+                        @click="startForgotPassword"
                     >
-                        Forgot password? Verify with OTP
+                        Forgot password? Reset with OTP
                     </button>
                 </div>
 
@@ -406,7 +473,7 @@ onBeforeUnmount(() => clearInterval(resendTimer))
             </div>
 
             <!-- ════════════════════════════════════════
-                 STEP 3: OTP (NEW CUSTOMER)
+                 STEP 3: OTP VERIFICATION
             ════════════════════════════════════════ -->
             <div v-else-if="step === 'otp'" class="px-7 pt-4 pb-8">
                 <button
@@ -474,7 +541,76 @@ onBeforeUnmount(() => clearInterval(resendTimer))
             </div>
 
             <!-- ════════════════════════════════════════
-                 STEP 4: SET PASSWORD & NAME (NEW CUSTOMER)
+                 STEP 4: RESET PASSWORD (EXISTING CUSTOMER FORGOT PASSWORD)
+            ════════════════════════════════════════ -->
+            <div v-else-if="step === 'reset-password'" class="px-7 pt-4 pb-8">
+                <div class="bg-blue-50 border border-blue-200 rounded-xl px-3.5 py-2.5 mb-4 flex items-center gap-2 text-[13px] text-blue-800">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-blue-600 shrink-0"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>OTP verified for <strong>+88 {{ phone }}</strong>. Now enter your new password.</span>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[12.5px] font-semibold text-gray-700 mb-1">New Password *</label>
+                        <div class="relative">
+                            <input
+                                v-model="resetForm.password"
+                                :type="showResetPassword ? 'text' : 'password'"
+                                placeholder="At least 6 characters"
+                                class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 pr-10 text-[14px] focus:outline-none focus:border-primary transition-colors"
+                            />
+                            <button
+                                type="button"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                @click="showResetPassword = !showResetPassword"
+                            >
+                                <svg v-if="!showResetPassword" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[12.5px] font-semibold text-gray-700 mb-1">Confirm New Password *</label>
+                        <input
+                            v-model="resetForm.passwordConfirmation"
+                            :type="showResetPassword ? 'text' : 'password'"
+                            placeholder="Re-enter new password"
+                            class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-primary transition-colors"
+                            @keyup.enter="submitResetPassword"
+                        />
+                    </div>
+                </div>
+
+                <p v-if="generalError" class="text-[13px] text-red-500 mt-2.5">
+                    {{ generalError }}
+                </p>
+
+                <button
+                    type="button"
+                    :disabled="loading"
+                    class="w-full mt-5 bg-primary hover:bg-primary2 text-white font-bold text-[15px] py-3.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+                    :class="loading ? 'opacity-70 cursor-not-allowed' : ''"
+                    @click="submitResetPassword"
+                >
+                    <svg v-if="loading" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>{{ loading ? 'Updating...' : 'Set Password & Sign In' }}</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="w-full text-center text-[13px] text-gray-500 hover:text-primary font-medium mt-3.5 transition-colors cursor-pointer"
+                    @click="skipAndLoginDirectly"
+                >
+                    Skip &amp; Sign in directly without changing password
+                </button>
+            </div>
+
+            <!-- ════════════════════════════════════════
+                 STEP 5: SET PASSWORD & NAME (NEW CUSTOMER REGISTRATION)
             ════════════════════════════════════════ -->
             <div v-else-if="step === 'set-password'" class="px-7 pt-4 pb-8">
                 <div class="bg-green-50 border border-green-200 rounded-xl px-3.5 py-2.5 mb-4 flex items-center gap-2 text-[13px] text-green-800">
