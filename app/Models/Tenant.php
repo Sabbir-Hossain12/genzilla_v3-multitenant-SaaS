@@ -972,4 +972,33 @@ class Tenant extends Model
             return $subscription;
         });
     }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        $path = $this->logo_path;
+        if (!$path) {
+            $branding = $this->relationLoaded('media')
+                ? ($this->media->firstWhere('collection', 'branding') ?? $this->media->first())
+                : $this->media()->where('collection', 'branding')->first();
+            $path = $branding?->path;
+        }
+
+        if (!$path) {
+            return null;
+        }
+
+        return Str::startsWith($path, ['http://', 'https://'])
+            ? $path
+            : asset('storage/' . $path);
+    }
+
+    public function getPhoneAttribute(): ?string
+    {
+        return $this->support_phone ?: ($this->attributes['phone'] ?? null);
+    }
+
+    public function getEmailAttribute(): ?string
+    {
+        return $this->support_email ?: ($this->attributes['email'] ?? null);
+    }
 }

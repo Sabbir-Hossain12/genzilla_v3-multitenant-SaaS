@@ -221,14 +221,33 @@ class StoreWebviewController extends Controller
             ['value' => '4 hrs', 'label' => 'Express Delivery'],
         ];
 
+        $storeName = $tenant?->store_name ?: ($tenant?->name ?? 'MediMart');
+        $storePhone = $tenant?->support_phone ?: ($tenant?->phone ?? '09610-016778');
+        $storeEmail = $tenant?->support_email ?: ($tenant?->email ?? 'support@medimart.com');
+
         return Inertia::render('store/home', [
             'store' => [
                 'id' => $tenant?->id ?? 1,
-                'name' => $tenant?->name ?? 'MediMart',
+                'name' => $storeName,
                 'subdomain' => $tenant?->subdomain ?? 'medimart',
+                'custom_domain' => $tenant?->custom_domain,
                 'logo_url' => $tenant?->logo_url,
-                'phone' => $tenant?->phone,
-                'email' => $tenant?->email,
+                'phone' => $storePhone,
+                'email' => $storeEmail,
+                'currency' => $tenant?->currency ?? 'BDT',
+                'timezone' => $tenant?->timezone ?? 'UTC',
+            ],
+            'seo' => [
+                'meta_title' => $tenant?->meta_title ?: ($storeName . ' — Online Medicine, Beauty & Healthcare'),
+                'meta_description' => $tenant?->meta_description ?: 'Order authentic medicines, wellness, and healthcare products with express doorstep delivery.',
+                'meta_keywords' => $tenant?->meta_keywords ?: 'medicine, pharmacy, healthcare, beauty, healthcare products, order medicine online',
+                'meta_robots' => $tenant?->meta_robots ?: 'index, follow',
+                'canonical_url' => $tenant?->canonical_url ?: ($tenant?->custom_domain ? 'https://' . $tenant->custom_domain : url()->current()),
+                'schema_markup' => $tenant?->schema_markup,
+                'fb_pixel_id' => $tenant?->fb_pixel_id,
+                'google_analytics_id' => $tenant?->google_analytics_id,
+                'gtm_id' => $tenant?->gtm_id,
+                'custom_head_script' => $tenant?->custom_head_script,
             ],
             'categories' => $categories,
             'categoryTiles' => $categoryTiles,

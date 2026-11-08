@@ -10,6 +10,7 @@ const store = computed(() => page.props.store || {})
 const storeName = computed(() => store.value.name || 'MediMart')
 const storeLogo = computed(() => store.value.logo_url)
 const storePhone = computed(() => store.value.phone || '09610-016778')
+const storeEmail = computed(() => store.value.email || 'support@medimart.com')
 
 const categories = computed(() => {
     return page.props.categories && page.props.categories.length > 0
@@ -31,6 +32,17 @@ const categories = computed(() => {
                 Free delivery on orders over ৳500 | Fast doorstep express delivery
             </p>
             <div class="flex items-center gap-5">
+                <a
+                    v-if="storeEmail"
+                    :href="`mailto:${storeEmail}`"
+                    class="hover:text-white/80 transition-colors flex items-center gap-1.5"
+                >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    {{ storeEmail }}
+                </a>
                 <a href="#" class="hover:text-white/80 transition-colors">Become a Seller</a>
                 <a href="#" class="hover:text-white/80 transition-colors">Track Order</a>
                 <a href="#" class="hover:text-white/80 transition-colors">Help</a>

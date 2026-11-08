@@ -9,6 +9,7 @@ const store = computed(() => page.props.store || {})
 const storeName = computed(() => store.value.name || 'MediMart')
 const storeLogo = computed(() => store.value.logo_url)
 const storePhone = computed(() => store.value.phone || '09610-016778')
+const storeEmail = computed(() => store.value.email || 'support@medimart.com')
 
 const categories = computed(() => {
     return page.props.categories && page.props.categories.length > 0
@@ -134,10 +135,14 @@ const quickLinks = [
             </div>
 
             <!-- Footer -->
-            <div class="px-5 py-4 border-t border-gray-100 shrink-0">
+            <div class="px-5 py-4 border-t border-gray-100 shrink-0 space-y-2">
                 <a :href="`tel:${storePhone}`" class="text-[12.5px] text-gray-500 flex items-center gap-2 hover:text-primary">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     {{ storePhone }}
+                </a>
+                <a v-if="storeEmail" :href="`mailto:${storeEmail}`" class="text-[12.5px] text-gray-500 flex items-center gap-2 hover:text-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/><path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2"/></svg>
+                    {{ storeEmail }}
                 </a>
             </div>
         </aside>

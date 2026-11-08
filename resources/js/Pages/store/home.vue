@@ -25,6 +25,10 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    seo: {
+        type: Object,
+        default: () => ({}),
+    },
     categories: {
         type: Array,
         default: () => [],
@@ -65,6 +69,13 @@ const props = defineProps({
 
 // Store branding
 const storeName = computed(() => props.store?.name || 'MediMart')
+const storeLogo = computed(() => props.store?.logo_url || '')
+const seoTitle = computed(() => props.seo?.meta_title || `${storeName.value} — Online Medicine, Beauty & Healthcare`)
+const seoDescription = computed(() => props.seo?.meta_description || 'Order authentic medicines, wellness, and healthcare products with express doorstep delivery.')
+const seoKeywords = computed(() => props.seo?.meta_keywords || '')
+const seoRobots = computed(() => props.seo?.meta_robots || 'index, follow')
+const canonicalUrl = computed(() => props.seo?.canonical_url || '')
+const schemaMarkup = computed(() => props.seo?.schema_markup || '')
 
 // Fallback-safe computed collections
 const dynamicCategories = computed(() => {
@@ -105,7 +116,27 @@ const dynamicStats = computed(() => {
 </script>
 
 <template>
-    <Head :title="`${storeName} — Online Medicine, Beauty & Healthcare`" />
+    <Head>
+        <title>{{ seoTitle }}</title>
+        <meta v-if="seoDescription" name="description" :content="seoDescription" />
+        <meta v-if="seoKeywords" name="keywords" :content="seoKeywords" />
+        <meta name="robots" :content="seoRobots" />
+        <link v-if="canonicalUrl" rel="canonical" :href="canonicalUrl" />
+
+        <!-- Open Graph / Social Sharing -->
+        <meta property="og:title" :content="seoTitle" />
+        <meta v-if="seoDescription" property="og:description" :content="seoDescription" />
+        <meta property="og:type" content="website" />
+        <meta v-if="canonicalUrl" property="og:url" :content="canonicalUrl" />
+        <meta v-if="storeLogo" property="og:image" :content="storeLogo" />
+        <meta property="og:site_name" :content="storeName" />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" :content="seoTitle" />
+        <meta v-if="seoDescription" name="twitter:description" :content="seoDescription" />
+        <meta v-if="storeLogo" name="twitter:image" :content="storeLogo" />
+    </Head>
 
     <StoreLayout>
         <!-- ════════════════════════════════════════
