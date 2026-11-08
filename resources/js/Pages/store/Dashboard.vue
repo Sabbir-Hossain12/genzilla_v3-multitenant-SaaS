@@ -11,14 +11,14 @@ const props = defineProps({
     customer: {
         type: Object,
         default: () => ({
-            name: 'Customer',
-            first_name: 'Customer',
+            name: '',
+            first_name: '',
             last_name: '',
             phone: '',
             email: '',
-            membership: '🏅 Verified Member',
+            membership: '',
             avatar: null,
-            joined_date: 'Oct 2026',
+            joined_date: '',
         }),
     },
     stats: {
@@ -30,8 +30,6 @@ const props = defineProps({
             wishlist_count: 0,
             saved_addresses_count: 0,
             coupons_count: 0,
-            wallet_balance: 320.00,
-            reward_points: 1240,
         }),
     },
     orders: {
@@ -78,6 +76,7 @@ const currencySymbol = computed(() => (props.store?.currency === 'USD' ? '$' : '
 const customerProfile = ref({ ...props.customer })
 const avatarInput = ref(null)
 const avatarUploading = ref(false)
+const avatarImgError = ref(false)
 
 function triggerAvatarSelect() {
     avatarInput.value?.click()
@@ -107,6 +106,7 @@ function handleAvatarUpload(e) {
         .then((res) => {
             avatarUploading.value = false
             if (res.data.avatar_url) {
+                avatarImgError.value = false
                 customerProfile.value.avatar = res.data.avatar_url
             }
             showToast('📸 Profile photo updated successfully!')
@@ -584,9 +584,10 @@ function showToast(msg) {
                                 title="Click to change profile photo"
                             >
                                 <img
-                                    v-if="customerProfile.avatar"
+                                    v-if="customerProfile.avatar && !avatarImgError"
                                     :src="customerProfile.avatar"
                                     :alt="customerProfile.name"
+                                    @error="avatarImgError = true"
                                     class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200"
                                 />
                                 <span v-else class="text-xl sm:text-2xl font-bold text-primary">
@@ -1418,9 +1419,10 @@ function showToast(msg) {
                             <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                                 <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden ring-4 ring-primarylt bg-primary/10 flex items-center justify-center shrink-0">
                                     <img
-                                        v-if="customerProfile.avatar"
+                                        v-if="customerProfile.avatar && !avatarImgError"
                                         :src="customerProfile.avatar"
                                         alt="Profile Avatar"
+                                        @error="avatarImgError = true"
                                         class="w-full h-full object-cover"
                                     />
                                     <span v-else class="text-3xl font-extrabold text-primary">

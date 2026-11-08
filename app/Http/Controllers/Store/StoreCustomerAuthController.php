@@ -607,7 +607,7 @@ class StoreCustomerAuthController extends Controller
         $path = $request->file('prescription_file')->store('prescriptions', 'public');
 
         $custName = $validated['customer_name'] ?: ($customer ? $customer->name : 'Customer');
-        $custPhone = $validated['customer_phone'] ?: ($customer ? $customer->phone : '01711223344');
+        $custPhone = $validated['customer_phone'] ?: ($customer ? $customer->phone : '');
         $custEmail = $customer?->email;
 
         $rxNumber = 'RX-' . date('Ym') . '-' . strtoupper(Str::random(5));
@@ -635,7 +635,7 @@ class StoreCustomerAuthController extends Controller
                 'status_label' => 'Under Pharmacist Review',
                 'status_badge' => 'Pending Review',
                 'color' => 'text-amber-700 bg-amber-50 border border-amber-200',
-                'image_url' => Storage::disk('public')->url($path),
+                'image_url' => $rx->image_url,
                 'customer_name' => $rx->customer_name,
                 'customer_phone' => $rx->customer_phone,
                 'delivery_address' => $rx->delivery_address,
@@ -690,7 +690,7 @@ class StoreCustomerAuthController extends Controller
         $path = $request->file('avatar')->store('customers/avatars', 'public');
         $customer->update(['avatar' => $path]);
 
-        $avatarUrl = Storage::disk('public')->url($path);
+        $avatarUrl = $customer->avatar_url;
 
         return response()->json([
             'success' => true,

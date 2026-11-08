@@ -57,7 +57,12 @@ class TenantPrescription extends Model
             return $this->prescription_image;
         }
 
-        return Storage::disk('public')->url($this->prescription_image);
+        $clean = ltrim($this->prescription_image, '/');
+        if (str_starts_with($clean, 'storage/')) {
+            return '/' . $clean;
+        }
+
+        return '/storage/' . $clean;
     }
 
     public function getStatusBadgeClassAttribute(): string

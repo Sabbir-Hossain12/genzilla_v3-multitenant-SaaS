@@ -276,189 +276,184 @@ class StoreWebviewController extends Controller
         $tenantId = $tenant?->id ?? 1;
 
         $storeName = $tenant?->store_name ?: ($tenant?->name ?? 'MediMart');
-        $storePhone = $tenant?->support_phone ?: ($tenant?->phone ?? '09610-016778');
-        $storeEmail = $tenant?->support_email ?: ($tenant?->email ?? 'support@medimart.com');
+        $storePhone = $tenant?->support_phone ?: ($tenant?->phone ?? null);
+        $storeEmail = $tenant?->support_email ?: ($tenant?->email ?? null);
 
-        // Customer determination: authenticated guard customer or tenant primary customer fallback
+        // Customer determination: authenticated guard customer or tenant customer record
         $customer = auth('customer')->user()
             ?? Customer::where('tenant_id', $tenantId)->with(['addresses'])->first();
 
         $customerData = [
-            'id' => $customer?->id ?? 1,
-            'name' => $customer ? trim("{$customer->first_name} {$customer->last_name}") : 'Sabbir Hossain',
-            'first_name' => $customer?->first_name ?: 'Sabbir',
-            'last_name' => $customer?->last_name ?: 'Hossain',
-            'phone' => $customer?->phone ?: '+880 1926241906',
-            'email' => $customer?->email ?: 'sabbir@example.com',
+            'id' => $customer?->id,
+            'name' => $customer ? trim("{$customer->first_name} {$customer->last_name}") : '',
+            'first_name' => $customer?->first_name ?: '',
+            'last_name' => $customer?->last_name ?: '',
+            'phone' => $customer?->phone ?: '',
+            'email' => $customer?->email ?: '',
             'status' => $customer?->status ?: 'active',
             'membership' => '🏅 Verified Member',
-            'avatar' => $customer?->avatar_url ?: 'https://loremflickr.com/200/200/portrait,man?lock=501',
-            'joined_date' => $customer?->created_at ? $customer->created_at->format('M Y') : 'Oct 2026',
+            'avatar' => $customer?->avatar_url,
+            'joined_date' => $customer?->created_at ? $customer->created_at->format('M Y') : null,
         ];
 
-        // 1. Orders: Scoped to tenant and customer
-        $ordersQuery = Order::where('tenant_id', $tenantId);
+        // 1. Orders: Scoped strictly to tenant and customer database records
+        $orders = [];
         if ($customer) {
-            $ordersQuery->where(function ($q) use ($customer) {
-                $q->where('customer_id', $customer->id)
-                  ->orWhere('shipping_phone', $customer->phone);
-            });
+            $orders = Order::where('tenant_id', $tenantId)
+                ->where(function ($q) use ($customer) {
+                    $q->where('customer_id', $customer->id)
+                      ->orWhere('shipping_phone', $customer->phone);
+                })
+                ->with(['products', 'payments'])
+                ->latest('id')
+                ->take(25)
+                ->get()
+                ->map(function (Order $order) {
+                    $statusMap = [
+                        'pending' => ['label' => 'Pending Review', 'color' => 'text-amber-700 bg-amber-50 border border-amber-200/60'],
+                        'processing' => ['label' => 'Processing', 'color' => 'text-blue-700 bg-blue-50 border border-blue-200/60'],
+                        'shipped' => ['label' => 'Out for Delivery', 'color' => 'text-indigo-700 bg-indigo-50 border border-indigo-200/60'],
+                        'delivered' => ['label' => 'Delivered', 'color' => 'text-emerald-700 bg-emerald-50 border border-emerald-200/60'],
+                        'cancelled' => ['label' => 'Cancelled', 'color' => 'text-rose-700 bg-rose-50 border border-rose-200/60'],
+                    ];
+                    $meta = $statusMap[strtolower($order->status)] ?? ['label' => ucfirst($order->status), 'color' => 'text-gray-700 bg-gray-50 border border-gray-200'];
+
+                    $paymentStatusMap = [
+                        'paid' => ['label' => 'Paid', 'color' => 'text-emerald-700 bg-emerald-50 border border-emerald-200'],
+                        'unpaid' => ['label' => 'Unpaid', 'color' => 'text-amber-700 bg-amber-50 border border-amber-200'],
+                        'partially_paid' => ['label' => 'Partially Paid', 'color' => 'text-blue-700 bg-blue-50 border border-blue-200'],
+                        'refunded' => ['label' => 'Refunded', 'color' => 'text-purple-700 bg-purple-50 border border-purple-200'],
+                    ];
+                    $pMeta = $paymentStatusMap[strtolower($order->payment_status)] ?? ['label' => ucfirst($order->payment_status), 'color' => 'text-gray-700 bg-gray-50 border border-gray-200'];
+
+                    $items = $order->products->map(function (OrderProduct $op) {
+                        return [
+                            'id' => $op->id,
+                            'name' => $op->product_name,
+                            'variant' => $op->variant_title,
+                            'sku' => $op->sku,
+                            'quantity' => (int) $op->quantity,
+                            'unit_price' => (float) $op->unit_price,
+                            'line_total' => (float) $op->line_total,
+                            'requires_prescription' => (bool) $op->requires_prescription,
+                            'dosage_instructions' => $op->dosage_instructions,
+                        ];
+                    })->values()->all();
+
+                    $payments = $order->payments->map(function (OrderPayment $opay) {
+                        return [
+                            'id' => $opay->id,
+                            'transaction_id' => $opay->transaction_id ?: ('TXN-' . $opay->id),
+                            'method' => strtoupper($opay->payment_method),
+                            'amount' => (float) $opay->amount,
+                            'status' => ucfirst($opay->status),
+                            'type' => ucfirst($opay->type),
+                            'paid_at' => $opay->paid_at ? $opay->paid_at->format('M d, Y h:i A') : $opay->created_at->format('M d, Y h:i A'),
+                        ];
+                    })->values()->all();
+
+                    $rxImage = null;
+                    if (!empty($order->prescription_image)) {
+                        $rxImage = str_starts_with($order->prescription_image, 'http')
+                            ? $order->prescription_image
+                            : ('/storage/' . ltrim($order->prescription_image, '/'));
+                    }
+
+                    return [
+                        'id' => $order->order_number ?: ('ORD-' . $order->id),
+                        'raw_id' => $order->id,
+                        'date' => $order->placed_at ? $order->placed_at->format('M d, Y') : $order->created_at->format('M d, Y'),
+                        'items_count' => $order->products->sum('quantity') ?: max(1, count($items)),
+                        'subtotal' => (float) $order->subtotal,
+                        'discount_amount' => (float) $order->discount_amount,
+                        'shipping_charge' => (float) $order->shipping_charge,
+                        'tax_amount' => (float) $order->tax_amount,
+                        'total' => (float) $order->total,
+                        'status' => $meta['label'],
+                        'raw_status' => $order->status,
+                        'color' => $meta['color'],
+                        'payment_status' => $pMeta['label'],
+                        'payment_color' => $pMeta['color'],
+                        'payment_method' => strtoupper($order->payment_method),
+                        'prescription_status' => $order->prescription_status,
+                        'prescription_image' => $rxImage,
+                        'pharmacist_rx_notes' => $order->pharmacist_rx_notes,
+                        'shipping' => [
+                            'name' => $order->shipping_name,
+                            'phone' => $order->shipping_phone,
+                            'email' => $order->shipping_email,
+                            'address' => $order->shipping_address,
+                            'city' => $order->shipping_city,
+                            'postcode' => $order->shipping_postcode,
+                            'method' => $order->shipping_method,
+                            'note' => $order->order_note,
+                        ],
+                        'items' => $items,
+                        'payments' => $payments,
+                    ];
+                })
+                ->values()
+                ->all();
         }
-        $orders = $ordersQuery->with(['products', 'payments'])
-            ->latest('id')
-            ->take(25)
-            ->get()
-            ->map(function (Order $order) {
-                $statusMap = [
-                    'pending' => ['label' => 'Pending Review', 'color' => 'text-amber-700 bg-amber-50 border border-amber-200/60'],
-                    'processing' => ['label' => 'Processing', 'color' => 'text-blue-700 bg-blue-50 border border-blue-200/60'],
-                    'shipped' => ['label' => 'Out for Delivery', 'color' => 'text-indigo-700 bg-indigo-50 border border-indigo-200/60'],
-                    'delivered' => ['label' => 'Delivered', 'color' => 'text-emerald-700 bg-emerald-50 border border-emerald-200/60'],
-                    'cancelled' => ['label' => 'Cancelled', 'color' => 'text-rose-700 bg-rose-50 border border-rose-200/60'],
-                ];
-                $meta = $statusMap[strtolower($order->status)] ?? ['label' => ucfirst($order->status), 'color' => 'text-gray-700 bg-gray-50 border border-gray-200'];
-
-                $paymentStatusMap = [
-                    'paid' => ['label' => 'Paid', 'color' => 'text-emerald-700 bg-emerald-50 border border-emerald-200'],
-                    'unpaid' => ['label' => 'Unpaid', 'color' => 'text-amber-700 bg-amber-50 border border-amber-200'],
-                    'partially_paid' => ['label' => 'Partially Paid', 'color' => 'text-blue-700 bg-blue-50 border border-blue-200'],
-                    'refunded' => ['label' => 'Refunded', 'color' => 'text-purple-700 bg-purple-50 border border-purple-200'],
-                ];
-                $pMeta = $paymentStatusMap[strtolower($order->payment_status)] ?? ['label' => ucfirst($order->payment_status), 'color' => 'text-gray-700 bg-gray-50 border border-gray-200'];
-
-                $items = $order->products->map(function (OrderProduct $op) {
-                    return [
-                        'id' => $op->id,
-                        'name' => $op->product_name,
-                        'variant' => $op->variant_title,
-                        'sku' => $op->sku,
-                        'quantity' => (int) $op->quantity,
-                        'unit_price' => (float) $op->unit_price,
-                        'line_total' => (float) $op->line_total,
-                        'requires_prescription' => (bool) $op->requires_prescription,
-                        'dosage_instructions' => $op->dosage_instructions,
-                    ];
-                })->values()->all();
-
-                $payments = $order->payments->map(function (OrderPayment $opay) {
-                    return [
-                        'id' => $opay->id,
-                        'transaction_id' => $opay->transaction_id ?: ('TXN-' . $opay->id),
-                        'method' => strtoupper($opay->payment_method),
-                        'amount' => (float) $opay->amount,
-                        'status' => ucfirst($opay->status),
-                        'type' => ucfirst($opay->type),
-                        'paid_at' => $opay->paid_at ? $opay->paid_at->format('M d, Y h:i A') : $opay->created_at->format('M d, Y h:i A'),
-                    ];
-                })->values()->all();
-
-                $rxImage = null;
-                if (!empty($order->prescription_image)) {
-                    $rxImage = str_starts_with($order->prescription_image, 'http')
-                        ? $order->prescription_image
-                        : Storage::disk('public')->url($order->prescription_image);
-                }
-
-                return [
-                    'id' => $order->order_number ?: ('ORD-' . $order->id),
-                    'raw_id' => $order->id,
-                    'date' => $order->placed_at ? $order->placed_at->format('M d, Y') : $order->created_at->format('M d, Y'),
-                    'items_count' => $order->products->sum('quantity') ?: max(1, count($items)),
-                    'subtotal' => (float) $order->subtotal,
-                    'discount_amount' => (float) $order->discount_amount,
-                    'shipping_charge' => (float) $order->shipping_charge,
-                    'tax_amount' => (float) $order->tax_amount,
-                    'total' => (float) $order->total,
-                    'status' => $meta['label'],
-                    'raw_status' => $order->status,
-                    'color' => $meta['color'],
-                    'payment_status' => $pMeta['label'],
-                    'payment_color' => $pMeta['color'],
-                    'payment_method' => strtoupper($order->payment_method),
-                    'prescription_status' => $order->prescription_status,
-                    'prescription_image' => $rxImage,
-                    'pharmacist_rx_notes' => $order->pharmacist_rx_notes,
-                    'shipping' => [
-                        'name' => $order->shipping_name,
-                        'phone' => $order->shipping_phone,
-                        'email' => $order->shipping_email,
-                        'address' => $order->shipping_address,
-                        'city' => $order->shipping_city,
-                        'postcode' => $order->shipping_postcode,
-                        'method' => $order->shipping_method,
-                        'note' => $order->order_note,
-                    ],
-                    'items' => $items,
-                    'payments' => $payments,
-                ];
-            })
-            ->values()
-            ->all();
 
         // 2. Prescriptions: Aligned with TenantPrescription database table & Store Admin Rx Module
-        $prescriptionsQuery = TenantPrescription::where('tenant_id', $tenantId);
+        $prescriptions = [];
         if ($customer) {
-            $prescriptionsQuery->where(function ($q) use ($customer) {
-                $q->where('customer_id', $customer->id)
-                  ->orWhere('customer_phone', $customer->phone);
-            });
+            $prescriptions = TenantPrescription::where('tenant_id', $tenantId)
+                ->where(function ($q) use ($customer) {
+                    $q->where('customer_id', $customer->id)
+                      ->orWhere('customer_phone', $customer->phone);
+                })
+                ->with('order')
+                ->latest('id')
+                ->get()
+                ->map(function (TenantPrescription $rx) {
+                    $statusMap = [
+                        'pending_review' => [
+                            'label' => 'Under Pharmacist Review',
+                            'color' => 'text-amber-700 bg-amber-50 border border-amber-200',
+                            'badge' => 'Pending Review',
+                        ],
+                        'converted_to_order' => [
+                            'label' => 'Approved & Converted to Order',
+                            'color' => 'text-emerald-700 bg-emerald-50 border border-emerald-200',
+                            'badge' => 'Approved',
+                        ],
+                        'rejected' => [
+                            'label' => 'Declined / Invalid Rx',
+                            'color' => 'text-rose-700 bg-rose-50 border border-rose-200',
+                            'badge' => 'Declined',
+                        ],
+                    ];
+                    $meta = $statusMap[$rx->status] ?? [
+                        'label' => ucfirst(str_replace('_', ' ', $rx->status)),
+                        'color' => 'text-gray-700 bg-gray-50 border border-gray-200',
+                        'badge' => ucfirst($rx->status),
+                    ];
+
+                    return [
+                        'id' => $rx->id,
+                        'prescription_number' => $rx->prescription_number,
+                        'status' => $rx->status,
+                        'status_label' => $meta['label'],
+                        'status_badge' => $meta['badge'],
+                        'color' => $meta['color'],
+                        'image_url' => $rx->image_url,
+                        'customer_name' => $rx->customer_name,
+                        'customer_phone' => $rx->customer_phone,
+                        'delivery_address' => $rx->delivery_address,
+                        'patient_notes' => $rx->patient_notes,
+                        'pharmacist_notes' => $rx->pharmacist_notes,
+                        'rejection_reason' => $rx->rejection_reason,
+                        'order_id' => $rx->order_id,
+                        'order_number' => $rx->order?->order_number,
+                        'date' => $rx->created_at ? $rx->created_at->format('M d, Y') : null,
+                        'reviewed_date' => $rx->reviewed_at ? $rx->reviewed_at->format('M d, Y') : null,
+                    ];
+                })
+                ->values()
+                ->all();
         }
-        $prescriptions = $prescriptionsQuery->with('order')
-            ->latest('id')
-            ->get()
-            ->map(function (TenantPrescription $rx) {
-                $statusMap = [
-                    'pending_review' => [
-                        'label' => 'Under Pharmacist Review',
-                        'color' => 'text-amber-700 bg-amber-50 border border-amber-200',
-                        'badge' => 'Pending Review',
-                    ],
-                    'converted_to_order' => [
-                        'label' => 'Approved & Converted to Order',
-                        'color' => 'text-emerald-700 bg-emerald-50 border border-emerald-200',
-                        'badge' => 'Approved',
-                    ],
-                    'rejected' => [
-                        'label' => 'Declined / Invalid Rx',
-                        'color' => 'text-rose-700 bg-rose-50 border border-rose-200',
-                        'badge' => 'Declined',
-                    ],
-                ];
-                $meta = $statusMap[$rx->status] ?? [
-                    'label' => ucfirst(str_replace('_', ' ', $rx->status)),
-                    'color' => 'text-gray-700 bg-gray-50 border border-gray-200',
-                    'badge' => ucfirst($rx->status),
-                ];
-
-                $imageUrl = null;
-                if (!empty($rx->prescription_image)) {
-                    $imageUrl = str_starts_with($rx->prescription_image, 'http')
-                        ? $rx->prescription_image
-                        : Storage::disk('public')->url($rx->prescription_image);
-                }
-
-                return [
-                    'id' => $rx->id,
-                    'prescription_number' => $rx->prescription_number,
-                    'status' => $rx->status,
-                    'status_label' => $meta['label'],
-                    'status_badge' => $meta['badge'],
-                    'color' => $meta['color'],
-                    'image_url' => $imageUrl,
-                    'customer_name' => $rx->customer_name,
-                    'customer_phone' => $rx->customer_phone,
-                    'delivery_address' => $rx->delivery_address,
-                    'patient_notes' => $rx->patient_notes,
-                    'pharmacist_notes' => $rx->pharmacist_notes,
-                    'rejection_reason' => $rx->rejection_reason,
-                    'order_id' => $rx->order_id,
-                    'order_number' => $rx->order?->order_number,
-                    'date' => $rx->created_at ? $rx->created_at->format('M d, Y') : null,
-                    'reviewed_date' => $rx->reviewed_at ? $rx->reviewed_at->format('M d, Y') : null,
-                ];
-            })
-            ->values()
-            ->all();
 
         // 3. Saved Addresses: Dynamic from customer_addresses table
         $addresses = [];
@@ -489,7 +484,7 @@ class StoreWebviewController extends Controller
                 ->all();
         }
 
-        // 4. Saved Wishlist: Dynamic from wishlists table & catalog
+        // 4. Saved Wishlist: Strictly from wishlists database table
         $wishlist = [];
         if ($customer) {
             $wishlist = Wishlist::where('tenant_id', $tenantId)
@@ -505,26 +500,9 @@ class StoreWebviewController extends Controller
                         'name' => $w->product->name,
                         'slug' => $w->product->slug,
                         'price' => (float) $w->product->price,
-                        'img' => $w->product->image_url ?? $w->product->featured_image ?? 'https://via.placeholder.com/300',
+                        'img' => $w->product->thumbnail_url ?? $w->product->image_url ?? null,
                     ];
                 })
-                ->values()
-                ->all();
-        }
-
-        if (empty($wishlist)) {
-            $wishlist = Product::where('tenant_id', $tenantId)
-                ->where('status', 'active')
-                ->take(4)
-                ->get()
-                ->map(fn($p) => [
-                    'id' => $p->id,
-                    'product_id' => $p->id,
-                    'name' => $p->name,
-                    'slug' => $p->slug,
-                    'price' => (float) $p->price,
-                    'img' => $p->image_url ?? $p->featured_image ?? 'https://via.placeholder.com/300',
-                ])
                 ->values()
                 ->all();
         }
@@ -567,7 +545,7 @@ class StoreWebviewController extends Controller
                 ->all();
         }
 
-        // 6. Active Store Coupons: Dynamic from coupons table
+        // 6. Active Store Coupons: Dynamic from coupons database table
         $coupons = Coupon::where('tenant_id', $tenantId)
             ->where('is_active', true)
             ->where(function ($q) {
@@ -588,7 +566,7 @@ class StoreWebviewController extends Controller
             ->values()
             ->all();
 
-        // 7. Computed Customer Stats
+        // 7. Computed Customer Stats from real database records
         $activeRxCount = count(array_filter($prescriptions, fn($rx) => $rx['status'] === 'pending_review' || $rx['status'] === 'converted_to_order'));
         $totalSpent = round(array_sum(array_column($orders, 'total')), 2);
 
@@ -599,8 +577,6 @@ class StoreWebviewController extends Controller
             'wishlist_count' => count($wishlist),
             'saved_addresses_count' => count($addresses),
             'coupons_count' => count($coupons),
-            'wallet_balance' => 320.00,
-            'reward_points' => 1240,
         ];
 
         return Inertia::render('store/Dashboard', [

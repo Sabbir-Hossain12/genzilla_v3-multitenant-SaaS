@@ -85,7 +85,12 @@ class Customer extends Authenticatable
             return $this->avatar;
         }
 
-        return Storage::disk('public')->url($this->avatar);
+        $clean = ltrim($this->avatar, '/');
+        if (str_starts_with($clean, 'storage/')) {
+            return '/' . $clean;
+        }
+
+        return '/storage/' . $clean;
     }
 
     public function getStatusBadgeClassAttribute(): string
