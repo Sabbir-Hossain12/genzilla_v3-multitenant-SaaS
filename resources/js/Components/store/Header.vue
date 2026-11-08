@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import { openCartDrawer, openLoginModal, openMobileNav } from '@/composables/store/useStoreUi'
 import { cartCount } from '@/composables/store/useCart'
 import { categories as fallbackCategories } from '@/data/store'
@@ -11,12 +11,21 @@ const storeName = computed(() => store.value.name || 'MediMart')
 const storeLogo = computed(() => store.value.logo_url)
 const storePhone = computed(() => store.value.phone || '09610-016778')
 const storeEmail = computed(() => store.value.email || 'support@medimart.com')
+const customer = computed(() => page.props.auth?.customer)
 
 const categories = computed(() => {
     return page.props.categories && page.props.categories.length > 0
         ? page.props.categories
         : fallbackCategories
 })
+
+function handleAccountClick() {
+    if (customer.value) {
+        router.visit('/dashboard')
+    } else {
+        openLoginModal()
+    }
+}
 </script>
 
 <template>
@@ -43,67 +52,65 @@ const categories = computed(() => {
                     </svg>
                     {{ storeEmail }}
                 </a>
-                <a href="#" class="hover:text-white/80 transition-colors">Become a Seller</a>
-                <a href="#" class="hover:text-white/80 transition-colors">Track Order</a>
-                <a href="#" class="hover:text-white/80 transition-colors">Help</a>
+                <span class="text-white/40">|</span>
+                <span class="flex items-center gap-1.5 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Pharmacy Open 24/7
+                </span>
             </div>
         </div>
     </div>
 
     <!-- ════════════════════════════════════════
-         NAVBAR
+         MAIN HEADER
     ════════════════════════════════════════ -->
-    <nav class="sticky top-0 z-50 bg-white nav-shadow">
-        <div class="max-w-7xl mx-auto px-4">
+    <nav class="bg-white sticky top-0 z-40 border-b border-gray-100 shadow-xs">
+        <div class="max-w-7xl mx-auto px-2 xs:px-3 sm:px-4">
 
-            <!-- Main nav row -->
-            <div class="flex items-center gap-2 sm:gap-3 lg:gap-6 h-16 lg:h-20">
+            <!-- Main Row -->
+            <div class="flex items-center justify-between gap-1 xs:gap-1.5 sm:gap-2 lg:gap-8 h-[60px] sm:h-[68px] lg:h-[76px]">
 
-                <!-- Hamburger (mobile/tablet only) -->
-                <button
-                    type="button"
-                    class="lg:hidden shrink-0 w-9 h-9 flex items-center justify-center text-gray-700 -ml-1.5"
-                    aria-label="Open navigation menu"
-                    @click="openMobileNav"
-                >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
+                <!-- Left: Hamburger (mobile/tablet only) + Logo -->
+                <div class="flex items-center gap-1 xs:gap-1.5 sm:gap-3 shrink-0">
+                    <button
+                        type="button"
+                        class="lg:hidden p-1 sm:p-2 -ml-1 text-gray-700 hover:text-primary transition-colors shrink-0"
+                        aria-label="Open mobile menu"
+                        @click="openMobileNav"
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="xs:w-6 xs:h-6">
+                            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
 
-                <!-- Logo -->
-                <a href="/" class="flex items-center gap-2 shrink-0">
-                    <img
-                        v-if="storeLogo"
-                        :src="storeLogo"
-                        :alt="storeName"
-                        class="h-9 lg:h-11 w-auto max-w-[170px] object-contain rounded-lg"
-                    />
-                    <template v-else>
-                        <div class="w-9 h-9 lg:w-11 lg:h-11 rounded-lg bg-primary flex items-center justify-center shrink-0">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="lg:w-5 lg:h-5">
-                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <span class="text-lg sm:text-xl lg:text-2xl font-extrabold text-primary whitespace-nowrap">{{ storeName }}</span>
-                    </template>
-                </a>
+                    <!-- Logo: dynamic image if available, else stylized initials/name -->
+                    <a href="/" class="flex items-center gap-2 group shrink-0">
+                        <img
+                            v-if="storeLogo"
+                            :src="storeLogo"
+                            :alt="storeName"
+                            class="h-8 sm:h-9 lg:h-10 w-auto max-w-[120px] sm:max-w-[140px] lg:max-w-[170px] object-contain rounded-lg"
+                        />
+                        <template v-else>
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center text-white font-extrabold text-base sm:text-lg shadow-sm group-hover:scale-105 transition-transform">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">
+                                {{ storeName }}
+                            </span>
+                        </template>
+                    </a>
+                </div>
 
-                <!-- Search (desktop inline) -->
-                <div class="hidden lg:flex flex-1 max-w-2xl">
+                <!-- Desktop Search -->
+                <div class="hidden lg:flex flex-1 max-w-xl">
                     <div class="relative flex w-full">
-                        <select
-                            class="shrink-0 border border-r-0 border-gray-200 rounded-l-xl px-4 py-3.5 text-base bg-gray-50 text-gray-600 focus:outline-none max-w-[150px] truncate"
-                        >
-                            <option value="">All</option>
-                            <option v-for="cat in categories" :key="cat.slug || cat.name" :value="cat.slug">
-                                {{ cat.name }}
-                            </option>
-                        </select>
                         <input
                             type="text"
-                            placeholder="Search medicines, brands & more..."
-                            class="flex-1 min-w-0 border border-gray-200 px-5 py-3.5 text-base focus:outline-none focus:border-primary transition-colors"
+                            placeholder="Search medicines, health products, brands..."
+                            class="flex-1 border border-gray-200 rounded-l-xl px-4 py-3.5 text-sm focus:outline-none focus:border-primary transition-colors"
                         />
                         <button
                             type="button"
@@ -138,21 +145,23 @@ const categories = computed(() => {
                     <!-- Account -->
                     <button
                         type="button"
-                        class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0"
-                        @click="openLoginModal"
+                        class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0 cursor-pointer"
+                        @click="handleAccountClick"
                     >
-                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" class="sm:w-[22px] sm:h-[22px] lg:w-6 lg:h-6">
+                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" class="sm:w-[22px] sm:h-[22px] lg:w-6 lg:h-6" :class="customer ? 'text-primary' : ''">
                             <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
                             <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
-                        <span class="hidden lg:block text-[12px] mt-0.5 font-medium">Account</span>
+                        <span class="hidden lg:block text-[12px] mt-0.5 font-medium truncate max-w-[75px]">
+                            {{ customer ? (customer.first_name || 'Account') : 'Account' }}
+                        </span>
                     </button>
 
                     <!-- Orders -->
                     <button
                         type="button"
-                        class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0"
-                        @click="openLoginModal"
+                        class="hidden sm:flex flex-col items-center justify-center w-11 lg:w-auto px-0 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0 cursor-pointer"
+                        @click="handleAccountClick"
                     >
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="lg:w-6 lg:h-6">
                             <path d="M20 7h-3V6a4 4 0 00-8 0v1H6a1 1 0 00-1 1v11a2 2 0 002 2h10a2 2 0 002-2V8a1 1 0 00-1-1zM11 6a1 1 0 012 0v1h-2V6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -163,7 +172,7 @@ const categories = computed(() => {
                     <!-- Cart button -->
                     <button
                         type="button"
-                        class="relative flex flex-col items-center justify-center w-11 sm:w-12 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0"
+                        class="relative flex flex-col items-center justify-center w-11 sm:w-12 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0 cursor-pointer"
                         aria-label="View shopping cart"
                         @click="openCartDrawer"
                     >
@@ -192,7 +201,7 @@ const categories = computed(() => {
                     <button
                         type="button"
                         aria-label="Search"
-                        class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0"
+                        class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0 cursor-pointer"
                     >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                             <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
@@ -205,16 +214,6 @@ const categories = computed(() => {
             <!-- Category nav strip -->
             <div class="flex items-center border-t border-gray-100">
                 <div class="flex items-center gap-0 overflow-x-auto no-scrollbar">
-<!--                    <a-->
-<!--                        href="#all-categories"-->
-<!--                        class="flex items-center gap-2 px-5 py-3.5 text-[15px] font-semibold text-white bg-primary whitespace-nowrap shrink-0"-->
-<!--                    >-->
-<!--                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">-->
-<!--                            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>-->
-<!--                        </svg>-->
-<!--                        All Categories-->
-<!--                    </a>-->
-
                     <a
                         v-for="cat in categories"
                         :key="cat.slug || cat.name"

@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import { categories as fallbackCategories, moreLinks } from '@/data/store'
 import { navOpen, closeMobileNav, openLoginModal } from '@/composables/store/useStoreUi'
 
@@ -10,6 +10,7 @@ const storeName = computed(() => store.value.name || 'MediMart')
 const storeLogo = computed(() => store.value.logo_url)
 const storePhone = computed(() => store.value.phone || '09610-016778')
 const storeEmail = computed(() => store.value.email || 'support@medimart.com')
+const customer = computed(() => page.props.auth?.customer)
 
 const categories = computed(() => {
     return page.props.categories && page.props.categories.length > 0
@@ -17,9 +18,13 @@ const categories = computed(() => {
         : fallbackCategories
 })
 
-function goToLogin() {
+function handleAccountClick() {
     closeMobileNav()
-    openLoginModal()
+    if (customer.value) {
+        router.visit('/dashboard')
+    } else {
+        openLoginModal()
+    }
 }
 
 function getChildName(child) {
@@ -71,16 +76,18 @@ const quickLinks = [
                 </button>
             </div>
 
-            <!-- Login prompt -->
+            <!-- Login / Account prompt -->
             <div class="px-5 py-4 border-b border-gray-100 shrink-0">
                 <button
                     type="button"
-                    class="w-full flex items-center justify-between bg-primarylt rounded-xl px-4 py-3.5 hover:bg-primary/15 transition-colors"
-                    @click="goToLogin"
+                    class="w-full flex items-center justify-between bg-primarylt rounded-xl px-4 py-3.5 hover:bg-primary/15 transition-colors cursor-pointer"
+                    @click="handleAccountClick"
                 >
                     <span class="flex items-center gap-3">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-primary"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        <span class="text-[14px] font-semibold text-primary">Login / Sign Up</span>
+                        <span class="text-[14px] font-semibold text-primary">
+                            {{ customer ? `Hi, ${customer.first_name || customer.name}` : 'Login / Sign Up' }}
+                        </span>
                     </span>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="text-primary"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 </button>
@@ -123,27 +130,21 @@ const quickLinks = [
                 </div>
 
                 <!-- More links -->
-                <div class="px-2 py-2 border-t border-gray-100">
-                    <p class="px-3 pt-2 pb-1 text-[12px] font-bold text-gray-400 uppercase tracking-wider">More</p>
+                <div class="px-5 py-4 border-t border-gray-100 space-y-2.5">
                     <a
-                        v-for="link in moreLinks"
-                        :key="link"
-                        href="#"
-                        class="flex items-center px-3 py-3 text-[14.5px] text-gray-700 hover:text-primary"
-                    >{{ link }}</a>
+                        v-for="ml in moreLinks"
+                        :key="ml.label"
+                        :href="ml.href"
+                        class="block text-[14px] text-gray-600 hover:text-primary transition-colors"
+                    >{{ ml.label }}</a>
                 </div>
-            </div>
 
-            <!-- Footer -->
-            <div class="px-5 py-4 border-t border-gray-100 shrink-0 space-y-2">
-                <a :href="`tel:${storePhone}`" class="text-[12.5px] text-gray-500 flex items-center gap-2 hover:text-primary">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    {{ storePhone }}
-                </a>
-                <a v-if="storeEmail" :href="`mailto:${storeEmail}`" class="text-[12.5px] text-gray-500 flex items-center gap-2 hover:text-primary">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/><path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2"/></svg>
-                    {{ storeEmail }}
-                </a>
+                <!-- Contact card -->
+                <div class="p-5 border-t border-gray-100 bg-gray-50 m-3 rounded-2xl">
+                    <p class="text-[12px] text-gray-400 uppercase font-semibold">Need help?</p>
+                    <p class="text-[16px] font-bold text-primary mt-1">{{ storePhone }}</p>
+                    <p class="text-[12px] text-gray-500 mt-0.5">{{ storeEmail }}</p>
+                </div>
             </div>
         </aside>
     </div>

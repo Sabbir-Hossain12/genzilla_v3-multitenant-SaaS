@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Store;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\Customer;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\Slider;
 use App\Models\Tenant;
@@ -258,6 +260,150 @@ class StoreWebviewController extends Controller
             'quickActions' => $quickActions,
             'trustBadges' => $trustBadges,
             'stats' => $stats,
+        ]);
+    }
+
+    public function dashboard(Request $request): Response
+    {
+        $tenant = tenant() ?? Tenant::first();
+        $tenantId = $tenant?->id ?? 1;
+
+        $storeName = $tenant?->store_name ?: ($tenant?->name ?? 'MediMart');
+        $storePhone = $tenant?->support_phone ?: ($tenant?->phone ?? '09610-016778');
+        $storeEmail = $tenant?->support_email ?: ($tenant?->email ?? 'support@medimart.com');
+
+        $customer = auth('customer')->user()
+            ?? Customer::where('tenant_id', $tenantId)->with(['addresses'])->first();
+
+        $customerData = [
+            'id' => $customer?->id ?? 1,
+            'name' => $customer ? trim("{$customer->first_name} {$customer->last_name}") : 'Sabbir Hossain',
+            'first_name' => $customer?->first_name ?: 'Sabbir',
+            'last_name' => $customer?->last_name ?: 'Hossain',
+            'phone' => $customer?->phone ?: '+880 1926241906',
+            'email' => $customer?->email ?: 'sabbir@example.com',
+            'membership' => '🏅 Gold Member',
+            'avatar' => 'https://loremflickr.com/200/200/portrait,man?lock=501',
+        ];
+
+        // Orders
+        $orders = [];
+        if ($customer) {
+            $orders = Order::where('tenant_id', $tenantId)
+                ->where('customer_id', $customer->id)
+                ->latest('id')
+                ->take(15)
+                ->get()
+                ->map(function (Order $order) {
+                    $statusMap = [
+                        'pending' => ['label' => 'Processing', 'color' => 'text-amber-600 bg-amber-50'],
+                        'processing' => ['label' => 'Processing', 'color' => 'text-blue-600 bg-blue-50'],
+                        'shipped' => ['label' => 'Out for Delivery', 'color' => 'text-blue-600 bg-blue-50'],
+                        'delivered' => ['label' => 'Delivered', 'color' => 'text-green-600 bg-green-50'],
+                        'cancelled' => ['label' => 'Cancelled', 'color' => 'text-red-500 bg-red-50'],
+                    ];
+                    $meta = $statusMap[strtolower($order->status)] ?? ['label' => ucfirst($order->status), 'color' => 'text-gray-600 bg-gray-50'];
+                    $itemCount = $order->products()->count();
+                    return [
+                        'id' => $order->order_number ?: ('MM-' . $order->id),
+                        'date' => $order->placed_at ? $order->placed_at->format('M d, Y') : $order->created_at->format('M d, Y'),
+                        'items' => $itemCount > 0 ? $itemCount : 2,
+                        'total' => (float) $order->total,
+                        'status' => $meta['label'],
+                        'color' => $meta['color'],
+                    ];
+                })
+                ->values()
+                ->all();
+        }
+
+        if (empty($orders)) {
+            $orders = [
+                ['id' => 'MM-58213', 'date' => 'Sep 20, 2026', 'items' => 3, 'total' => 2529, 'status' => 'Out for Delivery', 'color' => 'text-blue-600 bg-blue-50'],
+                ['id' => 'MM-58109', 'date' => 'Sep 12, 2026', 'items' => 1, 'total' => 799,  'status' => 'Delivered', 'color' => 'text-green-600 bg-green-50'],
+                ['id' => 'MM-57988', 'date' => 'Sep 02, 2026', 'items' => 2, 'total' => 1440, 'status' => 'Delivered', 'color' => 'text-green-600 bg-green-50'],
+                ['id' => 'MM-57820', 'date' => 'Aug 24, 2026', 'items' => 1, 'total' => 360,  'status' => 'Cancelled', 'color' => 'text-red-500 bg-red-50'],
+                ['id' => 'MM-57705', 'date' => 'Aug 15, 2026', 'items' => 4, 'total' => 3120, 'status' => 'Delivered', 'color' => 'text-green-600 bg-green-50'],
+            ];
+        }
+
+        // Addresses
+        $addresses = [];
+        if ($customer && $customer->addresses()->exists()) {
+            $addresses = $customer->addresses->map(function ($addr) use ($customerData) {
+                return [
+                    'id' => $addr->id,
+                    'title' => $addr->title ?: 'Home',
+                    'is_default' => (bool) $addr->is_default,
+                    'name' => $addr->first_name ? trim("{$addr->first_name} {$addr->last_name}") : $customerData['name'],
+                    'phone' => $addr->phone ?: $customerData['phone'],
+                    'address' => trim("{$addr->address_1}, {$addr->address_2}, {$addr->state_district} {$addr->zip}"),
+                ];
+            })->values()->all();
+        }
+
+        if (empty($addresses)) {
+            $addresses = [
+                [
+                    'id' => 1,
+                    'title' => 'Home',
+                    'is_default' => true,
+                    'name' => $customerData['name'],
+                    'phone' => $customerData['phone'],
+                    'address' => '549 Ashkona, Apartment: Bhuiyan Manjil, near Baytul mahfuj jame moshjid, Dhaka 1230, Dakshin Khan, Dhaka',
+                ],
+                [
+                    'id' => 2,
+                    'title' => 'Office',
+                    'is_default' => false,
+                    'name' => $customerData['name'],
+                    'phone' => $customerData['phone'],
+                    'address' => 'Level 6, Rupayan Trade Centre, Kawran Bazar, Dhaka 1215',
+                ],
+            ];
+        }
+
+        // Wishlist
+        $wishlist = [
+            ['id' => 1, 'name' => 'Himalaya Vitamin C Orange Face Serum 30ml', 'price' => 350, 'img' => 'https://loremflickr.com/300/300/vitaminc,serum?lock=104'],
+            ['id' => 2, 'name' => 'COSRX Salicylic Acid Daily Cleanser 150ml', 'price' => 1145, 'img' => 'https://loremflickr.com/300/300/facewash,cleanser?lock=105'],
+            ['id' => 3, 'name' => 'Bioderma Sebium Purifying Gel 200ml', 'price' => 1645, 'img' => 'https://loremflickr.com/300/300/skincare,gel?lock=107'],
+            ['id' => 4, 'name' => 'Skin Cafe Hair Fall Biotin Shampoo 250ml', 'price' => 360, 'img' => 'https://loremflickr.com/300/300/shampoo,haircare?lock=112'],
+        ];
+
+        // Transactions
+        $transactions = [
+            ['id' => 1, 'desc' => 'Cashback from order #MM-58109', 'date' => 'Sep 12, 2026', 'amount' => 15, 'positive' => true],
+            ['id' => 2, 'desc' => 'Applied on order #MM-58213', 'date' => 'Sep 20, 2026', 'amount' => -10, 'positive' => false],
+            ['id' => 3, 'desc' => 'Cashback from order #MM-57988', 'date' => 'Sep 02, 2026', 'amount' => 20, 'positive' => true],
+            ['id' => 4, 'desc' => 'Referral bonus — Friend joined', 'date' => 'Aug 28, 2026', 'amount' => 50, 'positive' => true],
+        ];
+
+        $stats = [
+            'total_orders' => count($orders),
+            'wallet_balance' => 320.00,
+            'wishlist_count' => count($wishlist),
+            'reward_points' => 1240,
+        ];
+
+        return Inertia::render('store/Dashboard', [
+            'store' => [
+                'id' => $tenant?->id ?? 1,
+                'name' => $storeName,
+                'subdomain' => $tenant?->subdomain ?? 'medimart',
+                'custom_domain' => $tenant?->custom_domain,
+                'logo_url' => $tenant?->logo_url,
+                'phone' => $storePhone,
+                'email' => $storeEmail,
+                'currency' => $tenant?->currency ?? 'BDT',
+                'timezone' => $tenant?->timezone ?? 'UTC',
+            ],
+            'customer' => $customerData,
+            'stats' => $stats,
+            'orders' => $orders,
+            'addresses' => $addresses,
+            'wishlist' => $wishlist,
+            'transactions' => $transactions,
         ]);
     }
 }
