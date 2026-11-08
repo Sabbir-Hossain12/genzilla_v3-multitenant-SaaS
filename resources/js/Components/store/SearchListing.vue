@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { Link } from '@inertiajs/vue3'
 
 const props = defineProps({
     results: { type: Array, default: () => [] },
@@ -36,9 +37,13 @@ function formatPrice(val) {
             <span class="truncate">
                 Products matching <span class="text-gray-900 font-bold">"{{ query }}"</span>
             </span>
-            <span class="text-[11px] font-bold text-primary bg-primarylt px-2 py-0.5 rounded-full shrink-0 ml-2">
-                {{ results.length }} found
-            </span>
+            <Link
+                :href="'/search?q=' + encodeURIComponent(query)"
+                @click="$emit('close')"
+                class="text-[11px] font-bold text-primary hover:underline shrink-0 ml-2"
+            >
+                View all {{ results.length }} &rarr;
+            </Link>
         </div>
 
         <!-- Scrollable content area -->
@@ -64,6 +69,13 @@ function formatPrice(val) {
                 <p class="text-xs text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
                     No items matched "<span class="font-semibold text-gray-700">{{ query }}</span>". Try searching for generic names like <span class="text-primary font-medium">Paracetamol</span>, <span class="text-primary font-medium">Napa</span>, or <span class="text-primary font-medium">Tablet</span>.
                 </p>
+                <Link
+                    :href="'/search?q=' + encodeURIComponent(query)"
+                    @click="$emit('close')"
+                    class="inline-block mt-3 bg-primary hover:bg-primary2 text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors shadow-2xs cursor-pointer"
+                >
+                    View Search Results Page
+                </Link>
             </div>
 
             <!-- Products Listing -->
@@ -151,13 +163,19 @@ function formatPrice(val) {
         <!-- Footer Strip -->
         <div
             v-if="!loading && results.length > 0"
-            class="px-3.5 sm:px-4 py-2 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400"
+            class="px-3.5 sm:px-4 py-2 bg-gray-50/90 border-t border-gray-100 flex items-center justify-between text-xs"
         >
-            <span>💡 Click item to view cart or '+' to add</span>
+            <Link
+                :href="'/search?q=' + encodeURIComponent(query)"
+                @click="$emit('close')"
+                class="text-primary hover:text-primary2 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+            >
+                <span>View all search results &rarr;</span>
+            </Link>
             <button
                 type="button"
                 @click="$emit('close')"
-                class="hover:text-gray-600 font-medium cursor-pointer"
+                class="text-gray-400 hover:text-gray-600 text-[11px] font-medium cursor-pointer"
             >
                 Close (Esc)
             </button>

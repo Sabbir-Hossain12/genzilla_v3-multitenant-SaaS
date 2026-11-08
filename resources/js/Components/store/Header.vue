@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { openCartDrawer, openLoginModal, openMobileNav } from '@/composables/store/useStoreUi'
@@ -34,7 +34,7 @@ function handleAccountClick() {
 // ══════════════════════════════════════════
 // DYNAMIC LIVE SEARCH STATE & HANDLERS
 // ══════════════════════════════════════════
-const searchQuery = ref('')
+const searchQuery = ref(page.props.query || '')
 const searchLoading = ref(false)
 const searchResults = ref([])
 const isSearchOpen = ref(false)
@@ -45,6 +45,16 @@ const desktopSearchRef = ref(null)
 const mobileSearchRef = ref(null)
 
 let debounceTimer = null
+
+// Keep search bar in sync if URL query changes
+watch(
+    () => page.props.query,
+    (newQ) => {
+        if (newQ !== undefined) {
+            searchQuery.value = newQ || ''
+        }
+    }
+)
 
 function performSearch() {
     clearTimeout(debounceTimer)
@@ -63,7 +73,8 @@ function performSearch() {
     activeIndex.value = -1
 
     debounceTimer = setTimeout(() => {
-        axios.get('/api/search/products', { params: { q } })
+        axios
+            .get('/api/search/products', { params: { q } })
             .then((res) => {
                 searchResults.value = res.data.products || []
                 hasSearched.value = true
@@ -76,6 +87,13 @@ function performSearch() {
                 searchLoading.value = false
             })
     }, 250)
+}
+
+function submitSearch() {
+    const q = searchQuery.value.trim()
+    if (!q) return
+    closeSearch()
+    router.visit('/search?q=' + encodeURIComponent(q))
 }
 
 function onSearchFocus() {
@@ -109,30 +127,36 @@ function navigateResults(direction) {
 function selectActiveResult() {
     if (activeIndex.value >= 0 && searchResults.value[activeIndex.value]) {
         handleProductClick(searchResults.value[activeIndex.value])
-    } else if (searchResults.value.length > 0) {
-        handleProductClick(searchResults.value[0])
+    } else {
+        submitSearch()
     }
 }
 
 function handleQuickAdd(product) {
     addToCart(product)
-    window.dispatchEvent(new CustomEvent('medimart:toast', {
-        detail: `🛒 Added ${product.name} to cart!`
-    }))
+    window.dispatchEvent(
+        new CustomEvent('medimart:toast', {
+            detail: `🛒 Added ${product.name} to cart!`,
+        })
+    )
 }
 
 function handleProductClick(product) {
     addToCart(product)
     openCartDrawer()
     closeSearch()
-    window.dispatchEvent(new CustomEvent('medimart:toast', {
-        detail: `🛒 Added ${product.name} to cart!`
-    }))
+    window.dispatchEvent(
+        new CustomEvent('medimart:toast', {
+            detail: `🛒 Added ${product.name} to cart!`,
+        })
+    )
 }
 
 function handleClickOutside(event) {
-    const isInsideDesktop = desktopSearchRef.value && desktopSearchRef.value.contains(event.target)
-    const isInsideMobile = mobileSearchRef.value && mobileSearchRef.value.contains(event.target)
+    const isInsideDesktop =
+        desktopSearchRef.value && desktopSearchRef.value.contains(event.target)
+    const isInsideMobile =
+        mobileSearchRef.value && mobileSearchRef.value.contains(event.target)
     if (!isInsideDesktop && !isInsideMobile) {
         closeSearch()
     }
@@ -260,7 +284,7 @@ onBeforeUnmount(() => {
 
                         <button
                             type="button"
-                            @click="performSearch"
+                            @click="submitSearch"
                             aria-label="Search products"
                             class="bg-primary hover:bg-primary2 text-white px-6 py-3.5 rounded-r-xl transition-colors cursor-pointer shrink-0 flex items-center justify-center shadow-xs"
                         >
@@ -282,7 +306,7 @@ onBeforeUnmount(() => {
                             @select="handleProductClick"
                             @add="handleQuickAdd"
                             @close="closeSearch"
-                            @hover="idx => activeIndex = idx"
+                            @hover="(idx) => (activeIndex = idx)"
                         />
                     </div>
                 </div>
@@ -388,7 +412,7 @@ onBeforeUnmount(() => {
 
                     <button
                         type="button"
-                        @click="performSearch"
+                        @click="submitSearch"
                         aria-label="Search"
                         class="bg-primary hover:bg-primary2 text-white px-4 py-2.5 rounded-r-xl transition-colors shrink-0 cursor-pointer shadow-xs flex items-center justify-center"
                     >
@@ -411,7 +435,7 @@ onBeforeUnmount(() => {
                     @select="handleProductClick"
                     @add="handleQuickAdd"
                     @close="closeSearch"
-                    @hover="idx => activeIndex = idx"
+                    @hover="(idx) => (activeIndex = idx)"
                 />
             </div>
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Coupon;
 use App\Models\Customer;
@@ -681,6 +682,179 @@ class StoreWebviewController extends Controller
             'products' => $formatted,
             'total' => count($formatted),
             'query' => $query,
+        ]);
+    }
+
+    /**
+     * Dedicated search results page for storefront.
+     */
+    public function searchResults(Request $request): Response
+    {
+        $tenant = tenant() ?? Tenant::first();
+        $tenantId = $tenant?->id ?? 1;
+
+        $query = trim((string) $request->input('q', ''));
+        $selectedCategories = array_values(array_filter(explode(',', (string) $request->input('categories', ''))));
+        $selectedBrands = array_values(array_filter(explode(',', (string) $request->input('brands', ''))));
+        $minPrice = $request->filled('min_price') ? (float) $request->input('min_price') : null;
+        $maxPrice = $request->filled('max_price') ? (float) $request->input('max_price') : null;
+        $sort = (string) $request->input('sort', 'relevance');
+
+        // Query active products for this tenant
+        $productQuery = Product::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', 'active');
+
+        if ($query !== '') {
+            $productQuery->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('generic_name', 'like', "%{$query}%")
+                  ->orWhere('slug', 'like', "%{$query}%")
+                  ->orWhereHas('brand', function ($bq) use ($query) {
+                      $bq->where('name', 'like', "%{$query}%");
+                  })
+                  ->orWhereHas('category', function ($cq) use ($query) {
+                      $cq->where('name', 'like', "%{$query}%");
+                  })
+                  ->orWhereHas('variants', function ($vq) use ($query) {
+                      $vq->where('sku', 'like', "%{$query}%")
+                         ->orWhere('barcode', 'like', "%{$query}%");
+                  });
+            });
+        }
+
+        if (!empty($selectedCategories)) {
+            $productQuery->whereIn('category_id', $selectedCategories);
+        }
+
+        if (!empty($selectedBrands)) {
+            $productQuery->whereIn('brand_id', $selectedBrands);
+        }
+
+        $products = $productQuery
+            ->with([
+                'category.parent',
+                'brand',
+                'defaultVariant',
+                'activeVariants',
+                'media',
+            ])
+            ->get();
+
+        $formattedProducts = $products->map(function (Product $p) {
+            $variant = $p->defaultVariant ?? $p->activeVariants->first() ?? $p->variants->first();
+            $price = (float) ($variant?->price ?? 0);
+            $original = (float) ($variant?->compare_at_price ?? $variant?->mrp ?? $price);
+
+            $badge = $p->specs['badge'] ?? null;
+            if (!$badge && $original > $price && $original > 0) {
+                $discountPercent = (int) round((($original - $price) / $original) * 100);
+                if ($discountPercent > 0) {
+                    $badge = $discountPercent . '% OFF';
+                }
+            }
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'slug' => $p->slug,
+                'brand' => $p->brand?->name ?? 'Generic',
+                'brand_id' => (string) $p->brand_id,
+                'category' => $p->category?->name ?? 'General',
+                'category_id' => (string) $p->category_id,
+                'generic_name' => $p->generic_name,
+                'price' => $price,
+                'original' => $original > $price ? $original : $price,
+                'rating' => (int) ($p->specs['rating'] ?? 5),
+                'reviews' => (int) ($p->specs['reviews'] ?? $p->specs['reviews_count'] ?? 0),
+                'badge' => $badge,
+                'image' => $p->thumbnail_url,
+                'requires_prescription' => (bool) $p->requires_prescription,
+                'is_in_stock' => $variant ? $variant->is_in_stock : true,
+            ];
+        });
+
+        if ($minPrice !== null) {
+            $formattedProducts = $formattedProducts->filter(fn($p) => $p['price'] >= $minPrice);
+        }
+        if ($maxPrice !== null) {
+            $formattedProducts = $formattedProducts->filter(fn($p) => $p['price'] <= $maxPrice);
+        }
+
+        // Sorting
+        if ($sort === 'price_low_high') {
+            $formattedProducts = $formattedProducts->sortBy('price')->values();
+        } elseif ($sort === 'price_high_low') {
+            $formattedProducts = $formattedProducts->sortByDesc('price')->values();
+        } elseif ($sort === 'newest') {
+            $formattedProducts = $formattedProducts->sortByDesc('id')->values();
+        } else {
+            $formattedProducts = $formattedProducts->values();
+        }
+
+        // Compute Facets from the whole tenant catalog so filter counts reflect available inventory
+        $tenantProducts = Product::where('tenant_id', $tenantId)->where('status', 'active')->get();
+
+        $categoryFacets = Category::where('tenant_id', $tenantId)
+            ->where('status', true)
+            ->get()
+            ->map(function ($cat) use ($tenantProducts) {
+                return [
+                    'id' => (string) $cat->id,
+                    'name' => $cat->name,
+                    'count' => $tenantProducts->where('category_id', $cat->id)->count(),
+                ];
+            })
+            ->filter(fn($c) => $c['count'] > 0)
+            ->values()
+            ->all();
+
+        $brandFacets = Brand::where('tenant_id', $tenantId)
+            ->where('status', true)
+            ->get()
+            ->map(function ($b) use ($tenantProducts) {
+                return [
+                    'id' => (string) $b->id,
+                    'name' => $b->name,
+                    'count' => $tenantProducts->where('brand_id', $b->id)->count(),
+                ];
+            })
+            ->filter(fn($b) => $b['count'] > 0)
+            ->values()
+            ->all();
+
+        // Top navigation categories
+        $categories = Category::query()
+            ->where('tenant_id', $tenantId)
+            ->whereNull('parent_id')
+            ->where('status', true)
+            ->orderBy('position')
+            ->orderBy('name')
+            ->limit(8)
+            ->get()
+            ->map(fn($cat) => [
+                'id' => $cat->id,
+                'name' => $cat->name,
+                'slug' => $cat->slug,
+                'icon' => self::CATEGORY_ICONS[$cat->name] ?? '???',
+            ])
+            ->values()
+            ->all();
+
+        return Inertia::render('store/SearchResults', [
+            'query' => $query,
+            'products' => $formattedProducts->all(),
+            'total' => $formattedProducts->count(),
+            'categoryFacets' => $categoryFacets,
+            'brandFacets' => $brandFacets,
+            'categories' => $categories,
+            'filters' => [
+                'categories' => $selectedCategories,
+                'brands' => $selectedBrands,
+                'min_price' => $minPrice,
+                'max_price' => $maxPrice,
+                'sort' => $sort,
+            ],
         ]);
     }
 }
