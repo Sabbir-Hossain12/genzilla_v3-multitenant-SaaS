@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web','tenant.identify','store.status'])->group(function () {
     Route::get('/', [StoreWebviewController::class, 'index'])->name('store.home');
+    Route::get('/product/{slug}', [StoreWebviewController::class, 'productDetails'])->name('store.product.show');
     Route::get('/search', [StoreWebviewController::class, 'searchResults'])->name('store.search.results');
     Route::get('/dashboard', [StoreWebviewController::class, 'dashboard'])->name('store.dashboard');
     Route::get('/api/search/products', [StoreWebviewController::class, 'searchProducts'])->name('store.search.products');

@@ -13,6 +13,8 @@ use App\Models\Order;
 use App\Models\OrderPayment;
 use App\Models\OrderProduct;
 use App\Models\Product;
+use App\Models\ProductVariant;
+use Illuminate\Support\Str;
 use App\Models\Slider;
 use App\Models\Tenant;
 use App\Models\TenantPrescription;
@@ -857,5 +859,264 @@ class StoreWebviewController extends Controller
             ],
         ]);
     }
-}
 
+    /**
+     * Product details view for storefront.
+     */
+    public function productDetails(Request $request, string $slug): Response
+    {
+        $tenant = tenant() ?? Tenant::first();
+        $tenantId = $tenant?->id ?? 1;
+
+        $product = Product::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->where(function ($query) use ($slug) {
+                $query->where('slug', $slug);
+                if (is_numeric($slug)) {
+                    $query->orWhere('id', (int) $slug);
+                }
+            })
+            ->with([
+                'category.parent',
+                'brand',
+                'variants.batches',
+                'activeVariants.batches',
+                'defaultVariant.batches',
+                'media',
+                'approvedReviews.customer',
+            ])
+            ->first();
+
+        if (!$product) {
+            abort(404, 'Product not found');
+        }
+
+        // 1. Gallery
+        $gallery = $product->media->map(function ($m) use ($product) {
+            $url = Str::startsWith($m->path, ['http://', 'https://'])
+                ? $m->path
+                : '/storage/' . ltrim($m->path, '/');
+            return [
+                'id' => $m->id,
+                'url' => $url,
+                'alt' => $m->alt ?: $product->name,
+                'collection' => $m->collection,
+            ];
+        })->values();
+
+        if ($gallery->isEmpty()) {
+            $thumb = $product->thumbnail_url ?: 'https://via.placeholder.com/600';
+            $gallery = collect([
+                [
+                    'id' => 'thumb-1',
+                    'url' => $thumb,
+                    'alt' => $product->name,
+                    'collection' => 'cover',
+                ],
+            ]);
+        }
+
+        // 2. Variants
+        $rawVariants = $product->activeVariants->isNotEmpty() ? $product->activeVariants : $product->variants;
+        $variantsList = $rawVariants->map(function (ProductVariant $v) {
+            $price = (float) ($v->price ?? 0);
+            $original = (float) ($v->compare_at_price ?? $v->mrp ?? $price);
+            $discountPercent = ($original > $price && $original > 0)
+                ? (int) round((($original - $price) / $original) * 100)
+                : 0;
+
+            return [
+                'id' => $v->id,
+                'title' => $v->title ?: 'Standard',
+                'sku' => $v->sku,
+                'price' => $price,
+                'original' => $original > $price ? $original : $price,
+                'discount_percent' => $discountPercent,
+                'is_default' => (bool) $v->is_default,
+                'is_in_stock' => $v->is_in_stock,
+                'available_stock' => $v->available_stock,
+            ];
+        })->values();
+
+        if ($variantsList->isEmpty()) {
+            $variantsList = collect([
+                [
+                    'id' => 'default',
+                    'title' => 'Standard',
+                    'sku' => 'SKU-' . $product->id,
+                    'price' => 0,
+                    'original' => 0,
+                    'discount_percent' => 0,
+                    'is_default' => true,
+                    'is_in_stock' => true,
+                    'available_stock' => 99,
+                ],
+            ]);
+        }
+
+        // 3. Specs and structured details
+        $specs = is_array($product->specs) ? $product->specs : [];
+
+        // 4. Reviews & Rating Statistics
+        $reviews = $product->approvedReviews->map(function ($r) {
+            $name = $r->reviewer_name ?: ($r->customer ? $r->customer->name : 'Verified Customer');
+            $initials = collect(explode(' ', $name))
+                ->filter()
+                ->map(fn($w) => Str::substr($w, 0, 1))
+                ->take(2)
+                ->implode('');
+
+            return [
+                'id' => $r->id,
+                'reviewer_name' => $name,
+                'initials' => strtoupper($initials) ?: 'VC',
+                'rating' => (int) $r->rating,
+                'title' => $r->title ?: 'Verified Review',
+                'comment' => $r->comment,
+                'helpful_count' => (int) ($r->helpful_count ?? 0),
+                'is_verified_purchase' => (bool) $r->is_verified_purchase,
+                'date' => $r->created_at ? $r->created_at->format('d M Y') : 'Recent',
+            ];
+        })->values();
+
+        $avgRating = $reviews->isNotEmpty()
+            ? (float) round($reviews->avg('rating'), 1)
+            : (float) ($specs['rating'] ?? 5.0);
+
+        $reviewsCount = $reviews->isNotEmpty()
+            ? $reviews->count()
+            : (int) ($specs['reviews'] ?? $specs['reviews_count'] ?? 0);
+
+        $starCounts = [
+            5 => $reviews->where('rating', 5)->count(),
+            4 => $reviews->where('rating', 4)->count(),
+            3 => $reviews->where('rating', 3)->count(),
+            2 => $reviews->where('rating', 2)->count(),
+            1 => $reviews->where('rating', 1)->count(),
+        ];
+        if ($reviews->isEmpty() && $reviewsCount > 0) {
+            $starCounts = [
+                5 => (int) round($reviewsCount * 0.8),
+                4 => (int) round($reviewsCount * 0.15),
+                3 => (int) round($reviewsCount * 0.05),
+                2 => 0,
+                1 => 0,
+            ];
+        }
+
+        // 5. Related Products (within same tenant, prioritizing same category)
+        $rawRelated = Product::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->where('id', '!=', $product->id)
+            ->when($product->category_id, fn($q) => $q->where('category_id', $product->category_id))
+            ->with(['brand', 'category.parent', 'defaultVariant.batches', 'activeVariants.batches', 'media'])
+            ->take(10)
+            ->get();
+
+        if ($rawRelated->count() < 6) {
+            $more = Product::query()
+                ->where('tenant_id', $tenantId)
+                ->where('status', 'active')
+                ->where('id', '!=', $product->id)
+                ->whereNotIn('id', $rawRelated->pluck('id'))
+                ->with(['brand', 'category.parent', 'defaultVariant.batches', 'activeVariants.batches', 'media'])
+                ->take(10 - $rawRelated->count())
+                ->get();
+            $rawRelated = $rawRelated->concat($more);
+        }
+
+        $relatedProducts = $rawRelated->map(function (Product $p) {
+            $variant = $p->defaultVariant ?? $p->activeVariants->first() ?? $p->variants->first();
+            $price = (float) ($variant?->price ?? 0);
+            $original = (float) ($variant?->compare_at_price ?? $variant?->mrp ?? $price);
+
+            $badge = $p->specs['badge'] ?? null;
+            if (!$badge && $original > $price && $original > 0) {
+                $discountPercent = (int) round((($original - $price) / $original) * 100);
+                if ($discountPercent > 0) {
+                    $badge = $discountPercent . '% OFF';
+                }
+            }
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'slug' => $p->slug,
+                'brand' => $p->brand?->name ?? 'Generic',
+                'category' => $p->category?->name ?? 'General',
+                'parent_category' => $p->category?->parent?->name ?? null,
+                'price' => $price,
+                'original' => $original > $price ? $original : $price,
+                'rating' => (int) ($p->specs['rating'] ?? 5),
+                'reviews' => (int) ($p->specs['reviews'] ?? $p->specs['reviews_count'] ?? 0),
+                'badge' => $badge,
+                'image' => $p->thumbnail_url ?? 'https://via.placeholder.com/300',
+                'requires_prescription' => (bool) $p->requires_prescription,
+                'is_in_stock' => $variant ? $variant->is_in_stock : true,
+            ];
+        })->values()->all();
+
+        // 6. Navigation categories
+        $categories = Category::query()
+            ->where('tenant_id', $tenantId)
+            ->whereNull('parent_id')
+            ->where('status', true)
+            ->orderBy('position')
+            ->orderBy('name')
+            ->limit(8)
+            ->get()
+            ->map(fn($cat) => [
+                'id' => $cat->id,
+                'name' => $cat->name,
+                'slug' => $cat->slug,
+                'icon' => self::CATEGORY_ICONS[$cat->name] ?? '🏷️',
+            ])
+            ->values()
+            ->all();
+
+        // 7. SEO
+        $seo = [
+            'meta_title' => $product->seo_title ?: ($product->name . ' — Buy Online | ' . ($tenant->store_name ?: 'MediMart')),
+            'meta_description' => $product->seo_description ?: Str::limit(strip_tags($product->description ?? ''), 160),
+            'image' => $gallery->first()['url'] ?? null,
+        ];
+
+        return Inertia::render('store/ProductDetails', [
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'description' => $product->description,
+                'generic_name' => $product->generic_name,
+                'requires_prescription' => (bool) $product->requires_prescription,
+                'brand' => $product->brand ? [
+                    'id' => $product->brand->id,
+                    'name' => $product->brand->name,
+                    'slug' => $product->brand->slug,
+                ] : null,
+                'category' => $product->category ? [
+                    'id' => $product->category->id,
+                    'name' => $product->category->name,
+                    'slug' => $product->category->slug,
+                    'parent' => $product->category->parent ? [
+                        'id' => $product->category->parent->id,
+                        'name' => $product->category->parent->name,
+                        'slug' => $product->category->parent->slug,
+                    ] : null,
+                ] : null,
+                'gallery' => $gallery->all(),
+                'variants' => $variantsList->all(),
+                'specs' => $specs,
+                'avg_rating' => $avgRating,
+                'reviews_count' => $reviewsCount,
+                'star_counts' => $starCounts,
+                'reviews' => $reviews->all(),
+            ],
+            'relatedProducts' => $relatedProducts,
+            'categories' => $categories,
+            'seo' => $seo,
+        ]);
+    }
+}

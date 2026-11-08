@@ -74,10 +74,11 @@ export const freeDeliveryPct = computed(() =>
 
 export const hasFreeDelivery = computed(() => freeDeliveryRemaining.value === 0)
 
-export function addToCart(product) {
+export function addToCart(product, quantity = 1) {
+    const qtyToAdd = Math.max(1, Number(quantity) || Number(product.qty) || 1)
     const existing = cart.value.find((i) => i.id === product.id)
     if (existing) {
-        existing.qty += 1
+        existing.qty += qtyToAdd
         return
     }
     cart.value.push({
@@ -85,7 +86,7 @@ export function addToCart(product) {
         name: product.name,
         price: product.price,
         original: product.original,
-        qty: 1,
+        qty: qtyToAdd,
         image: product.image,
     })
 }

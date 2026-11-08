@@ -236,13 +236,7 @@ function handleQuickAdd(product) {
 }
 
 function handleCardClick(product) {
-    addToCart(product)
-    openCartDrawer()
-    window.dispatchEvent(
-        new CustomEvent('medimart:toast', {
-            detail: `🛒 Added ${product.name} to cart!`,
-        })
-    )
+    router.visit('/product/' + (product.slug || product.id))
 }
 
 function executeKeywordSearch(term) {
