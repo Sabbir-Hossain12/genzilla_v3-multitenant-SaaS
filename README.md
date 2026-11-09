@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="340" alt="Genzilla Platform Logo">
 </p>
 
-<h1 align="center">Genzilla SaaS — Multi-Tenant Pharmacy & E-Commerce Cloud Platform</h1>
+<h1 align="center">Genzilla — Multi-Tenant E-Commerce & Health-Tech SaaS Platform</h1>
 
 <p align="center">
   An enterprise-grade, multi-tenant Software-as-a-Service (SaaS) platform built for online pharmacies and digital healthcare e-commerce. Engineered with Laravel 12, Inertia.js v2, Vue 3, and Tailwind CSS v4.
