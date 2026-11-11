@@ -250,12 +250,12 @@ onBeforeUnmount(() => {
 
                 <template v-if="product.category">
                     <template v-if="product.category.parent">
-                        <Link :href="'/search?categories=' + product.category.parent.id" class="hover:text-primary transition-colors">
+                        <Link :href="'/category/' + (product.category.parent.slug || product.category.parent.id)" class="hover:text-primary transition-colors">
                             {{ product.category.parent.name }}
                         </Link>
                         <span class="text-gray-300">/</span>
                     </template>
-                    <Link :href="'/search?categories=' + product.category.id" class="hover:text-primary transition-colors">
+                    <Link :href="'/category/' + (product.category.slug || product.category.id)" class="hover:text-primary transition-colors">
                         {{ product.category.name }}
                     </Link>
                     <span class="text-gray-300">/</span>
@@ -826,7 +826,7 @@ onBeforeUnmount(() => {
                     <h2 class="text-base sm:text-lg font-bold text-gray-900">You May Also Like</h2>
                     <Link
                         v-if="product.category"
-                        :href="'/search?categories=' + product.category.id"
+                        :href="'/category/' + (product.category.slug || product.category.id)"
                         class="text-xs sm:text-sm text-primary font-bold hover:underline flex items-center gap-1"
                     >
                         See all

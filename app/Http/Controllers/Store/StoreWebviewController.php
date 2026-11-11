@@ -1119,4 +1119,278 @@ class StoreWebviewController extends Controller
             'seo' => $seo,
         ]);
     }
+
+    /**
+     * Category & subcategory product listing page.
+     */
+    public function categoryProducts(Request $request, string $slug, ?string $subSlug = null): Response
+    {
+        $tenant = tenant() ?? Tenant::first();
+        $tenantId = $tenant?->id ?? 1;
+
+        // 1. Resolve Target Category (and parent if subSlug given)
+        $targetSlug = $subSlug ?: $slug;
+
+        $category = Category::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', true)
+            ->where(function ($q) use ($targetSlug) {
+                $q->where('slug', $targetSlug);
+                if (is_numeric($targetSlug)) {
+                    $q->orWhere('id', (int) $targetSlug);
+                }
+            })
+            ->with(['parent', 'children' => fn($q) => $q->where('status', true)->orderBy('position')])
+            ->first();
+
+        if (!$category) {
+            abort(404, 'Category not found');
+        }
+
+        // Determine if target is root category or child category
+        $isSubcategory = (bool) $category->parent_id;
+        $parentCategory = $category->parent;
+
+        if ($isSubcategory) {
+            $rootCategory = $parentCategory;
+            $currentSubcategory = $category;
+            // Sibling subcategories under same parent
+            $subcategories = Category::query()
+                ->where('tenant_id', $tenantId)
+                ->where('parent_id', $category->parent_id)
+                ->where('status', true)
+                ->orderBy('position')
+                ->get();
+            $defaultCategoryIds = [$category->id];
+        } else {
+            $rootCategory = $category;
+            $currentSubcategory = null;
+            $subcategories = $category->children;
+            $defaultCategoryIds = array_merge([$category->id], $subcategories->pluck('id')->all());
+        }
+
+        // 2. Query products for this category hierarchy
+        $allCategoryProducts = Product::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->whereIn('category_id', array_merge([$rootCategory->id], $rootCategory->children->pluck('id')->all()))
+            ->with([
+                'category.parent',
+                'brand',
+                'defaultVariant.batches',
+                'activeVariants.batches',
+                'media',
+            ])
+            ->get();
+
+        // Subcategory counts
+        $subcategoryCounts = [];
+        foreach ($subcategories as $sub) {
+            $subcategoryCounts[$sub->id] = $allCategoryProducts->where('category_id', $sub->id)->count();
+        }
+
+        // 3. Filters
+        $selectedSubcategories = array_filter(explode(',', (string) $request->query('subcategories', '')));
+        if (empty($selectedSubcategories) && $isSubcategory) {
+            $selectedSubcategories = [(string) $category->id];
+        }
+
+        $selectedBrands = array_filter(explode(',', (string) $request->query('brands', '')));
+        $minPrice = $request->query('min_price') !== null ? (float) $request->query('min_price') : null;
+        $maxPrice = $request->query('max_price') !== null ? (float) $request->query('max_price') : null;
+        $minRating = $request->query('rating') !== null ? (int) $request->query('rating') : null;
+        $onlyDiscounted = (bool) $request->query('discount', false);
+        $rxFilter = $request->query('rx', 'all');
+        $sort = (string) $request->query('sort', 'popularity');
+
+        // Filter products collection
+        $filtered = $allCategoryProducts->filter(function (Product $p) use (
+            $selectedSubcategories,
+            $selectedBrands,
+            $minPrice,
+            $maxPrice,
+            $minRating,
+            $onlyDiscounted,
+            $rxFilter
+        ) {
+            // Category / Subcategory filter
+            if (!empty($selectedSubcategories)) {
+                $matchesCat = in_array((string) $p->category_id, $selectedSubcategories)
+                    || in_array($p->category?->slug, $selectedSubcategories);
+                if (!$matchesCat) return false;
+            }
+
+            // Brand filter
+            if (!empty($selectedBrands)) {
+                $matchesBrand = in_array((string) $p->brand_id, $selectedBrands)
+                    || in_array($p->brand?->slug, $selectedBrands);
+                if (!$matchesBrand) return false;
+            }
+
+            // Price filter
+            $variant = $p->defaultVariant ?? $p->activeVariants->first() ?? $p->variants->first();
+            $price = (float) ($variant?->price ?? 0);
+            if ($minPrice !== null && $price < $minPrice) return false;
+            if ($maxPrice !== null && $price > $maxPrice) return false;
+
+            // Rating filter
+            $rating = (int) ($p->specs['rating'] ?? 5);
+            if ($minRating !== null && $rating < $minRating) return false;
+
+            // Discount filter
+            $original = (float) ($variant?->compare_at_price ?? $variant?->mrp ?? $price);
+            $hasDiscount = !empty($p->specs['badge']) || ($original > $price);
+            if ($onlyDiscounted && !$hasDiscount) return false;
+
+            // Rx filter
+            if ($rxFilter === 'rx' && !$p->requires_prescription) return false;
+            if ($rxFilter === 'otc' && $p->requires_prescription) return false;
+
+            return true;
+        });
+
+        // Sorting
+        $sorted = match ($sort) {
+            'price_low_high' => $filtered->sortBy(function (Product $p) {
+                $v = $p->defaultVariant ?? $p->activeVariants->first();
+                return (float) ($v?->price ?? 0);
+            }),
+            'price_high_low' => $filtered->sortByDesc(function (Product $p) {
+                $v = $p->defaultVariant ?? $p->activeVariants->first();
+                return (float) ($v?->price ?? 0);
+            }),
+            'newest' => $filtered->sortByDesc('id'),
+            'rating' => $filtered->sortByDesc(fn(Product $p) => (int) ($p->specs['rating'] ?? 5)),
+            'discount' => $filtered->sortByDesc(function (Product $p) {
+                $v = $p->defaultVariant ?? $p->activeVariants->first();
+                $price = (float) ($v?->price ?? 0);
+                $original = (float) ($v?->compare_at_price ?? $v?->mrp ?? $price);
+                return $original > 0 ? (($original - $price) / $original) : 0;
+            }),
+            default => $filtered->sortBy('id'),
+        };
+
+        // Format products
+        $formattedProducts = $sorted->map(function (Product $p) {
+            $variant = $p->defaultVariant ?? $p->activeVariants->first() ?? $p->variants->first();
+            $price = (float) ($variant?->price ?? 0);
+            $original = (float) ($variant?->compare_at_price ?? $variant?->mrp ?? $price);
+
+            $badge = $p->specs['badge'] ?? null;
+            if (!$badge && $original > $price && $original > 0) {
+                $discountPercent = (int) round((($original - $price) / $original) * 100);
+                if ($discountPercent > 0) {
+                    $badge = $discountPercent . '% OFF';
+                }
+            }
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'slug' => $p->slug,
+                'brand' => $p->brand?->name ?? 'Generic',
+                'category' => $p->category?->name ?? 'General',
+                'category_id' => $p->category_id,
+                'parent_category' => $p->category?->parent?->name ?? null,
+                'price' => $price,
+                'original' => $original > $price ? $original : $price,
+                'rating' => (int) ($p->specs['rating'] ?? 5),
+                'reviews' => (int) ($p->specs['reviews'] ?? $p->specs['reviews_count'] ?? 0),
+                'badge' => $badge,
+                'image' => $p->thumbnail_url ?? 'https://via.placeholder.com/300',
+                'requires_prescription' => (bool) $p->requires_prescription,
+                'is_in_stock' => $variant ? $variant->is_in_stock : true,
+            ];
+        })->values();
+
+        // Brand facets (from all products in this category)
+        $brandFacets = Brand::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', true)
+            ->get()
+            ->map(function ($b) use ($allCategoryProducts) {
+                return [
+                    'id' => (string) $b->id,
+                    'name' => $b->name,
+                    'slug' => $b->slug,
+                    'count' => $allCategoryProducts->where('brand_id', $b->id)->count(),
+                ];
+            })
+            ->filter(fn($b) => $b['count'] > 0)
+            ->values()
+            ->all();
+
+        // Subcategory facets
+        $formattedSubcategories = $subcategories->map(fn($sub) => [
+            'id' => (string) $sub->id,
+            'name' => $sub->name,
+            'slug' => $sub->slug,
+            'image' => $sub->image_url,
+            'count' => $subcategoryCounts[$sub->id] ?? 0,
+        ])->values()->all();
+
+        // Navigation categories (top bar)
+        $categories = Category::query()
+            ->where('tenant_id', $tenantId)
+            ->whereNull('parent_id')
+            ->where('status', true)
+            ->orderBy('position')
+            ->orderBy('name')
+            ->limit(10)
+            ->get()
+            ->map(fn($cat) => [
+                'id' => $cat->id,
+                'name' => $cat->name,
+                'slug' => $cat->slug,
+                'icon' => self::CATEGORY_ICONS[$cat->name] ?? '🏷️',
+            ])
+            ->values()
+            ->all();
+
+        // SEO
+        $seo = [
+            'meta_title' => $category->meta_title ?: ($category->name . ' — Online Pharmacy | ' . ($tenant->store_name ?: 'MediMart')),
+            'meta_description' => $category->meta_description ?: ('Shop ' . $category->name . ' products at best prices with express doorstep delivery.'),
+            'image' => $category->image_url,
+        ];
+
+        return Inertia::render('store/CategoryProducts', [
+            'category' => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+                'image' => $category->image_url,
+                'h1_heading' => $category->h1_heading ?: $category->name,
+                'meta_description' => $category->meta_description,
+                'is_subcategory' => $isSubcategory,
+            ],
+            'parentCategory' => $parentCategory ? [
+                'id' => $parentCategory->id,
+                'name' => $parentCategory->name,
+                'slug' => $parentCategory->slug,
+            ] : null,
+            'currentSubcategory' => $currentSubcategory ? [
+                'id' => $currentSubcategory->id,
+                'name' => $currentSubcategory->name,
+                'slug' => $currentSubcategory->slug,
+            ] : null,
+            'subcategories' => $formattedSubcategories,
+            'products' => $formattedProducts->all(),
+            'totalProducts' => $formattedProducts->count(),
+            'allCategoryProductsCount' => $allCategoryProducts->count(),
+            'brandFacets' => $brandFacets,
+            'categories' => $categories,
+            'filters' => [
+                'subcategories' => $selectedSubcategories,
+                'brands' => $selectedBrands,
+                'min_price' => $minPrice,
+                'max_price' => $maxPrice,
+                'sort' => $sort,
+                'rating' => $minRating,
+                'discount' => $onlyDiscounted,
+                'rx' => $rxFilter,
+            ],
+            'seo' => $seo,
+        ]);
+    }
 }

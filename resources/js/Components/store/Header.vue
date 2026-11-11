@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import { usePage, router } from '@inertiajs/vue3'
+import { usePage, router, Link } from '@inertiajs/vue3'
 import axios from 'axios'
 import { openCartDrawer, openLoginModal, openMobileNav } from '@/composables/store/useStoreUi'
 import { cartCount, addToCart } from '@/composables/store/useCart'
@@ -436,14 +436,14 @@ onBeforeUnmount(() => {
             <!-- Category nav strip -->
             <div class="flex items-center border-t border-gray-100">
                 <div class="flex items-center gap-0 overflow-x-auto no-scrollbar">
-                    <a
+                    <Link
                         v-for="cat in categories"
                         :key="cat.slug || cat.name"
-                        :href="cat.slug ? `#category-${cat.slug}` : '#'"
+                        :href="cat.slug ? `/category/${cat.slug}` : '#'"
                         class="px-5 py-3.5 text-[15px] text-gray-600 hover:text-primary hover:bg-primarylt transition-colors whitespace-nowrap shrink-0"
                     >
                         {{ cat.icon || '🏷️' }} {{ cat.name }}
-                    </a>
+                    </Link>
                 </div>
 
                 <!-- Right-side quick links -->

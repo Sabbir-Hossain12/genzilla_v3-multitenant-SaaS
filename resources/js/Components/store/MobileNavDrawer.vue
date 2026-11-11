@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { usePage, router } from '@inertiajs/vue3'
+import { usePage, router, Link } from '@inertiajs/vue3'
 import { categories as fallbackCategories, moreLinks } from '@/data/store'
 import { navOpen, closeMobileNav, openLoginModal } from '@/composables/store/useStoreUi'
 
@@ -118,13 +118,23 @@ const quickLinks = [
                             <span class="flex-1 text-[14.5px] font-medium text-gray-800">{{ cat.name }}</span>
                             <svg class="accordion-chevron text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </summary>
-                        <div v-if="cat.children && cat.children.length > 0" class="pb-3 pl-11 pr-3 space-y-0.5">
-                            <a
-                                v-for="(child, idx) in cat.children"
-                                :key="getChildKey(child, idx)"
-                                href="#"
-                                class="block py-2 text-[14px] text-gray-600 hover:text-primary truncate"
-                            >{{ getChildName(child) }}</a>
+                        <div class="pb-3 pl-11 pr-3 space-y-0.5">
+                            <Link
+                                :href="cat.slug ? `/category/${cat.slug}` : '#'"
+                                class="block py-2 text-[14px] font-semibold text-primary hover:underline"
+                                @click="closeMobileNav"
+                            >
+                                All {{ cat.name }} &rarr;
+                            </Link>
+                            <template v-if="cat.children && cat.children.length > 0">
+                                <Link
+                                    v-for="(child, idx) in cat.children"
+                                    :key="getChildKey(child, idx)"
+                                    :href="cat.slug ? `/category/${cat.slug}/${child.slug || child}` : '#'"
+                                    class="block py-2 text-[14px] text-gray-600 hover:text-primary truncate"
+                                    @click="closeMobileNav"
+                                >{{ getChildName(child) }}</Link>
+                            </template>
                         </div>
                     </details>
                 </div>
