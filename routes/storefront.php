@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web','tenant.identify','store.status'])->group(function () {
     Route::get('/',                             [StoreWebviewController::class, 'index'])->name('store.home');
+    Route::get('/products',                     [StoreWebviewController::class, 'productList'])->name('store.products.index');
+    Route::get('/flash-sale',                   fn() => redirect()->route('store.products.index', ['collection' => 'flash-sale']));
     Route::get('/product/{slug}',               [StoreWebviewController::class, 'productDetails'])->name('store.product.show');
     Route::get('/category/{slug}/{subSlug?}',   [StoreWebviewController::class, 'categoryProducts'])->name('store.category.show');
     Route::get('/brand/{slug}',                 [StoreWebviewController::class, 'brandProducts'])->name('store.brand.show');

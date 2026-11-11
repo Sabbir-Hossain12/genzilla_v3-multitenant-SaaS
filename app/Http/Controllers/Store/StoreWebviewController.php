@@ -136,10 +136,10 @@ class StoreWebviewController extends Controller
             ->map(function (Banner $banner) {
                 return [
                     'id' => $banner->id,
-                    'eyebrow' => $banner->eyebrow ?? 'Special Offer',
+                    'eyebrow' => $banner->eyebrow,
                     'title' => $banner->title,
                     'subtitle' => $banner->subtitle,
-                    'cta' => $banner->cta_text ?? 'Explore →',
+                    'cta' => $banner->cta_text,
                     'ctaColor' => $banner->cta_color ?? 'text-teal-600',
                     'gradient' => $banner->gradient ?? 'from-teal-500 to-cyan-600',
                     'image' => $banner->image_url,
@@ -1500,6 +1500,187 @@ class StoreWebviewController extends Controller
             'categories' => $categories,
             'filters' => [
                 'categories' => $selectedCategories,
+                'min_price' => $minPrice,
+                'max_price' => $maxPrice,
+                'sort' => $sort,
+                'rating' => $minRating,
+                'discount' => $onlyDiscounted,
+                'rx' => $rxFilter,
+            ],
+            'seo' => $seo,
+        ]);
+    }
+
+    /**
+     * All Products listing page with collection filters (Flash Sale, Best Picks, All).
+     */
+    public function productList(Request $request): Response
+    {
+        $tenant = tenant() ?? Tenant::first();
+        $tenantId = $tenant?->id ?? 1;
+
+        $collection = (string) $request->query('collection', 'all');
+
+        // 1. Query all active products
+        $allProductsQuery = Product::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->with([
+                'category.parent',
+                'brand',
+                'defaultVariant.batches',
+                'activeVariants.batches',
+                'media',
+            ]);
+
+        $rawProducts = $allProductsQuery->latest('id')->get();
+
+        // 2. Format products
+        $formattedProducts = $rawProducts->map(function (Product $p) {
+            $variant = $p->defaultVariant ?? $p->activeVariants->first() ?? $p->variants->first();
+            $price = (float) ($variant?->price ?? 0);
+            $original = (float) ($variant?->compare_at_price ?? $variant?->mrp ?? $price);
+
+            $badge = $p->specs['badge'] ?? null;
+            if (!$badge && $original > $price && $original > 0) {
+                $discountPercent = (int) round((($original - $price) / $original) * 100);
+                if ($discountPercent > 0) {
+                    $badge = $discountPercent . '% OFF';
+                }
+            }
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'slug' => $p->slug,
+                'brand' => $p->brand?->name ?? 'Generic',
+                'brand_id' => $p->brand_id ? (string) $p->brand_id : null,
+                'brand_slug' => $p->brand?->slug,
+                'category' => $p->category?->name ?? 'General',
+                'category_id' => (string) $p->category_id,
+                'category_slug' => $p->category?->slug,
+                'parent_category' => $p->category?->parent?->name ?? null,
+                'parent_category_id' => $p->category?->parent_id ? (string) $p->category?->parent_id : null,
+                'parent_category_slug' => $p->category?->parent?->slug,
+                'price' => $price,
+                'original' => $original > $price ? $original : $price,
+                'original_price' => $original > $price ? $original : $price,
+                'rating' => (int) ($p->specs['rating'] ?? 5),
+                'reviews' => (int) ($p->specs['reviews'] ?? $p->specs['reviews_count'] ?? 0),
+                'badge' => $badge,
+                'image' => $p->thumbnail_url ?? 'https://via.placeholder.com/300',
+                'requires_prescription' => (bool) $p->requires_prescription,
+                'is_in_stock' => $variant ? $variant->is_in_stock : true,
+            ];
+        })->values();
+
+        // 3. Category facets
+        $categoryFacets = Category::query()
+            ->where('tenant_id', $tenantId)
+            ->whereNull('parent_id')
+            ->where('status', true)
+            ->with('children')
+            ->orderBy('position')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($cat) use ($formattedProducts) {
+                $familyIds = array_merge([(string) $cat->id], $cat->children->pluck('id')->map(fn($id) => (string) $id)->all());
+                return [
+                    'id' => (string) $cat->id,
+                    'name' => $cat->name,
+                    'slug' => $cat->slug,
+                    'count' => $formattedProducts->whereIn('category_id', $familyIds)->count(),
+                ];
+            })
+            ->filter(fn($c) => $c['count'] > 0)
+            ->values()
+            ->all();
+
+        // 4. Brand facets
+        $brandFacets = Brand::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', true)
+            ->get()
+            ->map(function ($b) use ($formattedProducts) {
+                return [
+                    'id' => (string) $b->id,
+                    'name' => $b->name,
+                    'slug' => $b->slug,
+                    'count' => $formattedProducts->where('brand_id', (string) $b->id)->count(),
+                ];
+            })
+            ->filter(fn($b) => $b['count'] > 0)
+            ->values()
+            ->all();
+
+        // 5. Initial filters
+        $selectedCategories = array_filter(explode(',', (string) $request->query('categories', '')));
+        $selectedBrands = array_filter(explode(',', (string) $request->query('brands', '')));
+        $minPrice = $request->query('min_price') !== null ? (float) $request->query('min_price') : null;
+        $maxPrice = $request->query('max_price') !== null ? (float) $request->query('max_price') : null;
+        $minRating = $request->query('rating') !== null ? (int) $request->query('rating') : null;
+        $onlyDiscounted = $collection === 'flash-sale' ? true : (bool) $request->query('discount', false);
+        $rxFilter = $request->query('rx', 'all');
+        $sort = (string) $request->query('sort', 'popularity');
+
+        // 6. Navigation categories (top bar)
+        $categories = Category::query()
+            ->where('tenant_id', $tenantId)
+            ->whereNull('parent_id')
+            ->where('status', true)
+            ->orderBy('position')
+            ->orderBy('name')
+            ->limit(10)
+            ->get()
+            ->map(fn($cat) => [
+                'id' => $cat->id,
+                'name' => $cat->name,
+                'slug' => $cat->slug,
+                'icon' => self::CATEGORY_ICONS[$cat->name] ?? '🏷️',
+            ])
+            ->values()
+            ->all();
+
+        // 7. Hero Info & SEO
+        $hero = match ($collection) {
+            'flash-sale' => [
+                'title' => 'Flash Sale & Special Offers',
+                'subtitle' => 'Limited-time incredible discounts on authentic medicines, daily essentials, and personal care.',
+                'badge' => '⚡ Up to 50% OFF',
+                'color' => 'from-amber-600 to-rose-700',
+            ],
+            'best-picks' => [
+                'title' => 'Best Picks & Top Rated Products',
+                'subtitle' => 'Customer favorites, top-rated medicines, and doctor-recommended healthcare products.',
+                'badge' => '⭐ Customer Favorites',
+                'color' => 'from-teal-800 to-teal-950',
+            ],
+            default => [
+                'title' => 'All Store Products',
+                'subtitle' => 'Explore our full catalog of 100% genuine medicines, wellness products, and healthcare equipment.',
+                'badge' => '📦 Complete Inventory',
+                'color' => 'from-teal-800 to-teal-950',
+            ],
+        };
+
+        $storeName = $tenant?->store_name ?: ($tenant?->name ?? 'MediMart');
+        $seo = [
+            'meta_title' => $hero['title'] . ' — ' . $storeName,
+            'meta_description' => $hero['subtitle'],
+        ];
+
+        return Inertia::render('store/ProductList', [
+            'collection' => $collection,
+            'hero' => $hero,
+            'products' => $formattedProducts->all(),
+            'totalProducts' => $formattedProducts->count(),
+            'categoryFacets' => $categoryFacets,
+            'brandFacets' => $brandFacets,
+            'categories' => $categories,
+            'filters' => [
+                'collection' => $collection,
+                'categories' => $selectedCategories,
+                'brands' => $selectedBrands,
                 'min_price' => $minPrice,
                 'max_price' => $maxPrice,
                 'sort' => $sort,

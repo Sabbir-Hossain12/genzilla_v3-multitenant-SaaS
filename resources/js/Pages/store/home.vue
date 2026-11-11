@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import StoreLayout from '@/Layouts/StoreLayout.vue'
 import CategorySidebar from '@/Components/store/CategorySidebar.vue'
 import BannerSlider from '@/Components/store/BannerSlider.vue'
@@ -118,6 +118,14 @@ const dynamicTrustBadges = computed(() => {
 const dynamicStats = computed(() => {
     return props.stats?.length ? props.stats : fallbackStats
 })
+
+function hasBannerText(promo) {
+    if (!promo) return false
+    const t = String(promo.title || '').trim()
+    const s = String(promo.subtitle || '').trim()
+    const e = String(promo.eyebrow || '').trim()
+    return (t && t !== '#') || Boolean(s) || Boolean(e)
+}
 </script>
 
 <template>
@@ -207,10 +215,13 @@ const dynamicStats = computed(() => {
             <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50">
                     <FlashSaleHeader />
-                    <a href="#best-picks" class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1">
+                    <Link
+                        href="/products?collection=flash-sale"
+                        class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1"
+                    >
                         See all
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    </a>
+                    </Link>
                 </div>
 
                 <ProductGrid :products="dynamicFlashSale" @add="addToCart" />
@@ -224,7 +235,13 @@ const dynamicStats = computed(() => {
             <div class="bg-white rounded-2xl border border-gray-100 p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-[17px] font-bold text-gray-900">All You Need</h2>
-                    <a href="#all-categories" class="text-[15px] text-primary font-semibold hover:underline">See all</a>
+                    <Link
+                        href="/products"
+                        class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1"
+                    >
+                        See all
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </Link>
                 </div>
                 <CategoryTiles :tiles="dynamicCategoryTiles" />
             </div>
@@ -236,36 +253,52 @@ const dynamicStats = computed(() => {
         <BrandShowcase :brands="brands" />
 
         <!-- ════════════════════════════════════════
-             PROMOTIONAL BANNERS GRID
+             PROMOTIONAL BANNERS GRID (100% UNTINTED, PURE VIBRANT DESIGN FOR ALL)
         ════════════════════════════════════════ -->
-        <section v-if="dynamicPromos.length" class="max-w-7xl mx-auto px-4 py-2">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div
+        <section v-if="dynamicPromos.length" class="max-w-7xl mx-auto px-4 py-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <a
                     v-for="promo in dynamicPromos"
-                    :key="promo.title"
-                    class="bg-gradient-to-r rounded-2xl p-7 flex items-center justify-between overflow-hidden relative shadow-sm"
-                    :class="promo.gradient"
+                    :key="promo.id || promo.title"
+                    :href="promo.link || '#'"
+                    class="group relative rounded-2xl overflow-hidden aspect-[2/1] sm:aspect-[2.2/1] min-h-[180px] sm:min-h-[220px] shadow-2xs hover:shadow-lg transition-all duration-300 border border-gray-100 block bg-gray-50 cursor-pointer"
                 >
-                    <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-8 -mt-8 pointer-events-none"></div>
-                    <div class="z-10 max-w-[65%]">
-                        <p class="text-white/80 text-sm font-medium mb-1.5">{{ promo.eyebrow }}</p>
-                        <h3 class="text-white font-extrabold text-2xl sm:text-3xl leading-tight" v-html="promo.title"></h3>
-                        <p class="text-white/85 text-sm mt-1.5 mb-4">{{ promo.subtitle }}</p>
-                        <a
-                            :href="promo.link || '#'"
-                            class="bg-white text-sm font-bold px-5 py-2.5 rounded-lg hover:bg-gray-50 transition-colors inline-block shadow-sm"
-                            :class="promo.ctaColor"
-                        >{{ promo.cta }}</a>
+                    <!-- Background Image: 100% natural, crisp, zero tint for ALL banners -->
+                    <img
+                        v-if="promo.image"
+                        :src="promo.image"
+                        :alt="promo.subtitle || promo.title || 'Promotional Banner'"
+                        class="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-103"
+                        loading="lazy"
+                    />
+
+                    <!-- Fallback Only When No Image Exists -->
+                    <div
+                        v-else
+                        class="w-full h-full bg-gradient-to-r flex flex-col justify-end p-6 text-white"
+                        :class="promo.gradient || 'from-teal-600 to-cyan-700'"
+                    >
+                        <span v-if="promo.eyebrow" class="text-xs uppercase font-bold tracking-wider mb-1 opacity-90">
+                            {{ promo.eyebrow }}
+                        </span>
+                        <h3 v-if="promo.title && promo.title !== '#'" class="font-extrabold text-2xl mb-1">
+                            {{ promo.title }}
+                        </h3>
+                        <p v-if="promo.subtitle" class="text-sm opacity-90 mb-3">
+                            {{ promo.subtitle }}
+                        </p>
+                        <span v-if="promo.cta && promo.cta !== '#'" class="inline-block px-4 py-2 bg-white text-gray-900 rounded-lg text-xs font-bold self-start">
+                            {{ promo.cta }}
+                        </span>
                     </div>
-                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden relative z-10 ring-4 ring-white/20 shrink-0 bg-white/10">
-                        <img
-                            :src="promo.image"
-                            :alt="promo.subtitle"
-                            class="w-full h-full object-cover"
-                            loading="lazy"
-                        />
+
+                    <!-- Subtle Corner Arrow Badge on Hover -->
+                    <div class="absolute bottom-3.5 right-3.5 z-10 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-1 group-hover:translate-y-0 pointer-events-none">
+                        <span class="w-8 h-8 rounded-full bg-white/95 backdrop-blur-md text-gray-800 shadow-md flex items-center justify-center font-bold text-xs">
+                            →
+                        </span>
                     </div>
-                </div>
+                </a>
             </div>
         </section>
 
@@ -276,16 +309,20 @@ const dynamicStats = computed(() => {
             <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50">
                     <h2 class="text-[17px] font-bold text-gray-900">🏆 Best Picks</h2>
-                    <a href="#best-picks" class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1">
+                    <Link
+                        href="/products?collection=best-picks"
+                        class="text-[15px] text-primary font-semibold hover:underline flex items-center gap-1"
+                    >
                         See all
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    </a>
+                    </Link>
                 </div>
 
                 <ProductGrid
                     :products="dynamicBestPicks"
                     filterable
                     show-footer
+                    footer-href="/products?collection=best-picks"
                     @add="addToCart"
                 />
             </div>

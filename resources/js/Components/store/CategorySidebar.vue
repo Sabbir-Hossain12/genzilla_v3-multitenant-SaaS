@@ -37,7 +37,7 @@ function getChildKey(child, index) {
         <nav class="rounded-b-xl overflow-visible">
             <div v-for="cat in displayCategories" :key="cat.slug || cat.name" class="relative group">
                 <Link
-                    :href="cat.slug ? `/category/${cat.slug}` : '#'"
+                    :href="cat.slug ? `/category/${cat.slug}` : '#' "
                     class="flex items-center gap-3 px-5 py-3.5 text-[15px] text-gray-700 group-hover:bg-primarylt group-hover:text-primary border-b border-gray-50 transition-colors"
                 >
                     <span class="text-lg">{{ cat.icon || '🏷️' }}</span>
@@ -55,13 +55,16 @@ function getChildKey(child, index) {
                         <Link
                             v-for="(child, idx) in cat.children"
                             :key="getChildKey(child, idx)"
-                            :href="cat.slug ? `/category/${cat.slug}/${child.slug || child}` : '#'"
+                            :href="cat.slug ? `/category/${cat.slug}/${child.slug || child}` : '#' "
                             class="block px-2.5 py-2 rounded-lg text-[14px] text-gray-700 hover:bg-primarylt hover:text-primary transition-colors truncate"
                         >{{ getChildName(child) }}</Link>
                     </div>
-                    <a href="#" class="block mt-3 pt-3 border-t border-gray-100 text-[13px] font-semibold text-primary hover:underline">
-                        Shop all {{ cat.name }} →
-                    </a>
+                    <Link
+                        :href="cat.slug ? `/category/${cat.slug}` : '/products'"
+                        class="block mt-3 pt-3 border-t border-gray-100 text-[13px] font-semibold text-primary hover:underline"
+                    >
+                        Shop all {{ cat.name }} &rarr;
+                    </Link>
                 </div>
             </div>
         </nav>

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { Link } from '@inertiajs/vue3'
 import ProductCard from './ProductCard.vue'
 
 const props = defineProps({
@@ -8,6 +9,8 @@ const props = defineProps({
     filterable: { type: Boolean, default: false },
     /** Show the "View All Products" button under the grid. */
     showFooter: { type: Boolean, default: false },
+    footerHref: { type: String, default: '/products' },
+    footerLabel: { type: String, default: 'View All Products' },
 })
 
 const emit = defineEmits(['add'])
@@ -64,10 +67,10 @@ const visible = computed(() => {
 
         <!-- View all -->
         <div v-if="showFooter" class="px-4 pb-4">
-            <a
-                href="#"
+            <Link
+                :href="footerHref"
                 class="block w-full text-center border border-primary text-primary text-[15px] font-semibold py-2.5 rounded-xl hover:bg-primarylt transition-colors"
-            >View All Products</a>
+            >{{ footerLabel }}</Link>
         </div>
     </div>
 </template>
