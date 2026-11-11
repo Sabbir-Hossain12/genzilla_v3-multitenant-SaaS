@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage, Link } from '@inertiajs/vue3'
 import { openCartDrawer, openLoginModal } from '@/composables/store/useStoreUi'
 import { cartCount } from '@/composables/store/useCart'
 
@@ -52,49 +52,49 @@ const currentYear = new Date().getFullYear()
 
                 <!-- Quick links -->
                 <div>
-                    <h4 class="text-[16px] font-bold text-gray-800 mb-4">Quick Links</h4>
-                    <ul class="space-y-2.5 text-[15px] text-gray-500">
-                        <li><a href="#" class="hover:text-primary transition-colors">Careers</a></li>
+                    <h4 class="text-[15px] font-bold text-gray-800 mb-4">Quick Links</h4>
+                    <ul class="space-y-2.5 text-[14px] text-gray-500">
+                        <li><Link href="/" class="hover:text-primary transition-colors">Home</Link></li>
+                        <li><Link href="/products" class="hover:text-primary transition-colors">All Products</Link></li>
+                        <li><Link href="/products?collection=flash-sale" class="hover:text-primary transition-colors">Flash Deals</Link></li>
+                        <li><a href="#featured-brands" class="hover:text-primary transition-colors">Top Brands</a></li>
+                        <li><a href="#upload-prescription" class="hover:text-primary transition-colors">Upload Prescription</a></li>
+                    </ul>
+                </div>
+
+                <!-- Customer Care -->
+                <div>
+                    <h4 class="text-[15px] font-bold text-gray-800 mb-4">Customer Care</h4>
+                    <ul class="space-y-2.5 text-[14px] text-gray-500">
+                        <li><a href="#" class="hover:text-primary transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Track Order</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Return & Refund</a></li>
                         <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
                         <li><a href="#" class="hover:text-primary transition-colors">Terms & Conditions</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Return & Refund</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Frequently Asked Questions</a></li>
                     </ul>
                 </div>
 
-                <!-- Services -->
+                <!-- Contact -->
                 <div>
-                    <h4 class="text-[16px] font-bold text-gray-800 mb-4">Our Services</h4>
-                    <ul class="space-y-2.5 text-[15px] text-gray-500">
-                        <li><a href="#" class="hover:text-primary transition-colors">Online Doctor Consultation</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Lab Test — Home Collection</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Medicine Home Delivery</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Healthcare & Wellness</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Register Your Pharmacy</a></li>
-                    </ul>
-                </div>
-
-                <!-- Contact & Payment -->
-                <div>
-                    <h4 class="text-[16px] font-bold text-gray-800 mb-4">Need Help?</h4>
-                    <div class="space-y-2 mb-4 text-[14px] text-gray-600">
-                        <p class="flex items-center gap-2">
-                            <span>📞</span> <a :href="`tel:${storePhone}`" class="hover:text-primary font-semibold">{{ storePhone }}</a>
-                        </p>
-                        <p class="flex items-center gap-2">
-                            <span>✉️</span> <a :href="`mailto:${storeEmail}`" class="hover:text-primary">{{ storeEmail }}</a>
-                        </p>
-                        <p class="text-xs text-gray-400">Available 24/7 for emergency prescription orders</p>
-                    </div>
-
-                    <h4 class="text-[14px] font-bold text-gray-800 mb-2">Payment Methods</h4>
-                    <div class="flex flex-wrap gap-1.5">
-                        <span class="bg-gray-100 text-gray-600 text-[12px] font-semibold px-2 py-1 rounded">bKash</span>
-                        <span class="bg-gray-100 text-gray-600 text-[12px] font-semibold px-2 py-1 rounded">Nagad</span>
-                        <span class="bg-gray-100 text-gray-600 text-[12px] font-semibold px-2 py-1 rounded">Rocket</span>
-                        <span class="bg-gray-100 text-gray-600 text-[12px] font-semibold px-2 py-1 rounded">VISA</span>
-                        <span class="bg-gray-100 text-gray-600 text-[12px] font-semibold px-2 py-1 rounded">Master</span>
-                        <span class="bg-gray-100 text-gray-600 text-[12px] font-semibold px-2 py-1 rounded">COD</span>
+                    <h4 class="text-[15px] font-bold text-gray-800 mb-4">Contact Us</h4>
+                    <div class="space-y-3 text-[14px] text-gray-500">
+                        <div class="flex items-center gap-2">
+                            <span>📞</span>
+                            <a :href="`tel:${storePhone}`" class="hover:text-primary font-semibold text-gray-800">{{ storePhone }}</a>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span>✉️</span>
+                            <a :href="`mailto:${storeEmail}`" class="hover:text-primary">{{ storeEmail }}</a>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span>⏰</span>
+                            <span>24/7 Available</span>
+                        </div>
+                        <div class="pt-2">
+                            <span class="inline-block bg-primarylt text-primary text-[12px] font-bold px-3 py-1 rounded-full">
+                                💊 DGDA Approved
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -112,23 +112,23 @@ const currentYear = new Date().getFullYear()
          MOBILE BOTTOM NAV
     ════════════════════════════════════════ -->
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-40 flex sm:hidden">
-        <a href="/" class="flex-1 flex flex-col items-center py-2.5 text-primary">
+        <Link href="/" class="flex-1 flex flex-col items-center py-2.5 text-primary">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/>
                 <path d="M9 22V12h6v10" stroke="currentColor" stroke-width="2"/>
             </svg>
             <span class="text-[12px] font-medium mt-0.5">Home</span>
-        </a>
-        <a href="#all-categories" class="flex-1 flex flex-col items-center py-2.5 text-gray-400 hover:text-primary">
+        </Link>
+        <Link href="/products" class="flex-1 flex flex-col items-center py-2.5 text-gray-400 hover:text-primary">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                 <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            <span class="text-[12px] font-medium mt-0.5">Search</span>
-        </a>
+            <span class="text-[12px] font-medium mt-0.5">Catalog</span>
+        </Link>
         <button
             type="button"
-            class="flex-1 flex flex-col items-center py-2.5 text-gray-400 hover:text-primary relative"
+            class="flex-1 flex flex-col items-center py-2.5 text-gray-400 hover:text-primary relative cursor-pointer"
             aria-label="Open cart drawer"
             @click="openCartDrawer"
         >
@@ -137,13 +137,13 @@ const currentYear = new Date().getFullYear()
             </svg>
             <span
                 id="cart-badge-mobile"
-                class="absolute top-1.5 right-4 w-4 h-4 bg-accent text-white text-[11px] font-bold rounded-full flex items-center justify-center"
+                class="absolute top-1.5 right-4 min-w-[16px] h-4 px-1 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none"
             >{{ cartCount }}</span>
             <span class="text-[12px] font-medium mt-0.5">Cart</span>
         </button>
         <button
             type="button"
-            class="flex-1 flex flex-col items-center py-2.5 text-gray-400 hover:text-primary"
+            class="flex-1 flex flex-col items-center py-2.5 text-gray-400 hover:text-primary cursor-pointer"
             aria-label="Open account modal"
             @click="openLoginModal"
         >

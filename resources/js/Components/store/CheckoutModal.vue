@@ -8,6 +8,8 @@ import {
     cartDiscount,
     cashApplied,
     cartPayable,
+    hasPrescriptionItems,
+    clearCart,
     formatTaka,
 } from '@/composables/store/useCart'
 import { checkoutOpen, closeCheckoutModal } from '@/composables/store/useStoreUi'
@@ -84,6 +86,12 @@ function cancelAddressForm() {
 
 // Place order
 function placeOrder() {
+    if (!cart.value.length) {
+        window.dispatchEvent(new CustomEvent('medimart:toast', { detail: 'Your cart is empty!' }))
+        closeCheckoutModal()
+        return
+    }
+
     if (!savedAddress.value) {
         openAddressForm()
         addressShake.value = true
@@ -96,6 +104,9 @@ function placeOrder() {
         setTimeout(() => { agreementShake.value = false }, 1200)
         return
     }
+
+    // Dynamic cart cleanup on order placement
+    clearCart()
 
     closeCheckoutModal()
     window.dispatchEvent(new CustomEvent('medimart:toast', { detail: '🎉 Order placed successfully!' }))
@@ -130,6 +141,15 @@ watch(checkoutOpen, (isOpen) => {
 
             <!-- Scrollable body -->
             <div class="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+
+                <!-- Rx Notice if cart contains prescription medications -->
+                <div v-if="hasPrescriptionItems" class="bg-purple-50/90 border border-purple-200 rounded-xl p-3.5 flex items-start gap-3">
+                    <span class="text-xl shrink-0">📋</span>
+                    <div class="text-[12.5px] text-purple-900 leading-snug">
+                        <span class="font-bold">Prescription Required (Rx):</span>
+                        Your order includes prescription medicines. Our licensed pharmacist will contact you at your phone number to verify your prescription before dispatch.
+                    </div>
+                </div>
 
                 <!-- Delivery address -->
                 <div class="border border-gray-100 rounded-xl p-4">
@@ -169,7 +189,7 @@ watch(checkoutOpen, (isOpen) => {
                         <p class="text-[14px] text-gray-500 mb-3">No saved address found</p>
                         <button
                             type="button"
-                            class="flex items-center gap-1.5 bg-primary hover:bg-primary2 text-white text-[13.5px] font-semibold px-4 py-2 rounded-lg transition-colors"
+                            class="flex items-center gap-1.5 bg-primary hover:bg-primary2 text-white text-[13.5px] font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
                             @click="openAddressForm"
                         >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -225,7 +245,7 @@ watch(checkoutOpen, (isOpen) => {
                             >Cancel</button>
                             <button
                                 type="button"
-                                class="flex-1 bg-primary hover:bg-primary2 text-white text-[13.5px] font-semibold py-2.5 rounded-lg transition-colors"
+                                class="flex-1 bg-primary hover:bg-primary2 text-white text-[13.5px] font-semibold py-2.5 rounded-lg transition-colors cursor-pointer"
                                 @click="saveAddress"
                             >Save Address</button>
                         </div>
@@ -243,7 +263,7 @@ watch(checkoutOpen, (isOpen) => {
                             </span>
                             <span class="text-[14.5px] text-gray-800">
                                 Regular Delivery
-                                <span class="block text-[12.5px] text-gray-400">Estimated 12-48 Hours (In Dhaka City)</span>
+                                <span class="block text-[12.5px] text-gray-400">Estimated 12-48 Hours (All Bangladesh)</span>
                             </span>
                         </span>
                         <span class="text-[13.5px] font-semibold text-green-600 shrink-0">Free</span>
@@ -322,7 +342,7 @@ watch(checkoutOpen, (isOpen) => {
                             <span id="co-mrp" class="font-medium text-gray-800">{{ formatTaka(cartMrp) }}</span>
                         </div>
                         <div class="flex items-center justify-between text-gray-600">
-                            <span>Delivery charge (In Dhaka City)</span>
+                            <span>Delivery charge</span>
                             <span class="font-medium text-green-600">Free</span>
                         </div>
                         <div class="flex items-center justify-between text-gray-600">
@@ -341,7 +361,7 @@ watch(checkoutOpen, (isOpen) => {
                 </div>
 
                 <!-- Selected items -->
-                <details class="border border-gray-100 rounded-xl group">
+                <details class="border border-gray-100 rounded-xl group" open>
                     <summary class="flex items-center justify-between p-4 cursor-pointer">
                         <h3 class="text-[15px] font-bold text-gray-900">Selected product Item(s)</h3>
                         <svg class="co-chevron text-gray-400 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -349,11 +369,17 @@ watch(checkoutOpen, (isOpen) => {
                     <p id="co-item-count" class="px-4 -mt-2 pb-3 text-[13.5px] text-gray-400">Item Count: {{ cartCount }}</p>
                     <div id="co-item-list" class="px-4 pb-4 space-y-3 border-t border-gray-50 pt-3">
                         <div v-for="item in cart" :key="item.id" class="flex items-center justify-between gap-3">
-                            <div class="min-w-0">
-                                <p class="text-[13.5px] text-gray-700 leading-snug line-clamp-2">{{ item.name }}</p>
-                                <p class="text-[12px] text-gray-400 mt-0.5">Qty: {{ item.qty }}</p>
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <img :src="item.image || 'https://via.placeholder.com/150'" :alt="item.name" class="w-10 h-10 rounded-lg object-cover border border-gray-100 shrink-0" />
+                                <div class="min-w-0">
+                                    <p class="text-[13px] font-bold text-gray-800 leading-snug line-clamp-1">{{ item.name }}</p>
+                                    <div class="flex items-center gap-2 text-[11px] text-gray-400 mt-0.5">
+                                        <span>Qty: {{ item.qty }}</span>
+                                        <span v-if="item.requires_prescription" class="bg-purple-100 text-purple-700 font-bold px-1 rounded">Rx</span>
+                                    </div>
+                                </div>
                             </div>
-                            <span class="text-[13.5px] font-semibold text-gray-800 shrink-0">{{ formatTaka(item.price * item.qty) }}</span>
+                            <span class="text-[13.5px] font-bold text-gray-900 shrink-0">{{ formatTaka(item.price * item.qty) }}</span>
                         </div>
                     </div>
                 </details>
@@ -388,7 +414,7 @@ watch(checkoutOpen, (isOpen) => {
                             role="checkbox"
                             :aria-checked="agreementChecked"
                             aria-label="Agree to terms"
-                            class="w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 transition-colors"
+                            class="w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 transition-colors cursor-pointer"
                             :class="[
                                 agreementChecked
                                     ? 'bg-primary'
@@ -417,7 +443,7 @@ watch(checkoutOpen, (isOpen) => {
                 <button
                     id="place-order-btn"
                     type="button"
-                    class="bg-primary hover:bg-primary2 text-white font-bold text-[15px] px-7 py-3 rounded-xl transition-colors shrink-0"
+                    class="bg-primary hover:bg-primary2 text-white font-bold text-[15px] px-7 py-3 rounded-xl transition-colors shrink-0 cursor-pointer"
                     @click="placeOrder"
                 >Place Order</button>
             </div>

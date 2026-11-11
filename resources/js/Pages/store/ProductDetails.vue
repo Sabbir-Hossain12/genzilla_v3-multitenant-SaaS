@@ -161,24 +161,37 @@ function dispatchToast(msg) {
 function handleAddToCart() {
     const itemToAdd = {
         id: props.product.id,
-        name: props.product.name + (currentVariant.value?.title ? ` (${currentVariant.value.title})` : ''),
+        product_id: props.product.id,
+        variant_id: currentVariant.value?.id || null,
+        variant_title: currentVariant.value?.title || null,
+        name: props.product.name,
+        slug: props.product.slug,
+        brand: props.product.brand?.name || props.product.brand || '',
+        category: props.product.category?.name || props.product.category || '',
         price: currentPrice.value,
         original: currentOriginal.value,
         image: activeImage.value,
+        requires_prescription: Boolean(props.product.requires_prescription),
     }
-    addToCart(itemToAdd, qty.value)
-    dispatchToast(`🛒 Added ${qty.value} × ${props.product.name} to cart!`)
+    addToCart(itemToAdd, qty.value, { notify: true })
 }
 
 function handleBuyNow() {
     const itemToAdd = {
         id: props.product.id,
-        name: props.product.name + (currentVariant.value?.title ? ` (${currentVariant.value.title})` : ''),
+        product_id: props.product.id,
+        variant_id: currentVariant.value?.id || null,
+        variant_title: currentVariant.value?.title || null,
+        name: props.product.name,
+        slug: props.product.slug,
+        brand: props.product.brand?.name || props.product.brand || '',
+        category: props.product.category?.name || props.product.category || '',
         price: currentPrice.value,
         original: currentOriginal.value,
         image: activeImage.value,
+        requires_prescription: Boolean(props.product.requires_prescription),
     }
-    addToCart(itemToAdd, qty.value)
+    addToCart(itemToAdd, qty.value, { notify: false })
     openCheckoutModal()
 }
 
