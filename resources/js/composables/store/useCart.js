@@ -1,7 +1,12 @@
 import { ref, computed } from 'vue'
+import axios from 'axios'
 
 export const FREE_DELIVERY_THRESHOLD = 500
 const STORAGE_KEY = 'medimart_cart_v2'
+const SESSION_TOKEN_KEY = 'medimart_cart_session_token'
+
+/** Indicator showing if background database synchronization is currently active */
+export const isCartSyncing = ref(false)
 
 /**
  * Format currency with Bangladeshi Taka sign (৳) and standard thousand separators.
@@ -25,6 +30,23 @@ function cleanupLegacyStorage() {
 }
 
 /**
+ * Retrieve or generate a persistent session token for guest cart synchronization.
+ */
+export function getCartSessionToken() {
+    if (typeof window === 'undefined') return ''
+    try {
+        let token = localStorage.getItem(SESSION_TOKEN_KEY)
+        if (!token) {
+            token = 'guest_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36)
+            localStorage.setItem(SESSION_TOKEN_KEY, token)
+        }
+        return token
+    } catch (_) {
+        return ''
+    }
+}
+
+/**
  * Safely load persisted cart items from localStorage.
  * Guaranteed to return an empty array if storage is empty, corrupted, or unavailable.
  */
@@ -43,7 +65,7 @@ function loadCartFromStorage() {
 }
 
 /**
- * Persist cart items to localStorage.
+ * Persist cart items to localStorage and trigger debounced database synchronization.
  */
 function saveCartToStorage() {
     if (typeof window === 'undefined') return
@@ -52,6 +74,9 @@ function saveCartToStorage() {
     } catch (e) {
         console.warn('Failed to save cart to localStorage:', e)
     }
+
+    // Schedule debounced background database sync
+    syncCartToDatabase()
 }
 
 /**
@@ -198,12 +223,96 @@ export function normalizeCartItem(product, quantity = 1) {
 }
 
 // ══════════════════════════════════════════
+// DATABASE SYNCHRONIZATION WORKER
+// ══════════════════════════════════════════
+
+let syncTimer = null
+
+/**
+ * Debounced background database sync worker.
+ * Syncs the current state of cart.value to /api/cart/sync without blocking UI interaction.
+ */
+export function syncCartToDatabase() {
+    if (typeof window === 'undefined') return
+
+    clearTimeout(syncTimer)
+    syncTimer = setTimeout(async () => {
+        isCartSyncing.value = true
+        try {
+            const sessionToken = getCartSessionToken()
+            const payload = {
+                session_token: sessionToken,
+                items: cart.value.map((item) => ({
+                    product_id: item.product_id,
+                    variant_id: item.variant_id || null,
+                    quantity: item.qty,
+                    price: item.price,
+                })),
+            }
+
+            const response = await axios.post('/api/cart/sync', payload, {
+                headers: {
+                    'X-Cart-Session': sessionToken,
+                },
+            })
+
+            if (response.data?.session_token && response.data.session_token !== sessionToken) {
+                try {
+                    localStorage.setItem(SESSION_TOKEN_KEY, response.data.session_token)
+                } catch (_) {}
+            }
+        } catch (e) {
+            console.debug('Background cart sync deferred:', e?.message || e)
+        } finally {
+            isCartSyncing.value = false
+        }
+    }, 450)
+}
+
+/**
+ * Hydrate cart from database on application boot (e.g. customer logged in from another device).
+ */
+export async function hydrateCartFromDatabase() {
+    if (typeof window === 'undefined') return
+    try {
+        const sessionToken = getCartSessionToken()
+        const response = await axios.get('/api/cart', {
+            headers: { 'X-Cart-Session': sessionToken },
+        })
+
+        if (response.data?.success && Array.isArray(response.data.items)) {
+            const dbItems = response.data.items
+
+            // If local storage is empty but DB has items, adopt database items
+            if (cart.value.length === 0 && dbItems.length > 0) {
+                cart.value = dbItems.map((item) => normalizeCartItem(item, item.qty))
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart.value))
+                } catch (_) {}
+            } else if (cart.value.length > 0) {
+                // If local cart has items, sync to database to refresh backend state
+                syncCartToDatabase()
+            }
+        }
+    } catch (e) {
+        console.debug('Cart hydration from database deferred:', e?.message || e)
+    }
+}
+
+// Auto-run initial hydration in browser environment
+if (typeof window !== 'undefined') {
+    setTimeout(() => {
+        hydrateCartFromDatabase()
+    }, 350)
+}
+
+// ══════════════════════════════════════════
 // CART MUTATION ACTIONS
 // ══════════════════════════════════════════
 
 /**
  * Add a product to the cart with dynamic quantity.
- * Automatically saves to localStorage and dispatches confirmation toast.
+ * Automatically saves to localStorage, syncs to DB, and dispatches confirmation toast.
  *
  * @param {Object} product The product object from card/page
  * @param {number} quantity Quantity to add (default: 1)
@@ -286,11 +395,22 @@ export function removeItem(id) {
 }
 
 /**
- * Clear all items from the cart.
+ * Clear all items from the cart and sync deletion to database.
  */
 export function clearCart() {
     cart.value = []
     saveCartToStorage()
+
+    if (typeof window !== 'undefined') {
+        const sessionToken = getCartSessionToken()
+        axios
+            .post(
+                '/api/cart/clear',
+                { session_token: sessionToken },
+                { headers: { 'X-Cart-Session': sessionToken } },
+            )
+            .catch(() => {})
+    }
 }
 
 /**

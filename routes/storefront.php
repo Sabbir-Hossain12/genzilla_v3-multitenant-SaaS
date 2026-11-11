@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Store\StoreCartController;
 use App\Http\Controllers\Store\StoreCustomerAuthController;
 use App\Http\Controllers\Store\StoreWebviewController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,13 @@ Route::middleware(['web','tenant.identify','store.status'])->group(function () {
     Route::get('/search',                       [StoreWebviewController::class, 'searchResults'])->name('store.search.results');
     Route::get('/dashboard',                    [StoreWebviewController::class, 'dashboard'])->name('store.dashboard');
     Route::get('/api/search/products',          [StoreWebviewController::class, 'searchProducts'])->name('store.search.products');
+
+    // Cart Database Synchronization API routes
+    Route::prefix('api/cart')->group(function () {
+        Route::get('/',                         [StoreCartController::class, 'getCart'])->name('store.cart.get');
+        Route::post('/sync',                    [StoreCartController::class, 'syncCart'])->name('store.cart.sync');
+        Route::post('/clear',                   [StoreCartController::class, 'clearCart'])->name('store.cart.clear');
+    });
 
     // Customer Authentication & Account API routes
     Route::prefix('customer/auth')->group(function () {
