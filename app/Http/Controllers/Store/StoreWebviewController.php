@@ -233,6 +233,26 @@ class StoreWebviewController extends Controller
             ['value' => '4 hrs', 'label' => 'Express Delivery'],
         ];
 
+        // 9. Brands for Home Page Showcase
+        $brands = Brand::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', true)
+            ->withCount(['products' => fn($q) => $q->where('status', 'active')])
+            ->orderByDesc('products_count')
+            ->orderBy('name')
+            ->get()
+            ->map(function (Brand $b) {
+                return [
+                    'id' => $b->id,
+                    'name' => $b->name,
+                    'slug' => $b->slug,
+                    'image' => $b->image_url,
+                    'products_count' => (int) $b->products_count,
+                ];
+            })
+            ->values()
+            ->all();
+
         $storeName = $tenant?->store_name ?: ($tenant?->name ?? 'MediMart');
         $storePhone = $tenant?->support_phone ?: ($tenant?->phone ?? '09610-016778');
         $storeEmail = $tenant?->support_email ?: ($tenant?->email ?? 'support@medimart.com');
@@ -270,6 +290,7 @@ class StoreWebviewController extends Controller
             'quickActions' => $quickActions,
             'trustBadges' => $trustBadges,
             'stats' => $stats,
+            'brands' => $brands,
         ]);
     }
 
@@ -1161,15 +1182,13 @@ class StoreWebviewController extends Controller
                 ->where('status', true)
                 ->orderBy('position')
                 ->get();
-            $defaultCategoryIds = [$category->id];
         } else {
             $rootCategory = $category;
             $currentSubcategory = null;
             $subcategories = $category->children;
-            $defaultCategoryIds = array_merge([$category->id], $subcategories->pluck('id')->all());
         }
 
-        // 2. Query products for this category hierarchy
+        // 2. Query all products for this root category and its children
         $allCategoryProducts = Product::query()
             ->where('tenant_id', $tenantId)
             ->where('status', 'active')
@@ -1190,9 +1209,11 @@ class StoreWebviewController extends Controller
         }
 
         // 3. Filters
-        $selectedSubcategories = array_filter(explode(',', (string) $request->query('subcategories', '')));
-        if (empty($selectedSubcategories) && $isSubcategory) {
-            $selectedSubcategories = [(string) $category->id];
+        $requestedSubcategories = array_filter(explode(',', (string) $request->query('subcategories', '')));
+        if (empty($requestedSubcategories) && $isSubcategory) {
+            $selectedSubcategories = [$category->slug];
+        } else {
+            $selectedSubcategories = $requestedSubcategories;
         }
 
         $selectedBrands = array_filter(explode(',', (string) $request->query('brands', '')));
@@ -1203,75 +1224,8 @@ class StoreWebviewController extends Controller
         $rxFilter = $request->query('rx', 'all');
         $sort = (string) $request->query('sort', 'popularity');
 
-        // Filter products collection
-        $filtered = $allCategoryProducts->filter(function (Product $p) use (
-            $selectedSubcategories,
-            $selectedBrands,
-            $minPrice,
-            $maxPrice,
-            $minRating,
-            $onlyDiscounted,
-            $rxFilter
-        ) {
-            // Category / Subcategory filter
-            if (!empty($selectedSubcategories)) {
-                $matchesCat = in_array((string) $p->category_id, $selectedSubcategories)
-                    || in_array($p->category?->slug, $selectedSubcategories);
-                if (!$matchesCat) return false;
-            }
-
-            // Brand filter
-            if (!empty($selectedBrands)) {
-                $matchesBrand = in_array((string) $p->brand_id, $selectedBrands)
-                    || in_array($p->brand?->slug, $selectedBrands);
-                if (!$matchesBrand) return false;
-            }
-
-            // Price filter
-            $variant = $p->defaultVariant ?? $p->activeVariants->first() ?? $p->variants->first();
-            $price = (float) ($variant?->price ?? 0);
-            if ($minPrice !== null && $price < $minPrice) return false;
-            if ($maxPrice !== null && $price > $maxPrice) return false;
-
-            // Rating filter
-            $rating = (int) ($p->specs['rating'] ?? 5);
-            if ($minRating !== null && $rating < $minRating) return false;
-
-            // Discount filter
-            $original = (float) ($variant?->compare_at_price ?? $variant?->mrp ?? $price);
-            $hasDiscount = !empty($p->specs['badge']) || ($original > $price);
-            if ($onlyDiscounted && !$hasDiscount) return false;
-
-            // Rx filter
-            if ($rxFilter === 'rx' && !$p->requires_prescription) return false;
-            if ($rxFilter === 'otc' && $p->requires_prescription) return false;
-
-            return true;
-        });
-
-        // Sorting
-        $sorted = match ($sort) {
-            'price_low_high' => $filtered->sortBy(function (Product $p) {
-                $v = $p->defaultVariant ?? $p->activeVariants->first();
-                return (float) ($v?->price ?? 0);
-            }),
-            'price_high_low' => $filtered->sortByDesc(function (Product $p) {
-                $v = $p->defaultVariant ?? $p->activeVariants->first();
-                return (float) ($v?->price ?? 0);
-            }),
-            'newest' => $filtered->sortByDesc('id'),
-            'rating' => $filtered->sortByDesc(fn(Product $p) => (int) ($p->specs['rating'] ?? 5)),
-            'discount' => $filtered->sortByDesc(function (Product $p) {
-                $v = $p->defaultVariant ?? $p->activeVariants->first();
-                $price = (float) ($v?->price ?? 0);
-                $original = (float) ($v?->compare_at_price ?? $v?->mrp ?? $price);
-                return $original > 0 ? (($original - $price) / $original) : 0;
-            }),
-            default => $filtered->sortBy('id'),
-        };
-
         // Format products
-        $formattedProducts = $sorted->map(function (Product $p) {
+        $formattedProducts = $allCategoryProducts->map(function (Product $p) {
             $variant = $p->defaultVariant ?? $p->activeVariants->first() ?? $p->variants->first();
             $price = (float) ($variant?->price ?? 0);
             $original = (float) ($variant?->compare_at_price ?? $variant?->mrp ?? $price);
@@ -1289,11 +1243,17 @@ class StoreWebviewController extends Controller
                 'name' => $p->name,
                 'slug' => $p->slug,
                 'brand' => $p->brand?->name ?? 'Generic',
+                'brand_id' => $p->brand_id ? (string) $p->brand_id : null,
+                'brand_slug' => $p->brand?->slug,
                 'category' => $p->category?->name ?? 'General',
-                'category_id' => $p->category_id,
+                'category_id' => (string) $p->category_id,
+                'category_slug' => $p->category?->slug,
                 'parent_category' => $p->category?->parent?->name ?? null,
+                'parent_category_id' => $p->category?->parent_id ? (string) $p->category?->parent_id : null,
+                'parent_category_slug' => $p->category?->parent?->slug,
                 'price' => $price,
                 'original' => $original > $price ? $original : $price,
+                'original_price' => $original > $price ? $original : $price,
                 'rating' => (int) ($p->specs['rating'] ?? 5),
                 'reviews' => (int) ($p->specs['reviews'] ?? $p->specs['reviews_count'] ?? 0),
                 'badge' => $badge,
@@ -1383,6 +1343,163 @@ class StoreWebviewController extends Controller
             'filters' => [
                 'subcategories' => $selectedSubcategories,
                 'brands' => $selectedBrands,
+                'min_price' => $minPrice,
+                'max_price' => $maxPrice,
+                'sort' => $sort,
+                'rating' => $minRating,
+                'discount' => $onlyDiscounted,
+                'rx' => $rxFilter,
+            ],
+            'seo' => $seo,
+        ]);
+    }
+
+    /**
+     * Brand product listing page.
+     */
+    public function brandProducts(Request $request, string $slug): Response
+    {
+        $tenant = tenant() ?? Tenant::first();
+        $tenantId = $tenant?->id ?? 1;
+
+        $brand = Brand::query()
+            ->where('tenant_id', $tenantId)
+            ->where('status', true)
+            ->where(function ($q) use ($slug) {
+                $q->where('slug', $slug);
+                if (is_numeric($slug)) {
+                    $q->orWhere('id', (int) $slug);
+                }
+            })
+            ->first();
+
+        if (!$brand) {
+            abort(404, 'Brand not found');
+        }
+
+        // 1. Query all active products for this brand
+        $allBrandProducts = Product::query()
+            ->where('tenant_id', $tenantId)
+            ->where('brand_id', $brand->id)
+            ->where('status', 'active')
+            ->with([
+                'category.parent',
+                'brand',
+                'defaultVariant.batches',
+                'activeVariants.batches',
+                'media',
+            ])
+            ->get();
+
+        // 2. Category facets from the brand's products
+        $catIds = $allBrandProducts->pluck('category_id')->filter()->unique();
+        $categoryFacets = [];
+        if ($catIds->isNotEmpty()) {
+            $categoryFacets = Category::query()
+                ->where('tenant_id', $tenantId)
+                ->whereIn('id', $catIds)
+                ->where('status', true)
+                ->orderBy('position')
+                ->orderBy('name')
+                ->get()
+                ->map(fn($c) => [
+                    'id' => (string) $c->id,
+                    'name' => $c->name,
+                    'slug' => $c->slug,
+                    'count' => $allBrandProducts->where('category_id', $c->id)->count(),
+                ])
+                ->values()
+                ->all();
+        }
+
+        // 3. Filters
+        $selectedCategories = array_filter(explode(',', (string) $request->query('categories', '')));
+        $minPrice = $request->query('min_price') !== null ? (float) $request->query('min_price') : null;
+        $maxPrice = $request->query('max_price') !== null ? (float) $request->query('max_price') : null;
+        $minRating = $request->query('rating') !== null ? (int) $request->query('rating') : null;
+        $onlyDiscounted = (bool) $request->query('discount', false);
+        $rxFilter = $request->query('rx', 'all');
+        $sort = (string) $request->query('sort', 'popularity');
+
+        // 4. Format products
+        $formattedProducts = $allBrandProducts->map(function (Product $p) {
+            $variant = $p->defaultVariant ?? $p->activeVariants->first() ?? $p->variants->first();
+            $price = (float) ($variant?->price ?? 0);
+            $original = (float) ($variant?->compare_at_price ?? $variant?->mrp ?? $price);
+
+            $badge = $p->specs['badge'] ?? null;
+            if (!$badge && $original > $price && $original > 0) {
+                $discountPercent = (int) round((($original - $price) / $original) * 100);
+                if ($discountPercent > 0) {
+                    $badge = $discountPercent . '% OFF';
+                }
+            }
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'slug' => $p->slug,
+                'brand' => $p->brand?->name ?? 'Generic',
+                'brand_id' => $p->brand_id ? (string) $p->brand_id : null,
+                'brand_slug' => $p->brand?->slug,
+                'category' => $p->category?->name ?? 'General',
+                'category_id' => (string) $p->category_id,
+                'category_slug' => $p->category?->slug,
+                'parent_category' => $p->category?->parent?->name ?? null,
+                'parent_category_id' => $p->category?->parent_id ? (string) $p->category?->parent_id : null,
+                'parent_category_slug' => $p->category?->parent?->slug,
+                'price' => $price,
+                'original' => $original > $price ? $original : $price,
+                'original_price' => $original > $price ? $original : $price,
+                'rating' => (int) ($p->specs['rating'] ?? 5),
+                'reviews' => (int) ($p->specs['reviews'] ?? $p->specs['reviews_count'] ?? 0),
+                'badge' => $badge,
+                'image' => $p->thumbnail_url ?? 'https://via.placeholder.com/300',
+                'requires_prescription' => (bool) $p->requires_prescription,
+                'is_in_stock' => $variant ? $variant->is_in_stock : true,
+            ];
+        })->values();
+
+        // 5. Navigation categories (top bar)
+        $categories = Category::query()
+            ->where('tenant_id', $tenantId)
+            ->whereNull('parent_id')
+            ->where('status', true)
+            ->orderBy('position')
+            ->orderBy('name')
+            ->limit(10)
+            ->get()
+            ->map(fn($cat) => [
+                'id' => $cat->id,
+                'name' => $cat->name,
+                'slug' => $cat->slug,
+                'icon' => self::CATEGORY_ICONS[$cat->name] ?? '🏷️',
+            ])
+            ->values()
+            ->all();
+
+        // 6. SEO
+        $seo = [
+            'meta_title' => $brand->meta_title ?: ($brand->name . ' Products — Online Pharmacy | ' . ($tenant->store_name ?: 'MediMart')),
+            'meta_description' => $brand->meta_description ?: ('Shop authentic ' . $brand->name . ' products at best prices with express doorstep delivery.'),
+            'image' => $brand->image_url,
+        ];
+
+        return Inertia::render('store/BrandProducts', [
+            'brand' => [
+                'id' => $brand->id,
+                'name' => $brand->name,
+                'slug' => $brand->slug,
+                'image' => $brand->image_url,
+                'h1_heading' => $brand->h1_heading ?: $brand->name,
+                'meta_description' => $brand->meta_description,
+            ],
+            'products' => $formattedProducts->all(),
+            'totalProducts' => $formattedProducts->count(),
+            'categoryFacets' => $categoryFacets,
+            'categories' => $categories,
+            'filters' => [
+                'categories' => $selectedCategories,
                 'min_price' => $minPrice,
                 'max_price' => $maxPrice,
                 'sort' => $sort,

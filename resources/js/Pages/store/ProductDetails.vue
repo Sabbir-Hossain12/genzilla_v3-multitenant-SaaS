@@ -351,7 +351,7 @@ onBeforeUnmount(() => {
                         <!-- Brand -->
                         <Link
                             v-if="product.brand"
-                            :href="'/search?brands=' + product.brand.id"
+                            :href="'/brand/' + (product.brand.slug || product.brand.id)"
                             class="text-xs sm:text-[13px] font-bold text-primary hover:underline uppercase tracking-wider inline-block"
                         >
                             {{ product.brand.name }}

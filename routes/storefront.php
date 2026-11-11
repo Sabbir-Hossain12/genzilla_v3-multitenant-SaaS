@@ -8,6 +8,7 @@ Route::middleware(['web','tenant.identify','store.status'])->group(function () {
     Route::get('/',                             [StoreWebviewController::class, 'index'])->name('store.home');
     Route::get('/product/{slug}',               [StoreWebviewController::class, 'productDetails'])->name('store.product.show');
     Route::get('/category/{slug}/{subSlug?}',   [StoreWebviewController::class, 'categoryProducts'])->name('store.category.show');
+    Route::get('/brand/{slug}',                 [StoreWebviewController::class, 'brandProducts'])->name('store.brand.show');
     Route::get('/search',                       [StoreWebviewController::class, 'searchResults'])->name('store.search.results');
     Route::get('/dashboard',                    [StoreWebviewController::class, 'dashboard'])->name('store.dashboard');
     Route::get('/api/search/products',          [StoreWebviewController::class, 'searchProducts'])->name('store.search.products');

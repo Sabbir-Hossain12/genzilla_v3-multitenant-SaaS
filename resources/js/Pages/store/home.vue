@@ -6,6 +6,7 @@ import CategorySidebar from '@/Components/store/CategorySidebar.vue'
 import BannerSlider from '@/Components/store/BannerSlider.vue'
 import ProductGrid from '@/Components/store/ProductGrid.vue'
 import CategoryTiles from '@/Components/store/CategoryTiles.vue'
+import BrandShowcase from '@/Components/store/BrandShowcase.vue'
 import FlashSaleHeader from '@/Components/store/FlashSaleHeader.vue'
 import { addToCart } from '@/composables/store/useCart'
 
@@ -62,6 +63,10 @@ const props = defineProps({
         default: () => [],
     },
     stats: {
+        type: Array,
+        default: () => [],
+    },
+    brands: {
         type: Array,
         default: () => [],
     },
@@ -224,6 +229,11 @@ const dynamicStats = computed(() => {
                 <CategoryTiles :tiles="dynamicCategoryTiles" />
             </div>
         </section>
+
+        <!-- ════════════════════════════════════════
+             TOP BRANDS SHOWCASE
+        ════════════════════════════════════════ -->
+        <BrandShowcase :brands="brands" />
 
         <!-- ════════════════════════════════════════
              PROMOTIONAL BANNERS GRID
