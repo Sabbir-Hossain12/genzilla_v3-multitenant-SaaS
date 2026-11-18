@@ -3,6 +3,7 @@ import { ref, computed, watch, onBeforeUnmount, nextTick } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { loginOpen, closeLoginModal } from '@/composables/store/useStoreUi'
+import { getCartSessionToken, syncCartToDatabase } from '@/composables/store/useCart'
 
 const page = usePage()
 const storeName = computed(() => page.props.store?.name || 'MediMart')
@@ -102,6 +103,11 @@ function submitPhone() {
             loading.value = false
             phoneError.value = err.response?.data?.message || 'Unable to check mobile number. Please try again.'
         })
+}
+
+function getAuthHeaders() {
+    const sessionToken = getCartSessionToken()
+    return sessionToken ? { 'X-Cart-Session': sessionToken } : {}
 }
 
 function submitPassword() {

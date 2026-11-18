@@ -59,6 +59,20 @@ class StoreCustomerAuthController extends Controller
     /**
      * Resolve active customer for operations (auth guard or active tenant customer fallback).
      */
+    /**
+     * Claim or merge guest cart into the authenticated customer's account.
+     */
+    protected function claimCustomerCart(Request $request, int $tenantId, Customer $customer): void
+    {
+        try {
+            $cartService = app(StoreCartService::class);
+            $sessionToken = $cartService->resolveSessionToken($request);
+            $cartService->claimOrMergeGuestCart($tenantId, $customer, $sessionToken);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Cart claim on login deferred: ' . $e->getMessage());
+        }
+    }
+
     protected function resolveCustomer(): ?Customer
     {
         $customer = auth('customer')->user();
@@ -166,6 +180,7 @@ class StoreCustomerAuthController extends Controller
 
         auth('customer')->login($customer, true);
         $request->session()->regenerate();
+        $this->claimCustomerCart($request, $tenantId, $customer);
 
         return response()->json([
             'success' => true,
@@ -263,6 +278,7 @@ class StoreCustomerAuthController extends Controller
         auth('customer')->login($customer, true);
         $request->session()->regenerate();
         $request->session()->forget(['store_customer_otp', 'store_otp_verified_phone']);
+        $this->claimCustomerCart($request, $tenantId, $customer);
 
         return response()->json([
             'success' => true,
@@ -315,6 +331,7 @@ class StoreCustomerAuthController extends Controller
         auth('customer')->login($customer, true);
         $request->session()->regenerate();
         $request->session()->forget(['store_customer_otp', 'store_otp_verified_phone']);
+        $this->claimCustomerCart($request, $tenantId, $customer);
 
         return response()->json([
             'success' => true,
@@ -360,6 +377,7 @@ class StoreCustomerAuthController extends Controller
         auth('customer')->login($customer, true);
         $request->session()->regenerate();
         $request->session()->forget(['store_customer_otp', 'store_otp_verified_phone']);
+        $this->claimCustomerCart($request, $tenantId, $customer);
 
         return response()->json([
             'success' => true,

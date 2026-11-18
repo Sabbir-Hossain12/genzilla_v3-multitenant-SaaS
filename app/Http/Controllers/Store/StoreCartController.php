@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Tenant;
+use App\Services\Store\StoreCartService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,13 @@ use Throwable;
 
 class StoreCartController extends Controller
 {
+    protected StoreCartService $cartService;
+
+    public function __construct(StoreCartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
+
     /**
      * Resolve the active tenant ID for storefront.
      */
@@ -35,9 +43,9 @@ class StoreCartController extends Controller
      */
     protected function resolveSessionToken(Request $request): string
     {
-        $headerToken = $request->header('X-Cart-Session') ?? $request->input('session_token');
-        if (!empty($headerToken) && is_string($headerToken)) {
-            return substr(trim($headerToken), 0, 100);
+        $token = $this->cartService->resolveSessionToken($request);
+        if ($token) {
+            return $token;
         }
 
         $sessionToken = $request->session()->get('storefront_cart_token');
@@ -58,46 +66,23 @@ class StoreCartController extends Controller
         $sessionToken = $this->resolveSessionToken($request);
 
         if ($customer) {
-            // Check if there is an existing customer cart
-            $cart = Cart::where('tenant_id', $tenantId)
-                ->where('customer_id', $customer->id)
-                ->first();
-
-            // If no customer cart exists, check if there was a guest cart with this session to adopt
-            if (!$cart) {
-                $guestCart = Cart::where('tenant_id', $tenantId)
-                    ->where('session_token', $sessionToken)
-                    ->whereNull('customer_id')
-                    ->first();
-
-                if ($guestCart) {
-                    $guestCart->update(['customer_id' => $customer->id]);
-                    $cart = $guestCart;
-                } else {
-                    $cart = Cart::create([
-                        'tenant_id' => $tenantId,
-                        'customer_id' => $customer->id,
-                        'session_token' => $sessionToken,
-                    ]);
-                }
+            // Claim or merge any existing guest cart matching this session
+            $cart = $this->cartService->claimOrMergeGuestCart($tenantId, $customer, $sessionToken);
+            if ($cart) {
+                return $cart;
             }
 
-            return $cart;
+            // Fallback create customer cart if none existed
+            return Cart::firstOrCreate(
+                ['tenant_id' => $tenantId, 'customer_id' => $customer->id],
+                ['session_token' => $sessionToken]
+            );
         }
 
         // Guest user cart
-        $cart = Cart::where('tenant_id', $tenantId)
-            ->where('session_token', $sessionToken)
-            ->first();
-
-        if (!$cart) {
-            $cart = Cart::create([
-                'tenant_id' => $tenantId,
-                'session_token' => $sessionToken,
-            ]);
-        }
-
-        return $cart;
+        return Cart::firstOrCreate(
+            ['tenant_id' => $tenantId, 'session_token' => $sessionToken, 'customer_id' => null]
+        );
     }
 
     /**
