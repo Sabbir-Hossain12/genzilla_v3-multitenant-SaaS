@@ -202,6 +202,42 @@ class StoreCustomerCartLifecycleTest extends TestCase
         $this->assertCount(3, $getResponse->json('items'));
     }
 
+    public function test_adding_already_present_item_increments_quantity_in_database(): void
+    {
+        $this->actingAs($this->customer, 'customer');
+
+        // Customer adds Product 1 (quantity: 1)
+        $firstResponse = $this->postJson(route('store.cart.sync'), [
+            'items' => [
+                ['product_id' => $this->product1->id, 'variant_id' => $this->variant1->id, 'quantity' => 1, 'price' => 35],
+            ],
+        ], $this->getTenantHeaders());
+
+        $firstResponse->assertOk();
+        $firstResponse->assertJson([
+            'success' => true,
+            'count' => 1,
+        ]);
+
+        // Multiple entries resolving to same variant aggregate/increment cleanly in database
+        $multiResponse = $this->postJson(route('store.cart.sync'), [
+            'items' => [
+                ['product_id' => $this->product1->id, 'variant_id' => $this->variant1->id, 'quantity' => 1, 'price' => 35],
+                ['product_id' => $this->product1->id, 'variant_id' => null, 'quantity' => 2, 'price' => 35],
+            ],
+        ], $this->getTenantHeaders());
+
+        $multiResponse->assertOk();
+        $multiResponse->assertJson([
+            'success' => true,
+            'count' => 3, // 1 + 2 = 3
+        ]);
+
+        $savedItem = CartItem::where('product_id', $this->product1->id)->first();
+        $this->assertNotNull($savedItem);
+        $this->assertEquals(3, $savedItem->quantity);
+    }
+
     public function test_customer_cart_remains_safely_saved_in_database_after_logout(): void
     {
         // 1. Setup authenticated customer with 3 items saved

@@ -10,6 +10,30 @@ const CART_OWNER_KEY = 'medimart_cart_owner'
 export const isCartSyncing = ref(false)
 
 /**
+ * Find existing cart line item matching product and optional variant.
+ */
+export function findExistingCartItem(item) {
+    if (!item) return null
+
+    // 1. Direct item ID match
+    let existing = cart.value.find((i) => i.id === item.id)
+    if (existing) return existing
+
+    const pId = Number(item.product_id) || item.product_id
+    const vId = item.variant_id ? (Number(item.variant_id) || item.variant_id) : null
+
+    // 2. Match by product_id and variant_id if variant specified
+    if (vId) {
+        existing = cart.value.find((i) => (Number(i.product_id) || i.product_id) === pId && (Number(i.variant_id) || i.variant_id) === vId)
+        if (existing) return existing
+    }
+
+    // 3. Fallback: match by product_id
+    existing = cart.value.find((i) => (Number(i.product_id) || i.product_id) === pId)
+    return existing || null
+}
+
+/**
  * Format currency with Bangladeshi Taka sign (৳) and standard thousand separators.
  */
 export function formatTaka(n) {
@@ -425,10 +449,13 @@ export function addToCart(product, quantity = 1, options = { notify: true }) {
     const item = normalizeCartItem(product, quantity)
     if (!item) return
 
-    const existing = cart.value.find((i) => i.id === item.id)
+    const addQty = Math.max(1, Number(quantity) || Number(item.qty) || 1)
+
+    const existing = findExistingCartItem(item)
     if (existing) {
-        existing.qty += item.qty
+        existing.qty = Math.min(99, (Number(existing.qty) || 0) + addQty)
     } else {
+        item.qty = Math.min(99, addQty)
         cart.value.push(item)
     }
 
@@ -450,7 +477,7 @@ export function addToCart(product, quantity = 1, options = { notify: true }) {
  * If quantity drops below 1, removes the item cleanly.
  */
 export function changeQty(id, delta) {
-    const item = cart.value.find((i) => i.id === id)
+    const item = cart.value.find((i) => i.id === id || String(i.product_id) === String(id))
     if (!item) return
 
     const newQty = item.qty + delta
@@ -467,7 +494,7 @@ export function changeQty(id, delta) {
  * Set an explicit quantity for a cart line item.
  */
 export function updateQty(id, quantity) {
-    const item = cart.value.find((i) => i.id === id)
+    const item = cart.value.find((i) => i.id === id || String(i.product_id) === String(id))
     if (!item) return
 
     const parsed = parseInt(quantity, 10)
@@ -484,8 +511,9 @@ export function updateQty(id, quantity) {
  * Remove an item completely from the cart.
  */
 export function removeItem(id) {
-    const removedItem = cart.value.find((i) => i.id === id)
-    cart.value = cart.value.filter((i) => i.id !== id)
+    const removedItem = cart.value.find((i) => i.id === id || String(i.product_id) === String(id))
+    const removeId = removedItem ? removedItem.id : id
+    cart.value = cart.value.filter((i) => i.id !== removeId)
     saveCartToStorage()
 
     if (removedItem && typeof window !== 'undefined') {
@@ -521,15 +549,24 @@ export function clearCart() {
  * Check if a product is already in the cart.
  */
 export function isInCart(productId, variantId = null) {
-    const itemId = variantId ? `${productId}-${variantId}` : String(productId)
-    return cart.value.some((i) => i.id === itemId || i.product_id === productId)
+    const pId = Number(productId) || productId
+    if (variantId) {
+        const vId = Number(variantId) || variantId
+        return cart.value.some((i) => (Number(i.product_id) || i.product_id) === pId && (Number(i.variant_id) || i.variant_id) === vId)
+    }
+    return cart.value.some((i) => (Number(i.product_id) || i.product_id) === pId)
 }
 
 /**
  * Get current quantity of a product in the cart.
  */
 export function getItemQty(productId, variantId = null) {
-    const itemId = variantId ? `${productId}-${variantId}` : String(productId)
-    const item = cart.value.find((i) => i.id === itemId || i.product_id === productId)
-    return item ? item.qty : 0
+    const pId = Number(productId) || productId
+    if (variantId) {
+        const vId = Number(variantId) || variantId
+        const item = cart.value.find((i) => (Number(i.product_id) || i.product_id) === pId && (Number(i.variant_id) || i.variant_id) === vId)
+        return item ? (Number(item.qty) || 0) : 0
+    }
+    const item = cart.value.find((i) => (Number(i.product_id) || i.product_id) === pId)
+    return item ? (Number(item.qty) || 0) : 0
 }

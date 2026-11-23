@@ -196,6 +196,7 @@ class StoreCartController extends Controller
                 ->keyBy('id');
 
             $validVariantIds = [];
+            $aggregatedItems = [];
 
             foreach ($incomingItems as $itemData) {
                 $productId = (int) $itemData['product_id'];
@@ -220,15 +221,25 @@ class StoreCartController extends Controller
                     $variantId = $variant->id;
                 }
 
-                // Upsert cart item
+                if (!isset($aggregatedItems[$variantId])) {
+                    $aggregatedItems[$variantId] = [
+                        'product_id' => $product->id,
+                        'quantity' => $quantity,
+                    ];
+                } else {
+                    $aggregatedItems[$variantId]['quantity'] += $quantity;
+                }
+            }
+
+            foreach ($aggregatedItems as $variantId => $data) {
                 CartItem::updateOrCreate(
                     [
                         'cart_id' => $cart->id,
                         'product_variant_id' => $variantId,
                     ],
                     [
-                        'product_id' => $product->id,
-                        'quantity' => $quantity,
+                        'product_id' => $data['product_id'],
+                        'quantity' => $data['quantity'],
                     ]
                 );
 
