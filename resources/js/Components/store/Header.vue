@@ -31,12 +31,65 @@ const categories = computed(() => {
         : fallbackCategories
 })
 
+// ══════════════════════════════════════════
+// USER ACCOUNT DROPDOWN STATE & ACTIONS
+// ══════════════════════════════════════════
+const isAccountDropdownOpen = ref(false)
+const accountMenuRef = ref(null)
+let accountCloseTimer = null
+
+function toggleAccountDropdown() {
+    if (!customer.value) {
+        openLoginModal()
+        return
+    }
+    isAccountDropdownOpen.value = !isAccountDropdownOpen.value
+}
+
+function openAccountDropdown() {
+    clearTimeout(accountCloseTimer)
+    if (customer.value) {
+        isAccountDropdownOpen.value = true
+    }
+}
+
+function scheduleCloseAccountDropdown() {
+    clearTimeout(accountCloseTimer)
+    accountCloseTimer = setTimeout(() => {
+        isAccountDropdownOpen.value = false
+    }, 150)
+}
+
+function closeAccountDropdown() {
+    clearTimeout(accountCloseTimer)
+    isAccountDropdownOpen.value = false
+}
+
 function handleAccountClick() {
     if (customer.value) {
-        router.visit('/dashboard')
+        toggleAccountDropdown()
     } else {
         openLoginModal()
     }
+}
+
+function handleLogout() {
+    closeAccountDropdown()
+    axios
+        .post('/customer/auth/logout')
+        .then((res) => {
+            resetCartOnLogout(res.data?.fresh_session_token)
+            window.dispatchEvent(
+                new CustomEvent('medimart:toast', {
+                    detail: '👋 Logged out successfully.',
+                })
+            )
+            router.visit('/')
+        })
+        .catch(() => {
+            resetCartOnLogout()
+            router.visit('/')
+        })
 }
 
 // ══════════════════════════════════════════
@@ -162,6 +215,10 @@ function handleClickOutside(event) {
     if (!isInsideDesktop && !isInsideMobile) {
         closeSearch()
     }
+
+    if (accountMenuRef.value && !accountMenuRef.value.contains(event.target)) {
+        closeAccountDropdown()
+    }
 }
 
 onMounted(() => {
@@ -171,6 +228,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     document.removeEventListener('click', handleClickOutside)
     clearTimeout(debounceTimer)
+    clearTimeout(accountCloseTimer)
 })
 </script>
 
@@ -330,20 +388,135 @@ onBeforeUnmount(() => {
                         Upload Rx
                     </a>
 
-                    <!-- Account -->
-                    <button
-                        type="button"
-                        class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0 cursor-pointer"
-                        @click="handleAccountClick"
+                    <!-- Account Button & Hover Dropdown -->
+                    <div
+                        ref="accountMenuRef"
+                        class="relative"
+                        @mouseenter="openAccountDropdown"
+                        @mouseleave="scheduleCloseAccountDropdown"
                     >
-                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" class="sm:w-[22px] sm:h-[22px] lg:w-6 lg:h-6" :class="customer ? 'text-primary' : ''">
-                            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
-                            <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <span class="hidden lg:block text-[12px] mt-0.5 font-medium truncate max-w-[75px]">
-                            {{ customer ? (customer.first_name || 'Account') : 'Account' }}
-                        </span>
-                    </button>
+                        <button
+                            type="button"
+                            class="flex flex-col items-center justify-center w-10 sm:w-11 lg:w-auto px-0 sm:px-2 lg:px-4 py-2 text-gray-600 hover:text-primary transition-colors shrink-0 cursor-pointer group"
+                            :class="customer ? 'text-primary' : ''"
+                            aria-haspopup="true"
+                            :aria-expanded="isAccountDropdownOpen"
+                            @click="handleAccountClick"
+                        >
+                            <div class="relative">
+                                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" class="sm:w-[22px] sm:h-[22px] lg:w-6 lg:h-6" :class="customer ? 'text-primary' : ''">
+                                    <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <!-- Logged-in online dot -->
+                                <span
+                                    v-if="customer"
+                                    class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"
+                                ></span>
+                            </div>
+                            <span class="hidden lg:flex items-center gap-1 text-[12px] mt-0.5 font-medium truncate max-w-[85px]">
+                                <span class="truncate">{{ customer ? (customer.first_name || 'Account') : 'Account' }}</span>
+                                <svg
+                                    v-if="customer"
+                                    class="w-3 h-3 text-gray-400 group-hover:text-primary transition-transform duration-200"
+                                    :class="isAccountDropdownOpen ? 'rotate-180 text-primary' : ''"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
+                                    <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <!-- Dropdown Menu for Authenticated Customers -->
+                        <Transition
+                            enter-active-class="transition duration-150 ease-out"
+                            enter-from-class="opacity-0 translate-y-1.5 scale-95"
+                            enter-to-class="opacity-100 translate-y-0 scale-100"
+                            leave-active-class="transition duration-100 ease-in"
+                            leave-from-class="opacity-100 translate-y-0 scale-100"
+                            leave-to-class="opacity-0 translate-y-1.5 scale-95"
+                        >
+                            <div
+                                v-if="customer && isAccountDropdownOpen"
+                                class="absolute right-0 top-full pt-1.5 z-50 w-56 sm:w-60 focus:outline-none"
+                                role="menu"
+                                aria-orientation="vertical"
+                            >
+                                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 py-2 overflow-hidden ring-1 ring-black/5">
+                                    <!-- User Header Summary -->
+                                    <div class="px-4 py-2.5 border-b border-gray-100/80 bg-gray-50/70">
+                                        <p class="text-xs text-gray-500 font-medium">Signed in as</p>
+                                        <p class="text-sm font-bold text-gray-900 truncate">
+                                            {{ customer.first_name ? `${customer.first_name} ${customer.last_name || ''}`.trim() : (customer.name || 'Customer') }}
+                                        </p>
+                                        <p class="text-[11px] text-gray-500 truncate mt-0.5">
+                                            {{ customer.phone || customer.email || 'Verified Account' }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Menu Links -->
+                                    <div class="py-1">
+                                        <!-- Dashboard -->
+                                        <Link
+                                            href="/dashboard"
+                                            class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-primarylt hover:text-primary transition-colors group"
+                                            @click="closeAccountDropdown"
+                                        >
+                                            <div class="w-7 h-7 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                                                    <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                                                    <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                                                    <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                                                    <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <span class="font-medium">Dashboard</span>
+                                                <p class="text-[11px] text-gray-400">Profile, orders & settings</p>
+                                            </div>
+                                        </Link>
+
+                                        <!-- My Orders -->
+                                        <Link
+                                            href="/dashboard?tab=orders"
+                                            class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-primarylt hover:text-primary transition-colors group"
+                                            @click="closeAccountDropdown"
+                                        >
+                                            <div class="w-7 h-7 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M20 7h-3V6a4 4 0 00-8 0v1H6a1 1 0 00-1 1v11a2 2 0 002 2h10a2 2 0 002-2V8a1 1 0 00-1-1zM11 6a1 1 0 012 0v1h-2V6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <span class="font-medium">My Orders</span>
+                                                <p class="text-[11px] text-gray-400">Track shipments & history</p>
+                                            </div>
+                                        </Link>
+                                    </div>
+
+                                    <!-- Logout Action -->
+                                    <div class="border-t border-gray-100 pt-1 mt-1">
+                                        <button
+                                            type="button"
+                                            class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors text-left cursor-pointer group"
+                                            @click="handleLogout"
+                                        >
+                                            <div class="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center group-hover:bg-red-100 transition-colors">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <span class="font-medium">Sign Out</span>
+                                                <p class="text-[11px] text-red-400">Clear session & cart view</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </Transition>
+                    </div>
 
                     <!-- Orders -->
                     <button

@@ -1,8 +1,10 @@
 <script setup>
 import { computed } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
+import axios from 'axios'
 import { categories as fallbackCategories, moreLinks } from '@/data/store'
 import { navOpen, closeMobileNav, openLoginModal } from '@/composables/store/useStoreUi'
+import { resetCartOnLogout } from '@/composables/store/useCart'
 
 const page = usePage()
 const store = computed(() => page.props.store || {})
@@ -25,6 +27,25 @@ function handleAccountClick() {
     } else {
         openLoginModal()
     }
+}
+
+function handleMobileLogout() {
+    closeMobileNav()
+    axios
+        .post('/customer/auth/logout')
+        .then((res) => {
+            resetCartOnLogout(res.data?.fresh_session_token)
+            window.dispatchEvent(
+                new CustomEvent('medimart:toast', {
+                    detail: '👋 Logged out successfully.',
+                })
+            )
+            router.visit('/')
+        })
+        .catch(() => {
+            resetCartOnLogout()
+            router.visit('/')
+        })
 }
 
 function getChildName(child) {
@@ -78,19 +99,63 @@ const quickLinks = [
 
             <!-- Login / Account prompt -->
             <div class="px-5 py-4 border-b border-gray-100 shrink-0">
-                <button
-                    type="button"
-                    class="w-full flex items-center justify-between bg-primarylt rounded-xl px-4 py-3.5 hover:bg-primary/15 transition-colors cursor-pointer"
-                    @click="handleAccountClick"
-                >
-                    <span class="flex items-center gap-3">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-primary"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        <span class="text-[14px] font-semibold text-primary">
-                            {{ customer ? `Hi, ${customer.first_name || customer.name}` : 'Login / Sign Up' }}
+                <template v-if="customer">
+                    <div class="bg-gray-50 border border-gray-200/70 rounded-2xl p-3.5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
+                                {{ (customer.first_name || customer.name || 'U')[0].toUpperCase() }}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[14px] font-semibold text-gray-900 truncate">
+                                    {{ customer.first_name || customer.name }}
+                                </p>
+                                <p class="text-[12px] text-gray-500 truncate">
+                                    {{ customer.phone || customer.email }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-gray-200/60">
+                            <Link
+                                href="/dashboard"
+                                class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white border border-gray-200 text-gray-700 text-[13px] font-medium hover:text-primary hover:border-primary/30 transition-colors shadow-2xs"
+                                @click="closeMobileNav"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                                    <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                                    <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                                    <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                <span>Dashboard</span>
+                            </Link>
+
+                            <button
+                                type="button"
+                                @click="handleMobileLogout"
+                                class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-red-50 text-red-600 text-[13px] font-medium hover:bg-red-100 transition-colors cursor-pointer"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+                <template v-else>
+                    <button
+                        type="button"
+                        class="w-full flex items-center justify-between bg-primarylt rounded-xl px-4 py-3.5 hover:bg-primary/15 transition-colors cursor-pointer"
+                        @click="handleAccountClick"
+                    >
+                        <span class="flex items-center gap-3">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-primary"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <span class="text-[14px] font-semibold text-primary">Login / Sign Up</span>
                         </span>
-                    </span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="text-primary"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                </button>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="text-primary"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </button>
+                </template>
             </div>
 
             <!-- Scrollable content -->
