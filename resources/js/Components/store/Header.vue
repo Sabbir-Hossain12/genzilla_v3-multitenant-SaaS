@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
 import axios from 'axios'
 import { openCartDrawer, openLoginModal, openMobileNav } from '@/composables/store/useStoreUi'
-import { cartCount, addToCart } from '@/composables/store/useCart'
+import { cartCount, addToCart, resetCartOnLogout, syncCartOnLogin } from '@/composables/store/useCart'
 import { categories as fallbackCategories } from '@/data/store'
 import SearchListing from '@/Components/store/SearchListing.vue'
 
@@ -14,6 +14,14 @@ const storeLogo = computed(() => store.value.logo_url)
 const storePhone = computed(() => store.value.phone || '09610-016778')
 const storeEmail = computed(() => store.value.email || 'support@medimart.com')
 const customer = computed(() => page.props.auth?.customer)
+
+watch(customer, (newVal, oldVal) => {
+    if (oldVal && !newVal) {
+        resetCartOnLogout()
+    } else if (!oldVal && newVal) {
+        syncCartOnLogin(newVal)
+    }
+})
 
 const currencySymbol = computed(() => (store.value?.currency === 'USD' ? '$' : '৳'))
 

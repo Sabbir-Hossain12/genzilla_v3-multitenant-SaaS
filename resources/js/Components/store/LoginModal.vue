@@ -3,7 +3,7 @@ import { ref, computed, watch, onBeforeUnmount, nextTick } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { loginOpen, closeLoginModal } from '@/composables/store/useStoreUi'
-import { getCartSessionToken, syncCartToDatabase } from '@/composables/store/useCart'
+import { getCartSessionToken, syncCartOnLogin } from '@/composables/store/useCart'
 
 const page = usePage()
 const storeName = computed(() => page.props.store?.name || 'MediMart')
@@ -122,10 +122,12 @@ function submitPassword() {
     axios.post('/customer/auth/login', {
         phone: phone.value.trim(),
         password: password.value,
-    })
-        .then((res) => {
+        session_token: getCartSessionToken(),
+    }, { headers: getAuthHeaders() })
+        .then(async (res) => {
             loading.value = false
             closeLoginModal()
+            await syncCartOnLogin(res.data?.customer)
             const name = res.data.customer?.first_name || 'Customer'
             window.dispatchEvent(new CustomEvent('medimart:toast', { detail: `✨ Welcome back, ${name}!` }))
             router.visit('/dashboard')
@@ -216,10 +218,12 @@ function submitResetPassword() {
         phone: phone.value.trim(),
         password: resetForm.value.password,
         password_confirmation: resetForm.value.passwordConfirmation,
-    })
-        .then((res) => {
+        session_token: getCartSessionToken(),
+    }, { headers: getAuthHeaders() })
+        .then(async (res) => {
             loading.value = false
             closeLoginModal()
+            await syncCartOnLogin(res.data?.customer)
             window.dispatchEvent(new CustomEvent('medimart:toast', { detail: '🔐 Password reset successfully! Logged in.' }))
             router.visit('/dashboard')
         })
@@ -235,10 +239,12 @@ function skipAndLoginDirectly() {
 
     axios.post('/customer/auth/login-with-otp', {
         phone: phone.value.trim(),
-    })
-        .then((res) => {
+        session_token: getCartSessionToken(),
+    }, { headers: getAuthHeaders() })
+        .then(async (res) => {
             loading.value = false
             closeLoginModal()
+            await syncCartOnLogin(res.data?.customer)
             window.dispatchEvent(new CustomEvent('medimart:toast', { detail: '✨ Logged in successfully!' }))
             router.visit('/dashboard')
         })
@@ -272,10 +278,12 @@ function submitRegister() {
         email: registerForm.value.email.trim() || null,
         password: registerForm.value.password,
         password_confirmation: registerForm.value.passwordConfirmation,
-    })
-        .then((res) => {
+        session_token: getCartSessionToken(),
+    }, { headers: getAuthHeaders() })
+        .then(async (res) => {
             loading.value = false
             closeLoginModal()
+            await syncCartOnLogin(res.data?.customer)
             window.dispatchEvent(new CustomEvent('medimart:toast', { detail: '🎉 Account created successfully!' }))
             router.visit('/dashboard')
         })

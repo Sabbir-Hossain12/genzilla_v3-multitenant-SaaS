@@ -59,27 +59,41 @@ class StoreCartController extends Controller
 
     /**
      * Find or create the active database Cart record for the tenant and user/session.
+     *
+     * Isolation guarantee:
+     * - If customer is authenticated: cart is strictly isolated to tenant_id + customer_id (session_token is null).
+     * - If user is a guest: cart is strictly isolated to tenant_id + session_token where customer_id IS NULL.
+     * Guest actions can NEVER retrieve, mutate, or clear an authenticated customer's cart.
      */
     protected function resolveCart(Request $request, int $tenantId): Cart
     {
         $customer = auth('customer')->user();
-        $sessionToken = $this->resolveSessionToken($request);
 
         if ($customer) {
-            // Claim or merge any existing guest cart matching this session
-            $cart = $this->cartService->claimOrMergeGuestCart($tenantId, $customer, $sessionToken);
-            if ($cart) {
-                return $cart;
+            $sessionToken = $this->cartService->resolveSessionToken($request);
+            if ($sessionToken) {
+                // Claim or merge any existing guest cart matching this session
+                $cart = $this->cartService->claimOrMergeGuestCart($tenantId, $customer, $sessionToken);
+                if ($cart) {
+                    return $cart;
+                }
             }
 
-            // Fallback create customer cart if none existed
-            return Cart::firstOrCreate(
+            // Customer cart is strictly tied to customer_id, disassociated from guest session tokens
+            $cart = Cart::firstOrCreate(
                 ['tenant_id' => $tenantId, 'customer_id' => $customer->id],
-                ['session_token' => $sessionToken]
+                ['session_token' => null]
             );
+
+            if ($cart->session_token !== null) {
+                $cart->update(['session_token' => null]);
+            }
+
+            return $cart;
         }
 
-        // Guest user cart
+        // Guest user cart: strictly where customer_id is null
+        $sessionToken = $this->resolveSessionToken($request);
         return Cart::firstOrCreate(
             ['tenant_id' => $tenantId, 'session_token' => $sessionToken, 'customer_id' => null]
         );
@@ -93,6 +107,7 @@ class StoreCartController extends Controller
     {
         $tenantId = $this->getTenantId();
         $cart = $this->resolveCart($request, $tenantId);
+        $customer = auth('customer')->user();
 
         $cart->load([
             'items.product:id,name,slug,requires_prescription,status',
@@ -126,6 +141,8 @@ class StoreCartController extends Controller
             'success' => true,
             'cart_id' => $cart->id,
             'session_token' => $cart->session_token,
+            'is_authenticated' => (bool) $customer,
+            'customer_id' => $customer?->id,
             'items' => $formattedItems,
             'count' => $cart->total_items_count,
             'subtotal' => $cart->subtotal,
@@ -149,12 +166,13 @@ class StoreCartController extends Controller
 
         $tenantId = $this->getTenantId();
         $cart = $this->resolveCart($request, $tenantId);
+        $customer = auth('customer')->user();
         $incomingItems = $request->input('items', []);
 
         DB::beginTransaction();
         try {
             if (empty($incomingItems)) {
-                // If cart was emptied on frontend, clear all database items
+                // If cart was emptied on frontend, clear all database items for this specific cart
                 $cart->items()->delete();
                 $cart->touch();
                 DB::commit();
@@ -165,6 +183,7 @@ class StoreCartController extends Controller
                     'count' => 0,
                     'subtotal' => 0,
                     'items' => [],
+                    'is_authenticated' => (bool) $customer,
                 ]);
             }
 
@@ -233,6 +252,7 @@ class StoreCartController extends Controller
                 'success' => true,
                 'cart_id' => $cart->id,
                 'session_token' => $cart->session_token,
+                'is_authenticated' => (bool) $customer,
                 'count' => $cart->total_items_count,
                 'subtotal' => $cart->subtotal,
                 'has_prescription_items' => $cart->has_prescription_items,

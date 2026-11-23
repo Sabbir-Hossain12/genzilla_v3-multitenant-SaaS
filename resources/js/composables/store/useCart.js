@@ -4,6 +4,7 @@ import axios from 'axios'
 export const FREE_DELIVERY_THRESHOLD = 500
 const STORAGE_KEY = 'medimart_cart_v2'
 const SESSION_TOKEN_KEY = 'medimart_cart_session_token'
+const CART_OWNER_KEY = 'medimart_cart_owner'
 
 /** Indicator showing if background database synchronization is currently active */
 export const isCartSyncing = ref(false)
@@ -30,6 +31,20 @@ function cleanupLegacyStorage() {
 }
 
 /**
+ * Generate a fresh random guest token.
+ */
+export function generateFreshGuestToken() {
+    if (typeof window === 'undefined') return ''
+    try {
+        const token = 'guest_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36)
+        localStorage.setItem(SESSION_TOKEN_KEY, token)
+        return token
+    } catch (_) {
+        return ''
+    }
+}
+
+/**
  * Retrieve or generate a persistent session token for guest cart synchronization.
  */
 export function getCartSessionToken() {
@@ -37,8 +52,7 @@ export function getCartSessionToken() {
     try {
         let token = localStorage.getItem(SESSION_TOKEN_KEY)
         if (!token) {
-            token = 'guest_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36)
-            localStorage.setItem(SESSION_TOKEN_KEY, token)
+            token = generateFreshGuestToken()
         }
         return token
     } catch (_) {
@@ -270,9 +284,65 @@ export function syncCartToDatabase() {
 }
 
 /**
- * Hydrate cart from database on application boot (e.g. customer logged in from another device).
+ * Complete browser-side cart reset upon customer logout.
+ *
+ * Requirements:
+ * 1. Cancel any active debounce timers so unsaved items are never flushed.
+ * 2. Wipe cart.value memory ref to [] so all UI components update to 0 items instantly.
+ * 3. Clear localStorage keys (STORAGE_KEY) and set CART_OWNER_KEY to 'guest'.
+ * 4. Generate a brand-new, fresh guest session token so the browser enters true guest mode.
+ * 5. CRITICAL: DO NOT call /api/cart/clear on the backend; the customer's items remain safely
+ *    saved in the database under customer_id for when they return!
  */
-export async function hydrateCartFromDatabase() {
+export function resetCartOnLogout(freshSessionToken = null) {
+    if (typeof window === 'undefined') return
+
+    // 1. Cancel pending background sync
+    if (syncTimer) {
+        clearTimeout(syncTimer)
+        syncTimer = null
+    }
+    isCartSyncing.value = false
+
+    // 2. Clear in-memory reactive state
+    cart.value = []
+
+    // 3. Clear localStorage cart items and set owner to guest
+    try {
+        localStorage.removeItem(STORAGE_KEY)
+        localStorage.setItem(CART_OWNER_KEY, 'guest')
+
+        // 4. Set fresh guest session token
+        const token = freshSessionToken || generateFreshGuestToken()
+        localStorage.setItem(SESSION_TOKEN_KEY, token)
+    } catch (e) {
+        console.warn('Failed to reset cart storage on logout:', e)
+    }
+
+    // 5. Notify storefront components
+    window.dispatchEvent(new CustomEvent('medimart:cart-cleared', { detail: { reason: 'logout' } }))
+}
+
+/**
+ * Hydrate and synchronize cart immediately upon customer login.
+ * Sets the owner key and fetches authoritative merged cart items from database.
+ */
+export async function syncCartOnLogin(customer = null) {
+    if (typeof window === 'undefined') return
+
+    if (customer?.id) {
+        try {
+            localStorage.setItem(CART_OWNER_KEY, `customer_${customer.id}`)
+        } catch (_) {}
+    }
+
+    await hydrateCartFromDatabase({ force: true })
+}
+
+/**
+ * Hydrate cart from database on application boot or customer authentication.
+ */
+export async function hydrateCartFromDatabase(options = {}) {
     if (typeof window === 'undefined') return
     try {
         const sessionToken = getCartSessionToken()
@@ -282,15 +352,39 @@ export async function hydrateCartFromDatabase() {
 
         if (response.data?.success && Array.isArray(response.data.items)) {
             const dbItems = response.data.items
+            const isAuthenticated = Boolean(response.data.is_authenticated)
+            const previousOwner = localStorage.getItem(CART_OWNER_KEY)
 
-            // If local storage is empty but DB has items, adopt database items
+            // Privacy check: If previous owner was an authenticated user, but backend is now unauthenticated,
+            // the user logged out or session expired. Instantly wipe local cart and generate fresh guest token!
+            if (!isAuthenticated && previousOwner && previousOwner.startsWith('customer_')) {
+                resetCartOnLogout(response.data?.session_token)
+                return
+            }
+
+            // Authenticated customer: Database is ALWAYS authoritative (supports multi-device login & cart merging)
+            if (isAuthenticated || options.force) {
+                cart.value = dbItems.map((item) => normalizeCartItem(item, item.qty))
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart.value))
+                    if (response.data?.customer_id) {
+                        localStorage.setItem(CART_OWNER_KEY, `customer_${response.data.customer_id}`)
+                    }
+                } catch (_) {}
+                return
+            }
+
+            // Guest mode:
+            // If local storage is empty but DB has items for this guest session token, adopt them
             if (cart.value.length === 0 && dbItems.length > 0) {
                 cart.value = dbItems.map((item) => normalizeCartItem(item, item.qty))
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart.value))
+                    localStorage.setItem(CART_OWNER_KEY, 'guest')
                 } catch (_) {}
             } else if (cart.value.length > 0) {
-                // If local cart has items, sync to database to refresh backend state
+                // If local guest cart has items, sync to database to refresh backend guest state
+                localStorage.setItem(CART_OWNER_KEY, 'guest')
                 syncCartToDatabase()
             }
         }
@@ -304,6 +398,14 @@ if (typeof window !== 'undefined') {
     setTimeout(() => {
         hydrateCartFromDatabase()
     }, 350)
+
+    // Listen for cross-component auth events
+    window.addEventListener('customer:logout', (e) => {
+        resetCartOnLogout(e?.detail?.freshSessionToken)
+    })
+    window.addEventListener('customer:login', (e) => {
+        syncCartOnLogin(e?.detail?.customer)
+    })
 }
 
 // ══════════════════════════════════════════
@@ -396,6 +498,7 @@ export function removeItem(id) {
 
 /**
  * Clear all items from the cart and sync deletion to database.
+ * Used for intentional user "Clear Cart" action or post-checkout clearing.
  */
 export function clearCart() {
     cart.value = []

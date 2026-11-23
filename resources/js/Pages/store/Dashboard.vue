@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import axios from 'axios'
+import { resetCartOnLogout } from '@/composables/store/useCart'
 
 const props = defineProps({
     store: {
@@ -385,11 +386,13 @@ function updatePassword() {
 
 function logout() {
     axios.post('/customer/auth/logout')
-        .then(() => {
+        .then((res) => {
+            resetCartOnLogout(res.data?.fresh_session_token)
             window.dispatchEvent(new CustomEvent('medimart:toast', { detail: '👋 Logged out successfully.' }))
             router.visit('/')
         })
         .catch(() => {
+            resetCartOnLogout()
             router.visit('/')
         })
 }

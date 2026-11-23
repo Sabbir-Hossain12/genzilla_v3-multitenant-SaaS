@@ -8,6 +8,7 @@ use App\Models\CustomerAddress;
 use App\Models\Tenant;
 use App\Models\TenantPrescription;
 use App\Models\Wishlist;
+use App\Services\Store\StoreCartService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -56,9 +57,6 @@ class StoreCustomerAuthController extends Controller
             ->first();
     }
 
-    /**
-     * Resolve active customer for operations (auth guard or active tenant customer fallback).
-     */
     /**
      * Claim or merge guest cart into the authenticated customer's account.
      */
@@ -395,18 +393,27 @@ class StoreCustomerAuthController extends Controller
 
     /**
      * Log out customer.
+     * Invalidates auth session, generates brand-new guest session token,
+     * ensuring customer's database cart remains safely stored under customer_id,
+     * while the guest starts completely fresh with 0 items.
      */
     public function logout(Request $request)
     {
         auth('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        $request->session()->forget('storefront_cart_token');
+
+        // Establish brand new guest session token for the unauthenticated guest session
+        $freshGuestToken = 'guest_' . Str::random(32);
+        $request->session()->put('storefront_cart_token', $freshGuestToken);
 
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'redirect' => '/',
                 'message' => 'Logged out successfully.',
+                'fresh_session_token' => $freshGuestToken,
             ]);
         }
 
