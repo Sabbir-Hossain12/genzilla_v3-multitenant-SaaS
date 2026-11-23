@@ -184,7 +184,8 @@ export const prescriptionItems = computed(() =>
 export function normalizeCartItem(product, quantity = 1) {
     if (!product) return null
 
-    const productId = Number(product.id ?? product.product_id) || product.id
+    const rawId = product.product_id ?? (typeof product.id === 'string' && product.id.includes('-') ? product.id.split('-')[0] : product.id)
+    const productId = Number(rawId) || rawId
     const variantId = product.variant_id ?? product.variant?.id ?? product.default_variant?.id ?? null
     const variantTitle = product.variant_title ?? product.variant?.title ?? null
 
@@ -364,7 +365,7 @@ export async function hydrateCartFromDatabase(options = {}) {
 
             // Authenticated customer: Database is ALWAYS authoritative (supports multi-device login & cart merging)
             if (isAuthenticated || options.force) {
-                cart.value = dbItems.map((item) => normalizeCartItem(item, item.qty))
+                cart.value = dbItems.map((item) => normalizeCartItem(item, item.qty)).filter(Boolean)
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart.value))
                     if (response.data?.customer_id) {
@@ -389,7 +390,7 @@ export async function hydrateCartFromDatabase(options = {}) {
             }
         }
     } catch (e) {
-        console.debug('Cart hydration from database deferred:', e?.message || e)
+        console.warn('Cart hydration from database error:', e?.response?.data || e?.message || e)
     }
 }
 

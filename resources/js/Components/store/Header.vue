@@ -18,10 +18,10 @@ const customer = computed(() => page.props.auth?.customer)
 watch(customer, (newVal, oldVal) => {
     if (oldVal && !newVal) {
         resetCartOnLogout()
-    } else if (!oldVal && newVal) {
+    } else if (newVal && (!oldVal || oldVal.id !== newVal.id)) {
         syncCartOnLogin(newVal)
     }
-})
+}, { immediate: true })
 
 const currencySymbol = computed(() => (store.value?.currency === 'USD' ? '$' : '৳'))
 

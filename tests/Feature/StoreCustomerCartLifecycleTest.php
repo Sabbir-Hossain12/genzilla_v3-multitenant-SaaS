@@ -190,6 +190,16 @@ class StoreCustomerCartLifecycleTest extends TestCase
         $this->assertNotNull($savedCart);
         $this->assertNull($savedCart->session_token);
         $this->assertEquals(3, $savedCart->items()->count());
+
+        // Customer fetches cart via GET /api/cart
+        $getResponse = $this->getJson(route('store.cart.get'), $this->getTenantHeaders());
+        $getResponse->assertOk();
+        $getResponse->assertJson([
+            'success' => true,
+            'is_authenticated' => true,
+            'count' => 6,
+        ]);
+        $this->assertCount(3, $getResponse->json('items'));
     }
 
     public function test_customer_cart_remains_safely_saved_in_database_after_logout(): void

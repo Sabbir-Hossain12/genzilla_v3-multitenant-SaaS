@@ -112,7 +112,7 @@ class StoreCartController extends Controller
         $cart->load([
             'items.product:id,name,slug,requires_prescription,status',
             'items.product.media',
-            'items.productVariant:id,product_id,title,price,compare_at_price,mrp,track_inventory,is_in_stock',
+            'items.productVariant:id,product_id,title,price,compare_at_price,mrp,track_inventory',
         ]);
 
         $formattedItems = $cart->items->map(function (CartItem $item) {
