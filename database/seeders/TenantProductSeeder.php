@@ -7,8 +7,6 @@ use App\Models\Category;
 use App\Models\InventoryBatch;
 use App\Models\Media;
 use App\Models\Product;
-use App\Models\ProductAttribute;
-use App\Models\ProductAttributeValue;
 use App\Models\ProductVariant;
 use App\Models\StockMovement;
 use App\Models\Tenant;
@@ -16,139 +14,8 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class TenantCatalogSeeder extends Seeder
+class TenantProductSeeder extends Seeder
 {
-    /**
-     * Categories taxonomy synced with storefront dummy content (resources/js/data/store/index.js).
-     */
-    public const CATEGORY_TAXONOMY = [
-        [
-            'name' => 'Medicine',
-            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-            'children' => [
-                'Prescription Medicine',
-                'OTC Medicine',
-                'Diabetic Care',
-                'Cardiac Care',
-                'Dermatological',
-                'Insulin',
-            ],
-        ],
-        [
-            'name' => 'Beauty',
-            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-            'children' => [
-                'Skincare',
-                'Haircare',
-                'Makeup',
-                'Feminine Care',
-                'Fragrance',
-                "Men's Grooming",
-            ],
-        ],
-        [
-            'name' => 'Healthcare',
-            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-            'children' => [
-                'Medical Devices',
-                'Diagnostic Kits',
-                'Mobility Aids',
-                'Personal Protection',
-                'Surgical Items',
-            ],
-        ],
-        [
-            'name' => 'Lab Test',
-            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-            'children' => [
-                'Vital Organs',
-                'Life Style Packages',
-                'Checkup for Women',
-                'Checkup for Men',
-                'Full Body Checkup',
-            ],
-        ],
-        [
-            'name' => 'Baby & Mom',
-            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-            'children' => [
-                'Baby Food',
-                'Diapers & Wipes',
-                'Maternal Care',
-                'Baby Skincare',
-                'Feeding Essentials',
-            ],
-        ],
-        [
-            'name' => 'Herbal',
-            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-            'children' => [
-                'Ayurvedic',
-                'Unani',
-                'Herbal Supplements',
-                'Herbal Skincare',
-            ],
-        ],
-        [
-            'name' => 'Pet Care',
-            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-            'children' => [
-                'Dog Care',
-                'Cat Care',
-                'Pet Food',
-                'Pet Grooming',
-                'Veterinary',
-            ],
-        ],
-        [
-            'name' => 'Supplement',
-            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-            'children' => [
-                'Multivitamins',
-                'Protein & Fitness',
-                'Weight Management',
-                'Immunity Boosters',
-            ],
-        ],
-        [
-            'name' => 'Home Care',
-            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-            'children' => [
-                'Disinfectants',
-                'Sanitizers',
-                'Household Wellness',
-                'Air Fresheners',
-            ],
-        ],
-    ];
-
-    /**
-     * Subcategory specific image overrides matching storefront category tiles.
-     */
-    public const SUBCATEGORY_IMAGES = [
-        'skincare' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1Ta2luLUNhcmUtbnZiZXoyLnBuZyIsImVkaXRzIjpbXX0%3D&w=1280&q=75',
-        'haircare' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-        'medical-devices' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
-    ];
-
-    /**
-     * Brands referenced in storefront dummy items.
-     */
-    public const BRANDS = [
-        ['name' => 'Skin1004', 'slug' => 'skin1004'],
-        ['name' => 'Minimalist', 'slug' => 'minimalist'],
-        ['name' => 'CeraVe', 'slug' => 'cerave'],
-        ['name' => 'Square Pharma', 'slug' => 'square-pharma'],
-        ['name' => 'Healath', 'slug' => 'healath'],
-        ['name' => "L'Oréal", 'slug' => 'loreal'],
-        ['name' => "Nature's Way", 'slug' => 'natures-way'],
-        ['name' => 'Renata', 'slug' => 'renata'],
-        ['name' => 'Pigeon', 'slug' => 'pigeon'],
-        ['name' => 'Omron', 'slug' => 'omron'],
-        ['name' => 'Dettol', 'slug' => 'dettol'],
-        ['name' => 'Himalaya', 'slug' => 'himalaya'],
-    ];
-
     /**
      * 12 Storefront products with exact images, pricing, ratings, and categories.
      */
@@ -396,15 +263,14 @@ class TenantCatalogSeeder extends Seeder
     ];
 
     /**
-     * Run the catalog seeder.
+     * Run the tenant products seeder.
      */
     public function run(): void
     {
         Tenant::query()->orderBy('id')->chunkById(100, function ($tenants): void {
             foreach ($tenants as $tenant) {
                 DB::transaction(function () use ($tenant): void {
-                    $tenant->initializeCatalogDefaults();
-                    $this->seedTaxonomyAndProducts($tenant);
+                    $this->seedProducts($tenant);
                     $tenant->syncUsage();
                 });
             }
@@ -412,90 +278,19 @@ class TenantCatalogSeeder extends Seeder
     }
 
     /**
-     * Seed categories, subcategories, brands, and products for a tenant.
+     * Seed products, variants, inventory batches, and media for a given tenant.
      */
-    private function seedTaxonomyAndProducts(Tenant $tenant): void
+    public function seedProducts(Tenant $tenant): void
     {
-        // 1. Seed Categories & Subcategories
-        $categoryMap = [];
-        $rootPos = 0;
+        $categoryMap = Category::where('tenant_id', $tenant->id)->get()->keyBy('name');
+        $brandMap = Brand::where('tenant_id', $tenant->id)->get()->keyBy('name');
 
-        foreach (self::CATEGORY_TAXONOMY as $rootItem) {
-            $rootSlug = Str::slug($rootItem['name']);
-            $rootCategory = Category::firstOrCreate(
-                ['tenant_id' => $tenant->id, 'slug' => $rootSlug],
-                [
-                    'parent_id' => null,
-                    'name' => $rootItem['name'],
-                    'image' => $rootItem['image'],
-                    'position' => $rootPos++,
-                    'status' => true,
-                    'meta_title' => $rootItem['name'],
-                    'h1_heading' => $rootItem['name'],
-                    'meta_description' => sprintf('Explore authentic %s products online.', $rootItem['name']),
-                ]
-            );
-
-            // Update image if null
-            if (empty($rootCategory->image) && !empty($rootItem['image'])) {
-                $rootCategory->update(['image' => $rootItem['image']]);
-            }
-
-            $categoryMap[$rootItem['name']] = $rootCategory;
-
-            $childPos = 0;
-            foreach ($rootItem['children'] as $childName) {
-                $childSlug = Str::slug($childName);
-                $childImage = self::SUBCATEGORY_IMAGES[$childSlug] ?? $rootItem['image'];
-
-                $childCategory = Category::firstOrCreate(
-                    ['tenant_id' => $tenant->id, 'slug' => $childSlug],
-                    [
-                        'parent_id' => $rootCategory->id,
-                        'name' => $childName,
-                        'image' => $childImage,
-                        'position' => $childPos++,
-                        'status' => true,
-                        'meta_title' => sprintf('%s - %s', $childName, $rootItem['name']),
-                        'h1_heading' => $childName,
-                        'meta_description' => sprintf('Shop high quality %s under %s.', $childName, $rootItem['name']),
-                    ]
-                );
-
-                if (empty($childCategory->parent_id)) {
-                    $childCategory->update(['parent_id' => $rootCategory->id]);
-                }
-                if (empty($childCategory->image) && !empty($childImage)) {
-                    $childCategory->update(['image' => $childImage]);
-                }
-
-                $categoryMap[$childName] = $childCategory;
-            }
-        }
-
-        // 2. Seed Brands
-        $brandMap = [];
-        foreach (self::BRANDS as $brandData) {
-            $brand = Brand::firstOrCreate(
-                ['tenant_id' => $tenant->id, 'slug' => $brandData['slug']],
-                [
-                    'name' => $brandData['name'],
-                    'status' => true,
-                    'meta_title' => $brandData['name'] . ' Products',
-                    'h1_heading' => $brandData['name'],
-                    'meta_description' => sprintf('Authentic products manufactured and distributed by %s.', $brandData['name']),
-                ]
-            );
-            $brandMap[$brandData['name']] = $brand;
-        }
-
-        // 3. Seed Products
         foreach (self::STOREFRONT_PRODUCTS as $item) {
-            $targetCategory = $categoryMap[$item['category']]
-                ?? $categoryMap[$item['parent_category']]
+            $targetCategory = $categoryMap->get($item['category'])
+                ?? $categoryMap->get($item['parent_category'])
                 ?? Category::where('tenant_id', $tenant->id)->first();
 
-            $targetBrand = $brandMap[$item['brand']]
+            $targetBrand = $brandMap->get($item['brand'])
                 ?? Brand::where('tenant_id', $tenant->id)->first();
 
             $product = Product::firstOrCreate(
