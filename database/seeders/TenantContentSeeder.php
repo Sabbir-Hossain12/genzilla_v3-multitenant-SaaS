@@ -80,7 +80,7 @@ class TenantContentSeeder extends Seeder
             [
                 'title' => 'Medicine Flash Sale',
                 'subtitle' => 'Save up to 30% on everyday essentials and chronic care medications',
-                'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMFwvMTEzLVdFQl9CQU5ORVItMS01YXlqa3YucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
+                'image' => 'tenants/1/sliders/cvHI1iqsETVzR5B2Mup3c8S2jFCbbTqfw1fups9t.jpg',
                 'alt' => 'Medicine flash sale',
                 'link' => '/catalog/products',
                 'button_text' => 'Order Now',
@@ -90,7 +90,7 @@ class TenantContentSeeder extends Seeder
             [
                 'title' => 'Storewide Health & Wellness',
                 'subtitle' => 'Authentic vitamins, skincare and daily supplements delivered in 4 hours',
-                'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMFwvMTEzLVNIT1JPVC1XRUItQkFOTkVSLTBnOXhnai5wbmciLCJlZGl0cyI6W119&w=1280&q=75',
+                'image' => 'tenants/1/sliders/cc67xRYOyXzihbqBcSMDFhmZxb6nKVE4daDO0c98.jpg',
                 'alt' => 'Store wide banner',
                 'link' => '/catalog/products',
                 'button_text' => 'Explore Deals',
@@ -100,7 +100,7 @@ class TenantContentSeeder extends Seeder
             [
                 'title' => 'BOGO Healthcare Specials',
                 'subtitle' => 'Buy One Get One offers on selected diagnostic and maternal care supplies',
-                'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMFwvMTEzLUJPR09CSEFOREFSX1dFQl9CQU5ORVIyMi1mc2RrNWMucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
+                'image' => 'tenants/1/sliders/Wy0fu8ekndWkYNffZTwyFBEFYjlLHMh5RTwA0Yin.jpg',
                 'alt' => 'Health and wellness banner',
                 'link' => '/catalog/products',
                 'button_text' => 'View Specials',

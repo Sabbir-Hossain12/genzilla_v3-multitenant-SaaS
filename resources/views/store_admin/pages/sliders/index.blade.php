@@ -276,7 +276,7 @@
             {{-- Image Upload & Preview --}}
             <div class="border-t border-slate-100 dark:border-slate-800 pt-3">
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Slide Image <span id="imgRequiredNote" class="text-red-500">*</span>
+                    Slide Image (1920 × 800px) <span id="imgRequiredNote" class="text-red-500">*</span>
                     <span class="text-[11px] font-normal text-slate-400 ml-1">(AVIF, WebP, PNG, JPG supported up to 4MB)</span>
                 </label>
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
