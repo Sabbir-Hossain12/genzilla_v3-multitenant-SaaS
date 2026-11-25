@@ -13,18 +13,18 @@ class TenantBrandSeeder extends Seeder
      * Brands referenced in storefront dummy items.
      */
     public const BRANDS = [
-        ['name' => 'Skin1004', 'slug' => 'skin1004'],
-        ['name' => 'Minimalist', 'slug' => 'minimalist'],
-        ['name' => 'CeraVe', 'slug' => 'cerave'],
-        ['name' => 'Square Pharma', 'slug' => 'square-pharma'],
-        ['name' => 'Healath', 'slug' => 'healath'],
-        ['name' => "L'Oréal", 'slug' => 'loreal'],
-        ['name' => "Nature's Way", 'slug' => 'natures-way'],
-        ['name' => 'Renata', 'slug' => 'renata'],
-        ['name' => 'Pigeon', 'slug' => 'pigeon'],
-        ['name' => 'Omron', 'slug' => 'omron'],
-        ['name' => 'Dettol', 'slug' => 'dettol'],
-        ['name' => 'Himalaya', 'slug' => 'himalaya'],
+        ['name' => 'Incepta', 'slug' => 'incepta', 'image' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQld8lSUT7PhzW8jLC3M0Gm_XRIWTz9BwSmo5yEJcJDUTGJwFYfZ171A1Q&s=10'],
+        ['name' => 'Eskayef Pharma', 'slug' => 'eskayef-pharma', 'image' => 'https://thefe-bd.sgp1.cdn.digitaloceanspaces.com/posts/51667/join-eskayef-pharmaceuticals-ltd.jpg'],
+        ['name' => 'CeraVe', 'slug' => 'cerave' , 'image' => 'https://cdn.kireibd.com/storage/all/CeraVe-Intensive-Moisturizing-Cream-340gnormal-8GWRJu0RXSpWykyrjCYo0UQ75iburF.jpg'],
+        ['name' => 'Square Pharma', 'slug' => 'square-pharma', 'image' => 'https://thebangladeshtoday.com/wp-content/uploads/2025/01/square.png'],
+        ['name' => 'Beximco', 'slug' => 'beximco', 'image' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8_bxp1KcVfu81jb6L4wzCo3x_NGSfmkMKYF2ajstX_OJfzNa9foHL-ZDK&s=10'],
+        ['name' => "L'Oréal", 'slug' => 'loreal', 'image' => 'https://a.storyblok.com/f/182663/2000x1125/78a55f7715/loreal-from-paris-to-global-dominance.png/m/3840x0/filters:quality(85)'],
+        ['name' => "Nature's Way", 'slug' => 'natures-way', 'image' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsKuC4DcPA7avmV7FhkfGlo9RrIctq_RJs01hW5uXgoA&s'],
+        ['name' => 'Renata', 'slug' => 'renata', 'image' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRd6FBdzyZ5HZJyLCqkeacV-bLOpvalWqircAwDpX4E1w&s=10'],
+        ['name' => 'Pigeon', 'slug' => 'pigeon', 'image' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXmD1f5AWNLWYZ4lboE_RcR4qv5jY5NMGGEbRskd5zgeKAMS0qTxv11jw&s=10'],
+        ['name' => 'Omron', 'slug' => 'omron', 'image' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb0RBkjDPuhPRpQksrpzBIQbBpNhEGjkU95ZUbOcAH3wi5zht_1_ZIGOU&s=10'],
+        ['name' => 'Dettol', 'slug' => 'dettol', 'image' => 'https://mikipetstore.com/cdn/shop/collections/himalaya_logo.jpg?v=1757267191'],
+        ['name' => 'Himalaya', 'slug' => 'himalaya', 'image' => 'https://cdn.kireibd.com/storage/all/CeraVe-Intensive-Moisturizing-Cream-340gnormal-8GWRJu0RXSpWykyrjCYo0UQ75iburF.jpg'],
     ];
 
     /**
@@ -54,6 +54,7 @@ class TenantBrandSeeder extends Seeder
                 [
                     'name' => $brandData['name'],
                     'status' => true,
+                    'image' => $brandData['image'],
                     'meta_title' => $brandData['name'] . ' Products',
                     'h1_heading' => $brandData['name'],
                     'meta_description' => sprintf('Authentic products manufactured and distributed by %s.', $brandData['name']),
