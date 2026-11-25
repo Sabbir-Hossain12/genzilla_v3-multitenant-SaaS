@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Media;
 use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,6 @@ class TenantCategorySeeder extends Seeder
                 'Skincare',
                 'Haircare',
                 'Makeup',
-                'Feminine Care',
                 'Fragrance',
                 "Men's Grooming",
             ],
@@ -112,6 +112,23 @@ class TenantCategorySeeder extends Seeder
                 'Air Fresheners',
             ],
         ],
+        [
+            'name' => 'Homeopathy',
+            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1Ib21lby1oOHE3Y2cucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75',
+            'children' => [],
+        ],
+        [
+            'name' => 'Sexual Wellness',
+            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS13ZWxsLW5lYm9zMi5wbmciLCJlZGl0cyI6W119&w=1280&q=75',
+            'children' => [],
+        ],
+        [
+            'name' => 'Feminine Care',
+            'image' => 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1GZW1pbmllLUNhcmUtZm5uaXNuLnBuZyIsImVkaXRzIjpbXX0%3D&w=1280&q=75',
+            'children' => [],
+        ],
+
+
     ];
 
     /**
@@ -132,6 +149,7 @@ class TenantCategorySeeder extends Seeder
             foreach ($tenants as $tenant) {
                 DB::transaction(function () use ($tenant): void {
                     $this->seedCategories($tenant);
+                    $tenant->syncUsage();
                 });
             }
         });
@@ -162,9 +180,37 @@ class TenantCategorySeeder extends Seeder
                 ]
             );
 
-            // Update image if null
+            // Ensure root category has parent_id = null and correct image
+            $rootUpdates = [];
+            if ($rootCategory->parent_id !== null) {
+                $rootUpdates['parent_id'] = null;
+            }
             if (empty($rootCategory->image) && !empty($rootItem['image'])) {
-                $rootCategory->update(['image' => $rootItem['image']]);
+                $rootUpdates['image'] = $rootItem['image'];
+            }
+            if (!empty($rootUpdates)) {
+                $rootCategory->update($rootUpdates);
+            }
+
+            // Track root category image in media table
+            $rootImage = $rootCategory->image ?? $rootItem['image'];
+            if (!empty($rootImage)) {
+                Media::firstOrCreate(
+                    [
+                        'tenant_id' => $tenant->id,
+                        'model_type' => Category::class,
+                        'model_id' => $rootCategory->id,
+                        'collection' => 'cover',
+                    ],
+                    [
+                        'path' => $rootImage,
+                        'mime' => 'image/webp',
+                        'size_bytes' => 0, // Remote dummy CDN asset URL does not count towards local tenant quota
+                        'position' => 0,
+                        'alt' => $rootCategory->name,
+                        'created_at' => now(),
+                    ]
+                );
             }
 
             $categoryMap[$rootItem['name']] = $rootCategory;
@@ -193,6 +239,27 @@ class TenantCategorySeeder extends Seeder
                 }
                 if (empty($childCategory->image) && !empty($childImage)) {
                     $childCategory->update(['image' => $childImage]);
+                }
+
+                // Track subcategory image in media table
+                $childFinalImage = $childCategory->image ?? $childImage;
+                if (!empty($childFinalImage)) {
+                    Media::firstOrCreate(
+                        [
+                            'tenant_id' => $tenant->id,
+                            'model_type' => Category::class,
+                            'model_id' => $childCategory->id,
+                            'collection' => 'cover',
+                        ],
+                        [
+                            'path' => $childFinalImage,
+                            'mime' => 'image/webp',
+                            'size_bytes' => 0, // Remote dummy CDN asset URL does not count towards local tenant quota
+                            'position' => 0,
+                            'alt' => $childCategory->name,
+                            'created_at' => now(),
+                        ]
+                    );
                 }
 
                 $categoryMap[$childName] = $childCategory;

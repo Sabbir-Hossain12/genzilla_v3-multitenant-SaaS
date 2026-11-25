@@ -80,14 +80,17 @@ class StoreWebviewController extends Controller
         // 2. Category Tiles for "All You Need" section
         $categoryTiles = Category::query()
             ->where('tenant_id', $tenantId)
+            ->whereNull('parent_id')
             ->where('status', true)
             ->whereNotNull('image')
             ->orderBy('position')
+            ->orderBy('name')
             ->take(12)
             ->get()
             ->map(function (Category $cat) {
                 return [
                     'id' => $cat->id,
+                    'parent_id' => $cat->parent_id,
                     'name' => $cat->name,
                     'slug' => $cat->slug,
                     'image' => $cat->image_url,

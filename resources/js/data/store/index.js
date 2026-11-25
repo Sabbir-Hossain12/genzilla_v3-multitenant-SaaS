@@ -45,9 +45,6 @@ export const categoryTiles = [
     { name: 'Pet Care',   image: 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75' },
     { name: 'Supplement', image: 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75' },
     { name: 'Home Care',  image: 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75' },
-    { name: 'Skincare',   image: 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1Ta2luLUNhcmUtbnZiZXoyLnBuZyIsImVkaXRzIjpbXX0%3D&w=1280&q=75' },
-    { name: 'Haircare',   image: 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75' },
-    { name: 'Devices',    image: 'https://www.arogga.com/_next/image?url=https%3A%2F%2Fcdn2.arogga.com%2FeyJidWNrZXQiOiJhcm9nZ2EiLCJrZXkiOiJCbG9jay1iX2NvbmZpZ1wvMVwvMTA1OS1zdXBwbC01MzFzNXAucG5nIiwiZWRpdHMiOltdfQ%3D%3D&w=1280&q=75' },
 ]
 
 export const pills = ['All', 'Medicine', 'Beauty', 'Skincare', 'Supplement', 'Baby & Mom']

@@ -10,10 +10,38 @@ const props = defineProps({
     },
 })
 
+// Known subcategories list to prevent any accidental subcategory rendering in fallback or custom data
+const SUBCATEGORY_NAMES = new Set([
+    'Skincare', 'Haircare', 'Makeup', 'Fragrance', "Men's Grooming",
+    'Prescription Medicine', 'OTC Medicine', 'Diabetic Care', 'Cardiac Care', 'Dermatological', 'Insulin',
+    'Medical Devices', 'Devices', 'Diagnostic Kits', 'Mobility Aids', 'Personal Protection', 'Surgical Items',
+    'Vital Organs', 'Life Style Packages', 'Checkup for Women', 'Checkup for Men', 'Full Body Checkup',
+    'Baby Food', 'Diapers & Wipes', 'Maternal Care', 'Baby Skincare', 'Feeding Essentials',
+    'Ayurvedic', 'Unani', 'Herbal Supplements', 'Herbal Skincare',
+    'Dog Care', 'Cat Care', 'Pet Food', 'Pet Grooming', 'Veterinary',
+    'Multivitamins', 'Protein & Fitness', 'Weight Management', 'Immunity Boosters',
+    'Disinfectants', 'Sanitizers', 'Household Wellness', 'Air Fresheners',
+])
+
 const displayTiles = computed(() => {
-    return props.tiles && props.tiles.length > 0
-        ? props.tiles
-        : fallbackTiles
+    const raw = props.tiles && props.tiles.length > 0 ? props.tiles : fallbackTiles
+
+    // Strictly render only parent / root categories
+    return raw.filter((tile) => {
+        // Exclude if parent_id is set and not root
+        if (tile.parent_id !== undefined && tile.parent_id !== null && tile.parent_id !== 0 && tile.parent_id !== '') {
+            return false
+        }
+        // Exclude if explicitly marked as subcategory
+        if (tile.is_subcategory) {
+            return false
+        }
+        // Exclude if matching known subcategory name
+        if (SUBCATEGORY_NAMES.has(tile.name)) {
+            return false
+        }
+        return true
+    })
 })
 </script>
 
